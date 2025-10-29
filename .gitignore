@@ -47,3 +47,9 @@ po/*~
 
 # RStudio Connect folder
 rsconnect/
+
+# Miscellaneous
+*.docx
+
+# Reference Template File
+paper-svmodt-ref.Rmd
