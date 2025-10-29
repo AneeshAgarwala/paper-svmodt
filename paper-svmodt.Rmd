@@ -1,6 +1,6 @@
 ---
 title: "svmodt: An R Package for Linear SVM-Based Oblique Decision Trees"
-date: "29-10-2025""
+date: "2025-10-29"
 abstract: >
   An abstract of less than 150 words.
 draft: true
@@ -46,10 +46,22 @@ $$
 N^{+}(v_j) = \{ v_k \in V \mid k \in \{1, \ldots, m\},\; k \neq j,\; (v_j, v_k) \in E \}.
 $$
 
-Here, $N^{+}(v_j)$ denotes the set of nodes that are directly connected to $v_j$ through outgoing edges, representing all possible child nodes that can be reached from $v_j$ within the tree structure [@lopez2018]. Decision Trees can be categorized based on the type of splitting criterion applied at each node, namely **univariate (axis-parallel)** and **multivariate (oblique)** decision trees.
+Here, $N^{+}(v_j)$ denotes the set of nodes that are directly connected to $v_j$ through outgoing edges, representing all possible child nodes that can be reached from $v_j$ within the tree structure [@lopez2018].
 
-### Axis-Parallel Decision Trees
+Decision tree algorithms can be categorized based on whether the same type of test is applied at all internal nodes. **Homogeneous trees** employ a single algorithm throughout (e.g., univariate or multivariate splits), whereas **hybrid trees** allow different algorithms such as linear discriminant functions, $k$-nearest neighbors, or univariate splits that can be used in different subtrees [@brodley1995]. Hybrid trees exploit the principle of *selective superiority*, allowing subsets of the data to be modeled by the most appropriate classifier, thereby improving flexibility and accuracy.
 
-These trees represent axis-parallel hyperplanes dividing the instance space into several disjoint regions. Axis-parallel decision trees, such as CART and C4.5, represent two of the most widely used algorithms for classification tasks. The **CART (Classification and Regression Trees)** algorithm employs a binary recursive partitioning procedure capable of handling both continuous and categorical variables as predictors or targets. It operates directly on raw data without requiring binning. The tree is expanded recursively until no further splits are possible, after which **cost-complexity pruning** is applied to remove branches that contribute least to predictive performance. This pruning process generates a sequence of nested subtrees, from which the optimal model is selected using independent test data or cross-validation, rather than internal training measures [@breiman1984].
+### Univariate Decision Trees
 
-In contrast, **C4.5**, an extension of the earlier **ID3** algorithm, utilizes information-theoretic measures such as **information gain** and **gain ratio** to select the most informative attribute for each split [@quinlan1993]. C4.5 also includes mechanisms to handle missing attribute values by weighting instances according to the proportion of known data and employs an **error-based pruning** method to reduce overfitting. Although these techniques are effective across diverse datasets, studies have shown that the choice of pruning strategy and stopping criteria can significantly affect model performance across different domains [@mingers1989; @schaffer1992].
+Univariate Decision Trees (UDTs) trees represent axis-parallel hyperplanes dividing the instance space into several disjoint regions. Axis-parallel decision trees, such as CART and C4.5, represent two of the most widely used algorithms for classification tasks. The **CART (Classification and Regression Trees)** algorithm employs a binary recursive partitioning procedure capable of handling both continuous and categorical variables as predictors or targets. It operates directly on raw data without requiring binning. The tree is expanded recursively until no further splits are possible, after which **cost-complexity pruning** is applied to remove branches that contribute least to predictive performance. This pruning process generates a sequence of nested subtrees, from which the optimal model is selected using independent test data or cross-validation, rather than internal training measures [@breiman1984].
+
+In contrast, **C4.5**, an extension of the earlier **ID3** algorithm [@quinlan1986], utilizing information theory measures such as **information gain** and **gain ratio** to select the most informative attribute for each split [@quinlan1993]. C4.5 also includes mechanisms to handle missing attribute values by weighting instances according to the proportion of known data and employs an **error-based pruning** method to reduce overfitting. Although these techniques are effective across diverse datasets, studies have shown that the choice of pruning strategy and stopping criteria can significantly affect model performance across different domains [@mingers1989; @schaffer1992].
+
+While UDTs are highly interpretability, they are characterised by several representational limitations. Such trees often grow unnecessarily large, as they must approximate complex relationship between features through multiple axis-aligned partitions. This can result in the replication of subtrees and repeated testing of the same feature along different paths, both of which reduce efficiency and hinder generalization performance [@pagallo1990].
+
+### Multivariate Decision Trees
+
+Multivariate decision trees (MDTs) extends UDTs by allowing each internal node to perform splits based on linear or nonlinear combinations of multiple features. This flexibility enables the tree to form oblique decision boundaries that more accurately partition the instance space. For example, a single multivariate test such as $x + y < 8$ can replace multiple univariate splits needed to approximate the same boundary. The construction of MDTs introduces several design considerations, including how to represent multivariate tests, determine their coefficients, select features to include, handle symbolic and missing data, and prune to avoid overfitting [@brodley1995].
+
+Various optimization algorithms—such as recursive least squares [@young1984], the pocket algorithm [@gallant1986], or thermal training [@frean1990]—may be used to estimate the weights. However, MDTs trade interpretability for representational power and often require additional mechanisms for **local feature selection**, such as *sequential forward selection* (SFS) or *sequential backward elimination* (SBE) [@kittler1986].
+
+Empirical comparisons across multiple datasets demonstrate that multivariate trees generally achieve higher accuracy and smaller tree sizes than their univariate counterparts, though this comes at the cost of reduced interpretability. Moreover, MDTs retain key advantages of standard decision trees—such as sequential split criteria evaluation and transparent decision procedures—while offering improved modeling flexibility for complex datasets [@kozial2009; @friedl1997; @huan1998; @canete].

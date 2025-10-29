@@ -1,0 +1,77 @@
+% !TeX root = RJwrapper.tex
+\title{svmodt: An R Package for Linear SVM-Based Oblique Decision Trees}
+
+
+\author{by Aneesh Agarwal, Jack Jewson, and Erik Sverdrup}
+
+\maketitle
+
+\abstract{%
+An abstract of less than 150 words.
+}
+
+\section{Introduction}\label{introduction}
+
+\section{Literature Review}\label{literature-review}
+
+\subsection{Decision Trees}\label{decision-trees}
+
+Decision Trees (DTs) are interpretable classification models that represent their decision-making process through a hierarchical, tree-like structure. This structure comprises internal nodes containing splitting criteria and terminal (leaf) nodes corresponding to class labels. The nodes are connected by directed edges, each representing a possible outcome of a splitting criterion. Formally, a DT can be expressed as a rooted, directed tree \(T = (G(V, E), v_1)\), where \(V\) denotes the set of nodes, \(E\) represents the set of edges linking these nodes, and \(v_1\) is the root node.
+
+If the tree \(T\) has \(m\) nodes, then for any \(j \in \{1, \ldots, m\}\), the set of child nodes of \(v_j \in V\) can be defined as:
+
+\[
+N^{+}(v_j) = \{ v_k \in V \mid k \in \{1, \ldots, m\},\; k \neq j,\; (v_j, v_k) \in E \}.
+\]
+
+Here, \(N^{+}(v_j)\) denotes the set of nodes that are directly connected to \(v_j\) through outgoing edges, representing all possible child nodes that can be reached from \(v_j\) within the tree structure \citep{lopez2018}.
+
+Decision tree algorithms can be categorized based on whether the same type of test is applied at all internal nodes. \textbf{Homogeneous trees} employ a single algorithm throughout (e.g., univariate or multivariate splits), whereas \textbf{hybrid trees} allow different algorithms such as linear discriminant functions, \(k\)-nearest neighbors, or univariate splits that can be used in different subtrees \citep{brodley1995}. Hybrid trees exploit the principle of \emph{selective superiority}, allowing subsets of the data to be modeled by the most appropriate classifier, thereby improving flexibility and accuracy.
+
+\subsubsection{Univariate Decision Trees}\label{univariate-decision-trees}
+
+Univariate Decision Trees (UDTs) trees represent axis-parallel hyperplanes dividing the instance space into several disjoint regions. Axis-parallel decision trees, such as CART and C4.5, represent two of the most widely used algorithms for classification tasks. The \textbf{CART (Classification and Regression Trees)} algorithm employs a binary recursive partitioning procedure capable of handling both continuous and categorical variables as predictors or targets. It operates directly on raw data without requiring binning. The tree is expanded recursively until no further splits are possible, after which \textbf{cost-complexity pruning} is applied to remove branches that contribute least to predictive performance. This pruning process generates a sequence of nested subtrees, from which the optimal model is selected using independent test data or cross-validation, rather than internal training measures \citep{breiman1984}.
+
+In contrast, \textbf{C4.5}, an extension of the earlier \textbf{ID3} algorithm \citep{quinlan1986}, utilizing information theory measures such as \textbf{information gain} and \textbf{gain ratio} to select the most informative attribute for each split \citep{quinlan1993}. C4.5 also includes mechanisms to handle missing attribute values by weighting instances according to the proportion of known data and employs an \textbf{error-based pruning} method to reduce overfitting. Although these techniques are effective across diverse datasets, studies have shown that the choice of pruning strategy and stopping criteria can significantly affect model performance across different domains \citep{mingers1989, schaffer1992}.
+
+While UDTs are highly interpretability, they are characterised by several representational limitations. Such trees often grow unnecessarily large, as they must approximate complex relationship between features through multiple axis-aligned partitions. This can result in the replication of subtrees and repeated testing of the same feature along different paths, both of which reduce efficiency and hinder generalization performance \citep{pagallo1990}.
+
+\subsubsection{Multivariate Decision Trees}\label{multivariate-decision-trees}
+
+Multivariate decision trees (MDTs) extends UDTs by allowing each internal node to perform splits based on linear or nonlinear combinations of multiple features. This flexibility enables the tree to form oblique decision boundaries that more accurately partition the instance space. For example, a single multivariate test such as \(x + y < 8\) can replace multiple univariate splits needed to approximate the same boundary. The construction of MDTs introduces several design considerations, including how to represent multivariate tests, determine their coefficients, select features to include, handle symbolic and missing data, and prune to avoid overfitting \citep{brodley1995}.
+
+Various optimization algorithms---such as recursive least squares \citep{young1984}, the pocket algorithm \citep{gallant1986}, or thermal training \citep{frean1990}---may be used to estimate the weights. However, MDTs trade interpretability for representational power and often require additional mechanisms for \textbf{local feature selection}, such as \emph{sequential forward selection} (SFS) or \emph{sequential backward elimination} (SBE) \citep{kittler1986}.
+
+Empirical comparisons across multiple datasets demonstrate that multivariate trees generally achieve higher accuracy and smaller tree sizes than their univariate counterparts, though this comes at the cost of reduced interpretability. Moreover, MDTs retain key advantages of standard decision trees---such as sequential split criteria evaluation and transparent decision procedures---while offering improved modeling flexibility for complex datasets \citep{kozial2009, friedl1997, huan1998, canete}.
+
+\bibliography{RJreferences.bib}
+
+\address{%
+Aneesh Agarwal\\
+Monash University\\%
+\\
+%
+%
+%
+\href{mailto:aaga0022@student.monash.edu}{\nolinkurl{aaga0022@student.monash.edu}}%
+}
+
+\address{%
+Jack Jewson\\
+Monash University\\%
+Department of Econometrics and Business Statistics, Monash University, Australia\\
+%
+%
+%
+\href{mailto:Jack.Jewson@monash.edu}{\nolinkurl{Jack.Jewson@monash.edu}}%
+}
+
+\address{%
+Erik Sverdrup\\
+Monash University\\%
+Department of Econometrics and Business Statistics, Monash University, Australia\\
+%
+%
+%
+\href{mailto:Erik.Sverdrup@monash.edu}{\nolinkurl{Erik.Sverdrup@monash.edu}}%
+}
