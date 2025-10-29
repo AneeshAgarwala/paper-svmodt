@@ -30,6 +30,7 @@ bibliography: RJreferences.bib
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
+library(kableExtra)
 ```
 
 # Introduction
@@ -65,3 +66,130 @@ Multivariate decision trees (MDTs) extends UDTs by allowing each internal node t
 Various optimization algorithms—such as recursive least squares [@young1984], the pocket algorithm [@gallant1986], or thermal training [@frean1990]—may be used to estimate the weights. However, MDTs trade interpretability for representational power and often require additional mechanisms for **local feature selection**, such as *sequential forward selection* (SFS) or *sequential backward elimination* (SBE) [@kittler1986].
 
 Empirical comparisons across multiple datasets demonstrate that multivariate trees generally achieve higher accuracy and smaller tree sizes than their univariate counterparts, though this comes at the cost of reduced interpretability. Moreover, MDTs retain key advantages of standard decision trees—such as sequential split criteria evaluation and transparent decision procedures—while offering improved modeling flexibility for complex datasets [@kozial2009; @friedl1997; @huan1998; @canete].
+
+## Support Vector Machines (SVMs)
+
+Support Vector Machines (SVMs) are powerful supervised learning models used for classification and regression tasks. They aim to determine an optimal separating hyperplane that maximizes the margin between different classes in the data. This margin-based approach enhances the generalization ability of the model, making SVMs robust and effective for many real-world problems [@cristianini2000]..
+
+A simplest **linear SVMs** construct a separating hyperplane in an $n$-dimensional space such that the margin between the classes is maximized. Given a training dataset $\{(\mathbf{x}_i, y_i)\}_{i=1}^{N}$, where $\mathbf{x}_i \in \mathbb{R}^n$ and $y_i \in \{-1, +1\}$, the decision function is defined as:
+
+$$
+f(\mathbf{x}) = \text{sign}(\mathbf{w}^\top \mathbf{x} + b),
+$$
+
+where $\mathbf{w}$ is the weight vector perpendicular to the hyperplane, and $b$ is the bias term. The optimal hyperplane is the one that maximizes the distance between the closest points of each class (the **support vectors**) and the hyperplane itself [@cortes1995].
+
+Mathematically, the optimization problem for a hard-margin SVM (i.e., assuming the data are linearly separable) can be formulated as:
+
+$$
+\min_{\mathbf{w}, b} \ \frac{1}{2} \|\mathbf{w}\|^2
+$$ subject to: $$
+y_i (\mathbf{w}^\top \mathbf{x}_i + b) \geq 1, \quad i = 1, 2, \ldots, N.
+$$
+
+Here, $\|\mathbf{w}\|$ represents the norm of the weight vector and acts as a regularization term that controls the complexity of the model. The constraint ensures that all data points are correctly classified and lie outside the margin boundaries.
+
+However, in most practical situations, perfect linear separability is not achievable. To address this, **soft-margin SVMs** introduce slack variables $\xi_i \geq 0$ to allow certain violations of the margin constraints, resulting in the following optimization problem:
+
+$$
+\min_{\mathbf{w}, b, \xi} \ \frac{1}{2} \|\mathbf{w}\|^2 + C \sum_{i=1}^{N} \xi_i
+$$ subject to: $$
+y_i (\mathbf{w}^\top \mathbf{x}_i + b) \geq 1 - \xi_i, \quad \xi_i \geq 0, \quad i = 1, 2, \ldots, N.
+$$
+
+The parameter $C > 0$ controls the trade-off between maximizing the margin and minimizing the classification error on the training data. A large $C$ penalizes mis-classifications heavily, leading to a narrower margin, whereas a smaller $C$ allows more flexibility, potentially improving generalization in the presence of noise.
+
+The solution to this constrained optimization problem is obtained using **Lagrange multipliers**, resulting in a dual formulation expressed as:
+
+$$
+\max_{\alpha} \sum_{i=1}^{N} \alpha_i - \frac{1}{2} \sum_{i=1}^{N}\sum_{j=1}^{N} \alpha_i \alpha_j y_i y_j \langle \mathbf{x}_i, \mathbf{x}_j \rangle
+$$ subject to: $$
+\sum_{i=1}^{N} \alpha_i y_i = 0, \quad 0 \leq \alpha_i \leq C.
+$$
+
+The data points corresponding to non-zero $\alpha_i$ values are the **support vectors**, which define the decision boundary. The resulting decision function for a new observation $\mathbf{x}$ is given by:
+
+$$
+f(\mathbf{x}) = \text{sign}\left(\sum_{i=1}^{N} \alpha_i y_i \langle \mathbf{x}_i, \mathbf{x} \rangle + b\right).
+$$
+
+This formulation highlights one of the most important properties of SVMs — the decision boundary depends only on a subset of the training data (the support vectors), making SVMs both efficient and robust in representing the learned model [@cervantes2020]. While linear classifiers provide useful insights, they are often inadequate for real-world datasets, where classes are not linearly separable. In such cases, SVMs can be extended to create **nonlinear decision boundaries** by mapping the input vectors into a higher-dimensional **feature space** using a nonlinear transformation $\phi: \mathbb{R}^n \rightarrow \mathcal{F}$. The linear transformation is then achieved in the transformed space using:
+
+$$
+f(\mathbf{x}) = \text{sign}(\mathbf{w}^\top \phi(\mathbf{x}) + b).
+$$
+
+However, directly computing $\phi(\mathbf{x})$ can be computationally expensive. To address this, SVMs employ the **kernel trick**, where the dot product in the feature space is replaced with a kernel function $K(\mathbf{x}_i, \mathbf{x}_j)$:
+
+$$
+K(\mathbf{x}_i, \mathbf{x}_j) = \langle \phi(\mathbf{x}_i), \phi(\mathbf{x}_j) \rangle.
+$$
+
+The resulting decision function becomes:
+
+$$
+f(\mathbf{x}) = \text{sign}\left(\sum_{i=1}^{N} \alpha_i y_i K(\mathbf{x}_i, \mathbf{x}) + b\right),
+$$
+
+where $\alpha_i$ are the Lagrange multipliers obtained during training.
+
+For a function $K$ to be a valid kernel, it must satisfy **Mercer’s condition** [@vapnik2013] i.e., the kernel matrix must be symmetric and positive semi-definite. Table `r knitr::asis_output(ifelse(knitr::is_html_output(), '\\@ref(tab:kernels-tab-interactive)', '\\@ref(tab:kernels-tab-static)'))`
+
+```{r kernels-tab-interactive, eval = knitr::is_html_output()}
+kernel_table <- data.frame(
+  "Kernel Type" = c("Linear", "Polynomial", "Gaussian", "RBF", "Sigmoid"),
+  "Mathematical Definition" = c(
+    "$K(\\mathbf{x}_i, \\mathbf{x}_j) = \\mathbf{x}_i^\\top \\mathbf{x}_j$",
+    "$K(\\mathbf{x}_i, \\mathbf{x}_j) = (\\mathbf{x}_i^\\top \\mathbf{x}_j + 1)^d$",
+    "$K(\\mathbf{x}_i, \\mathbf{x}_j) = \\exp\\left(-\\frac{\\|\\mathbf{x}_i - \\mathbf{x}_j\\|^2}{2\\sigma^2}\\right)$",
+    "$K(\\mathbf{x}_i, \\mathbf{x}_j) = \\exp(-\\gamma \\|\\mathbf{x}_i - \\mathbf{x}_j\\|^2)$",
+    "$K(\\mathbf{x}_i, \\mathbf{x}_j) = \\tanh(\\kappa \\mathbf{x}_i^\\top \\mathbf{x}_j + \\theta)$"
+  ),
+  "Key Parameters" = c(
+    "None",
+    "Degree $d$",
+    "Bandwidth $\\sigma$",
+    "$\\gamma$",
+    "$\\kappa, \\theta$"
+  ),
+  check.names = FALSE
+)
+
+kable(
+  kernel_table,
+  escape = FALSE,
+  format = "html",
+  caption = "Commonly used kernel functions and their parameters."
+) |> kable_styling(full_width = FALSE, position = "center")
+```
+
+```{r kernels-tab-static, eval = knitr::is_latex_output(), }
+kernel_table <- data.frame(
+  "Kernel Type" = c("Linear", "Polynomial", "Gaussian", "RBF", "Sigmoid"),
+  "Mathematical Definition" = c(
+    "$K(\\mathbf{x}_i, \\mathbf{x}_j) = \\mathbf{x}_i^\\top \\mathbf{x}_j$",
+    "$K(\\mathbf{x}_i, \\mathbf{x}_j) = (\\mathbf{x}_i^\\top \\mathbf{x}_j + 1)^d$",
+    "$K(\\mathbf{x}_i, \\mathbf{x}_j) = \\exp\\left(-\\frac{\\|\\mathbf{x}_i - \\mathbf{x}_j\\|^2}{2\\sigma^2}\\right)$",
+    "$K(\\mathbf{x}_i, \\mathbf{x}_j) = \\exp(-\\gamma \\|\\mathbf{x}_i - \\mathbf{x}_j\\|^2)$",
+    "$K(\\mathbf{x}_i, \\mathbf{x}_j) = \\tanh(\\kappa \\mathbf{x}_i^\\top \\mathbf{x}_j + \\theta)$"
+  ),
+  "Key Parameters" = c(
+    "None",
+    "Degree $d$",
+    "Bandwidth $\\sigma$",
+    "$\\gamma$",
+    "$\\kappa, \\theta$"
+  ),
+  check.names = FALSE
+)
+
+kable(
+  kernel_table,
+  escape = FALSE,
+  format = "latex",
+  caption = "Commonly used kernel functions and their parameters."
+) |>
+  kable_styling(font_size = 7, full_width = FALSE, position = "center")
+```
+
+Although SVMs exhibit strong theoretical foundations and robust generalization capabilities, they present several practical limitations. Model performance is highly dependent on the appropriate selection of hyperparameters such as the regularization term ($C$) and kernel parameters (e.g., $\gamma$), which govern the trade-off between margin maximization and misclassification tolerance [@nanda2018]. Training an SVM requires solving a quadratic programming (QP) optimization problem involving an $n \times n$ kernel matrix, where $n$ denotes the number of training samples, leading to quadratic growth in both computational time and memory usage [@dong2005]. This makes SVMs computationally expensive for large-scale datasets. Moreover, SVMs are inherently designed for binary classification, necessitating decomposition strategies such as One-vs-One and One-vs-All for multi-class problems [@hsu2002]. Their performance also tends to degrade in imbalanced data settings, where the decision boundary becomes biased toward the majority class [@cervantes2020].

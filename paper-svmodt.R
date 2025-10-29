@@ -3,4 +3,62 @@
 
 ## ----setup, include=FALSE-----------------------------------------------------
 knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
+library(kableExtra)
+
+
+## ----kernels-tab-interactive, eval = knitr::is_html_output()------------------
+# kernel_table <- data.frame(
+#   "Kernel Type" = c("Linear", "Polynomial", "Gaussian", "RBF", "Sigmoid"),
+#   "Mathematical Definition" = c(
+#     "$K(\\mathbf{x}_i, \\mathbf{x}_j) = \\mathbf{x}_i^\\top \\mathbf{x}_j$",
+#     "$K(\\mathbf{x}_i, \\mathbf{x}_j) = (\\mathbf{x}_i^\\top \\mathbf{x}_j + 1)^d$",
+#     "$K(\\mathbf{x}_i, \\mathbf{x}_j) = \\exp\\left(-\\frac{\\|\\mathbf{x}_i - \\mathbf{x}_j\\|^2}{2\\sigma^2}\\right)$",
+#     "$K(\\mathbf{x}_i, \\mathbf{x}_j) = \\exp(-\\gamma \\|\\mathbf{x}_i - \\mathbf{x}_j\\|^2)$",
+#     "$K(\\mathbf{x}_i, \\mathbf{x}_j) = \\tanh(\\kappa \\mathbf{x}_i^\\top \\mathbf{x}_j + \\theta)$"
+#   ),
+#   "Key Parameters" = c(
+#     "None",
+#     "Degree $d$",
+#     "Bandwidth $\\sigma$",
+#     "$\\gamma$",
+#     "$\\kappa, \\theta$"
+#   ),
+#   check.names = FALSE
+# )
+# 
+# kable(
+#   kernel_table,
+#   escape = FALSE,
+#   format = "html",
+#   caption = "Commonly used kernel functions and their parameters."
+# ) |> kable_styling(full_width = FALSE, position = "center")
+
+
+## ----kernels-tab-static, eval = knitr::is_latex_output()----------------------
+kernel_table <- data.frame(
+  "Kernel Type" = c("Linear", "Polynomial", "Gaussian", "RBF", "Sigmoid"),
+  "Mathematical Definition" = c(
+    "$K(\\mathbf{x}_i, \\mathbf{x}_j) = \\mathbf{x}_i^\\top \\mathbf{x}_j$",
+    "$K(\\mathbf{x}_i, \\mathbf{x}_j) = (\\mathbf{x}_i^\\top \\mathbf{x}_j + 1)^d$",
+    "$K(\\mathbf{x}_i, \\mathbf{x}_j) = \\exp\\left(-\\frac{\\|\\mathbf{x}_i - \\mathbf{x}_j\\|^2}{2\\sigma^2}\\right)$",
+    "$K(\\mathbf{x}_i, \\mathbf{x}_j) = \\exp(-\\gamma \\|\\mathbf{x}_i - \\mathbf{x}_j\\|^2)$",
+    "$K(\\mathbf{x}_i, \\mathbf{x}_j) = \\tanh(\\kappa \\mathbf{x}_i^\\top \\mathbf{x}_j + \\theta)$"
+  ),
+  "Key Parameters" = c(
+    "None",
+    "Degree $d$",
+    "Bandwidth $\\sigma$",
+    "$\\gamma$",
+    "$\\kappa, \\theta$"
+  ),
+  check.names = FALSE
+)
+
+kable(
+  kernel_table,
+  escape = FALSE,
+  format = "latex",
+  caption = "Commonly used kernel functions and their parameters."
+) |>
+  kable_styling(font_size = 7, full_width = FALSE, position = "center")
 
