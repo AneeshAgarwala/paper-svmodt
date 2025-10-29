@@ -238,3 +238,86 @@ abstract = {In recent years, an enormous amount of research has been carried out
   year={2018},
   publisher={September). https://doi. org/10.3390/info9010005}
 }
+
+@article{zhang2007,
+author = {Zhang, Li and Zhou, Weida and Su, Tian-Tian and Jiao, Licheng},
+year = {2007},
+month = {02},
+pages = {1-16},
+title = {Decision Tree Support Vector Machine.},
+volume = {16},
+journal = {International Journal on Artificial Intelligence Tools},
+doi = {10.1142/S0218213007003163}
+}
+
+@InProceedings{bennet1998,
+  author={Bennett, K.P. and Blue, J.A.},
+  booktitle={1998 IEEE International Joint Conference on Neural Networks Proceedings. IEEE World Congress on Computational Intelligence (Cat. No.98CH36227)}, 
+  title={A support vector machine approach to decision trees}, 
+  year={1998},
+  volume={3},
+  number={},
+  pages={2396-2401 vol.3},
+  keywords={Support vector machines;Decision trees;Support vector machine classification;Polynomials;Neural networks;Risk management;Statistical learning;Ear;Kernel;Radial basis function networks},
+  doi={10.1109/IJCNN.1998.687237}
+  }
+  
+@InProceedings{takahashi2002,
+author = {TAKAHASHI, Fumitake and Abe, Shigeo},
+year = {2002},
+month = {12},
+pages = {1418 - 1422 vol.3},
+title = {Decision-tree-based multiclass support vector machines},
+volume = {3},
+isbn = {981-04-7524-1},
+journal = {Proceedings of the 9th International Conference on Neural Information Processing},
+doi = {10.1109/ICONIP.2002.1202854}
+}
+
+@article{bala2011,
+  title={Optimal decision tree based multi-class support vector machine},
+  author={Bala, Manju and Agrawal, RK},
+  journal={Informatica},
+  volume={35},
+  number={2},
+  year={2011}
+}
+
+@ARTICLE{Mangasarian2006,
+  author={Mangasarian, O.L. and Wild, E.W.},
+  journal={IEEE Transactions on Pattern Analysis and Machine Intelligence}, 
+  title={Multisurface proximal support vector machine classification via generalized eigenvalues}, 
+  year={2006},
+  volume={28},
+  number={1},
+  pages={69-74},
+  keywords={Support vector machine classification;Eigenvalues and eigenfunctions;Kernel;Testing;Support vector machines;MATLAB;Linear algebra;Proteins;Software standards;Parallel processing;Index Terms- Support vector machines;proximal classification;generalized eigenvalues.},
+  doi={10.1109/TPAMI.2006.17}}
+  
+@article{ganaie2022,
+title = {Oblique and rotation double random forest},
+journal = {Neural Networks},
+volume = {153},
+pages = {496-517},
+year = {2022},
+issn = {0893-6080},
+doi = {https://doi.org/10.1016/j.neunet.2022.06.012},
+url = {https://www.sciencedirect.com/science/article/pii/S0893608022002258},
+author = {M.A. Ganaie and M. Tanveer and P.N. Suganthan and V. Snasel},
+keywords = {Double random forest, Oblique random forest, Ensemble learning, Bootstrap, Decision tree, classification},
+abstract = {Random Forest is an ensemble of decision trees based on the bagging and random subspace concepts. As suggested by Breiman, the strength of unstable learners and the diversity among them are the ensemble models’ core strength. In this paper, we propose two approaches known as oblique and rotation double random forests. In the first approach, we propose rotation based double random forest. In rotation based double random forests, transformation or rotation of the feature space is generated at each node. At each node different random feature subspace is chosen for evaluation, hence the transformation at each node is different. Different transformations result in better diversity among the base learners and hence, better generalization performance. With the double random forest as base learner, the data at each node is transformed via two different transformations namely, principal component analysis and linear discriminant analysis. In the second approach, we propose oblique double random forest. Decision trees in random forest and double random forest are univariate, and this results in the generation of axis parallel split which fails to capture the geometric structure of the data. Also, the standard random forest may not grow sufficiently large decision trees resulting in suboptimal performance. To capture the geometric properties and to grow the decision trees of sufficient depth, we propose oblique double random forest. The oblique double random forest models are multivariate decision trees. At each non-leaf node, multisurface proximal support vector machine generates the optimal plane for better generalization performance. Also, different regularization techniques (Tikhonov regularization, axis-parallel split regularization, Null space regularization) are employed for tackling the small sample size problems in the decision trees of oblique double random forest. The proposed ensembles of decision trees produce trees with bigger size compared to the standard ensembles of decision trees as bagging is used at each non-leaf node which results in improved performance. The evaluation of the baseline models and the proposed oblique and rotation double random forest models is performed on benchmark 121 UCI datasets and real-world fisheries datasets. Both statistical analysis and the experimental results demonstrate the efficacy of the proposed oblique and rotation double random forest models compared to the baseline models on the benchmark datasets.}
+}
+
+@article{montanana2025,
+title = {ODTE—An ensemble of multi-class SVM-based oblique decision trees},
+journal = {Expert Systems with Applications},
+volume = {273},
+pages = {126833},
+year = {2025},
+issn = {0957-4174},
+doi = {https://doi.org/10.1016/j.eswa.2025.126833},
+url = {https://www.sciencedirect.com/science/article/pii/S0957417425004555},
+author = {Ricardo Montañana and José A. Gámez and José M. Puerta},
+keywords = {Oblique decision trees, Supervised classification, SVM, Ensemble, Multiclass strategies},
+abstract = {We propose ODTE, a new ensemble that uses oblique decision trees as base classifiers. Additionally, we introduce STree, the base algorithm for growing oblique decision trees, which leverages support vector machines to define hyperplanes within the decision nodes. We embed a multiclass strategy (one-vs-one or one-vs-rest) at the decision nodes, allowing the model to directly handle non-binary classification tasks without the need to cluster instances into two groups, as is common in other approaches from the literature. In each decision node, only the best-performing model (SVM)—the one that minimizes an impurity measure for the n-ary classification—is retained, even if the learned SVM addresses a binary classification subtask. An extensive experimental study involving 49 datasets and various state-of-the-art algorithms for oblique decision tree ensembles has been conducted. Our results show that ODTE ranks consistently above its competitors, achieving significant performance gains when hyperparameters are carefully tuned. Moreover, the oblique decision trees learned through STree are more compact than those produced by other algorithms evaluated in our experiments.}
+}

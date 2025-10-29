@@ -46,7 +46,9 @@ Empirical comparisons across multiple datasets demonstrate that multivariate tre
 
 \subsection{Support Vector Machines (SVMs)}\label{support-vector-machines-svms}
 
-Support Vector Machines (SVMs) are powerful supervised learning models used for classification and regression tasks. They aim to determine an optimal separating hyperplane that maximizes the margin between different classes in the data. This margin-based approach enhances the generalization ability of the model, making SVMs robust and effective for many real-world problems \citep{cristianini2000}..
+Support Vector Machines (SVMs) are powerful supervised learning models used for classification and regression tasks. They aim to determine an optimal separating hyperplane that maximizes the margin between different classes in the data. This margin-based approach enhances the generalization ability of the model, making SVMs robust and effective for many real-world problems \citep{cristianini2000}.
+
+\subsubsection{Linear SVMs}\label{linear-svms}
 
 A simplest \textbf{linear SVMs} construct a separating hyperplane in an \(n\)-dimensional space such that the margin between the classes is maximized. Given a training dataset \(\{(\mathbf{x}_i, y_i)\}_{i=1}^{N}\), where \(\mathbf{x}_i \in \mathbb{R}^n\) and \(y_i \in \{-1, +1\}\), the decision function is defined as:
 
@@ -90,7 +92,11 @@ The data points corresponding to non-zero \(\alpha_i\) values are the \textbf{su
 f(\mathbf{x}) = \text{sign}\left(\sum_{i=1}^{N} \alpha_i y_i \langle \mathbf{x}_i, \mathbf{x} \rangle + b\right).
 \]
 
-This formulation highlights one of the most important properties of SVMs --- the decision boundary depends only on a subset of the training data (the support vectors), making SVMs both efficient and robust in representing the learned model \citep{cervantes2020}. While linear classifiers provide useful insights, they are often inadequate for real-world datasets, where classes are not linearly separable. In such cases, SVMs can be extended to create \textbf{nonlinear decision boundaries} by mapping the input vectors into a higher-dimensional \textbf{feature space} using a nonlinear transformation \(\phi: \mathbb{R}^n \rightarrow \mathcal{F}\). The linear transformation is then achieved in the transformed space using:
+This formulation highlights one of the most important properties of SVMs --- the decision boundary depends only on a subset of the training data (the support vectors), making SVMs both efficient and robust in representing the learned model \citep{cervantes2020}.
+
+\subsubsection{Non-Linear SVMs}\label{non-linear-svms}
+
+While linear classifiers provide useful insights, they are often inadequate for real-world datasets, where classes are not linearly separable. In such cases, SVMs can be extended to create \textbf{nonlinear decision boundaries} by mapping the input vectors into a higher-dimensional \textbf{feature space} using a nonlinear transformation \(\phi: \mathbb{R}^n \rightarrow \mathcal{F}\). The linear transformation is then achieved in the transformed space using:
 
 \[
 f(\mathbf{x}) = \text{sign}(\mathbf{w}^\top \phi(\mathbf{x}) + b).
@@ -135,6 +141,22 @@ Sigmoid & $K(\mathbf{x}_i, \mathbf{x}_j) = \tanh(\kappa \mathbf{x}_i^\top \mathb
 \end{table}
 
 Although SVMs exhibit strong theoretical foundations and robust generalization capabilities, they present several practical limitations. Model performance is highly dependent on the appropriate selection of hyperparameters such as the regularization term (\(C\)) and kernel parameters (e.g., \(\gamma\)), which govern the trade-off between margin maximization and misclassification tolerance \citep{nanda2018}. Training an SVM requires solving a quadratic programming (QP) optimization problem involving an \(n \times n\) kernel matrix, where \(n\) denotes the number of training samples, leading to quadratic growth in both computational time and memory usage \citep{dong2005}. This makes SVMs computationally expensive for large-scale datasets. Moreover, SVMs are inherently designed for binary classification, necessitating decomposition strategies such as One-vs-One and One-vs-All for multi-class problems \citep{hsu2002}. Their performance also tends to degrade in imbalanced data settings, where the decision boundary becomes biased toward the majority class \citep{cervantes2020}.
+
+\subsection{Hybrid Decision Trees with Support Vector Machines}\label{hybrid-decision-trees-with-support-vector-machines}
+
+The earliest formalization of Support Vector Machine--based Decision Trees (DTSVMs) was introduced by \citet{bennet1998} , who extended the principles of Statistical Learning Theory \citep{vapnik2013} and Structural Risk Minimization (SRM) to the construction of binary decision trees. Each node of a decision tree was treated as an SVM that partitions data along an optimal hyperplane. This approach allowed for multivariate SVM decisions at each node. \citet{takahashi2002} extended DTSVMs to multiclass problems, using a recursive tree-based partitioning where the root separates the most separable class (or classes) from the rest. Subsequent nodes repeat this process until each leaf contains a single class, ensuring that all regions of the feature space are classified.
+
+Subsequent studies have built upon this foundation to address scalability, optimization, and generalization issues. Optimal Decision Tree SVM (ODT-SVM) \citep{bala2011} introduced split-selection criteria based on Gini index, information gain, and scatter matrix separability to balance tree interpretability and margin-based precision.
+
+\subsubsection{Oblique and Rotation-Based Extensions}\label{oblique-and-rotation-based-extensions}
+
+Recent research has explored oblique and rotation-based decision ensembles that generalize the DTSVM concept. Oblique Double Random Forests with MPSVM (MPDRaF) \citep{ganaie2022} introduce multivariate (oblique) splits at each node using Multi-Plane SVM (MPSVM) formulations \citep{Mangasarian2006}, enhancing the geometric flexibility of decision boundaries. Regularization variants---such as Tikhonov, axis-parallel, and null-space---address sample-size limitations at deeper nodes, ensuring better generalization.
+
+Similarly, Rotation-based Double Random Forests (DRaF) \citep{ganaie2022} employ Principal Component Analysis (PCA) and Linear Discriminant Analysis (LDA) transformations at non-terminal nodes to create diverse subspaces, improving ensemble diversity and classification stability.
+
+\subsubsection{Modern Multi-class Integration}\label{modern-multi-class-integration}
+
+Recent works such as the Oblique Decision Tree Ensemble (ODTE) \citep{montanana2025} embed multiple SVM classifiers (e.g., one-vs-one or one-vs-rest) directly at each split, dynamically selecting the model that minimizes class impurity. This enables efficient n-ary classification within a single tree structure, mitigating the scalability and imbalance limitations of traditional binary SVM extensions.
 
 \bibliography{RJreferences.bib}
 
