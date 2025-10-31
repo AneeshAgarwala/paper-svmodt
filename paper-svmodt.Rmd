@@ -25,6 +25,11 @@ output:
   rjtools::rjournal_article:
     self_contained: yes
     toc: no
+header-includes:
+  \usepackage{algorithm}
+  \usepackage{algorithmic}
+  \usepackage{amsmath}
+  \usepackage{amssymb}
 bibliography: RJreferences.bib
 ---
 
@@ -215,3 +220,95 @@ Similarly, Rotation-based Double Random Forests (DRaF) [@ganaie2022] employ Prin
 ### Modern Multi-class Integration
 
 Recent works such as the Oblique Decision Tree Ensemble (ODTE) [@montanana2025] embed multiple SVM classifiers (e.g., one-vs-one or one-vs-rest) directly at each split, dynamically selecting the model that minimizes class impurity. This enables efficient n-ary classification within a single tree structure, mitigating the scalability and imbalance limitations of traditional binary SVM extensions.
+
+# Algorithm Description
+
+## Core Methodology
+
+The SVM Oblique Decision Tree (SVMODT) constructs a binary decision tree where each internal node $v$ at depth $d$. The algorithm is implemneted in R using the \CRANpkg{e1071} performs the following operations:
+
+1.  Feature Selection: Dynamically selects $m_d$ features from the available feature set $\mathcal{F}$ using one of three strategies: Random, sampling, Mutual information ranking (via \CRANpkg{FSelectorRcpp}), Correlation-based selection
+
+2.  Feature Scaling: Applies z-score normalization to selected features $\mathbf{X}_v \in \mathbb{R}^{n \times m_d}$ $$\mathbf{X}_v^{\text{scaled}} = \frac{\mathbf{X}_v - \boldsymbol{\mu}_v}{\boldsymbol{\sigma}_v}$$
+
+3.  SVM Training: Fits a linear SVM with optional class weights $w_c$ to handle imbalanced data:
+
+$$\min_{\mathbf{w}, b} \frac{1}{2}\|\mathbf{w}\|^2 + C\sum_{i=1}^{n} w_{y_i}\xi_i$$
+
+4.  Node Splitting: Computes decision values $f(x_i) = w^Tx_i+b$ and partitions samples:
+
+    -   Left child: ${i:f(x_i)>0}$
+
+    -   Right child: ${i:f(x_i)\leq0}$
+
+```{=latex}
+\begin{algorithm}
+\caption{SVM Oblique Decision Tree Construction}
+\label{alg:svmodt}
+\begin{algorithmic}[1]
+\STATE \textbf{Procedure} SVMSplit($\mathcal{D}, d, d_{\max}, n_{\min}$)
+    \STATE $n \gets |\mathcal{D}|$, $\mathcal{Y} \gets \text{labels}(\mathcal{D})$
+    
+    \IF{$d > d_{\max}$ \textbf{or} $|\text{unique}(\mathcal{Y})| = 1$ \textbf{or} $n < n_{\min}$}
+        \RETURN $\text{LeafNode}(\mathcal{Y})$ \COMMENT{Stopping criteria}
+    \ENDIF
+    
+    \STATE $m_d \gets \text{DynamicMaxFeatures}(d, m_{\text{base}}, \text{strategy})$
+    \STATE $\mathcal{F}_d \gets \text{SelectFeatures}(\mathcal{D}, m_d, \text{method})$
+    \STATE $\mathbf{X}_{\text{scaled}}, \text{scaler} \gets \text{Scale}(\mathcal{D}[\mathcal{F}_d])$
+    
+    \IF{$|\mathcal{F}_d| = 0$}
+        \RETURN $\text{LeafNode}(\mathcal{Y})$ \COMMENT{No valid features}
+    \ENDIF
+    
+    \STATE $w_c \gets \text{CalculateClassWeights}(\mathcal{Y}, \text{strategy})$
+    \STATE $\text{SVM} \gets \text{FitLinearSVM}(\mathbf{X}_{\text{scaled}}, \mathcal{Y}, w_c)$
+    
+    \IF{$\text{SVM} = \text{null}$}
+        \RETURN $\text{LeafNode}(\mathcal{Y})$ \COMMENT{SVM fitting failed}
+    \ENDIF
+    
+    \STATE $\mathbf{f} \gets \text{SVM.DecisionValues}(\mathbf{X}_{\text{scaled}})$
+    \STATE $\mathcal{I}_L \gets \{i : f_i > 0\}$, $\mathcal{I}_R \gets \{i : f_i \leq 0\}$
+    
+    \IF{$|\mathcal{I}_L| = 0$ \textbf{or} $|\mathcal{I}_R| = 0$}
+        \RETURN $\text{LeafNode}(\mathcal{Y})$ \COMMENT{Ineffective split}
+    \ENDIF
+    
+    \STATE $\text{left} \gets \textsc{SVMSplit}(\mathcal{D}[\mathcal{I}_L], d+1, d_{\max}, n_{\min})$
+    \STATE $\text{right} \gets \textsc{SVMSplit}(\mathcal{D}[\mathcal{I}_R], d+1, d_{\max}, n_{\min})$
+    
+    \RETURN $\text{InternalNode}(\text{SVM}, \mathcal{F}_d, \text{scaler}, \text{left}, \text{right})$
+\STATE \textbf{End Procedure}
+\end{algorithmic}
+\end{algorithm}
+```
+
+## Key Features
+
+The algorithm supports three feature selection strategies with optional penalization of previously used features:
+
+1.  Maximum features at depth $d$: $$
+    m_d =
+    \begin{cases}
+    m_{\text{base}} & \text{constant strategy} \\
+    \lfloor m_{\text{base}} \cdot \alpha^{d-1} \rfloor & \text{decrease strategy} \\
+    \text{Uniform}(\lfloor p \cdot \ell_{\min} \rfloor, \lfloor p \cdot \ell_{\max} \rfloor) & \text{random strategy}
+    \end{cases}
+    $$where $(\alpha \in (0, 1])$ is the decrease rate, $(p)$ is the total number of features, $(\ell_{\min})$ and $(\ell_{\max})$ define the bounds (as fractions of $(p)$) for the random strategy, and $(m_{\text{base}})$ is the base number of features at depth 1.
+
+<!-- -->
+
+2.  Feature penalty: Previously used features have their selection weight reduced by factor $(1 - \lambda)$ where $\lambda \in [0, 1)$.
+
+3.  Class Weight Handling To address class imbalance, the algorithm supports four weighting schemes:
+
+    -   None: $w_c = 1$ for all classes,
+
+    -   Balanced: $cw_c = \frac{n}{K \cdot n_c}$ where $K$ is the number of classes and $n_c$ is the sample count for class $c$
+
+    -   Balanced sub-sample: $w_c = \frac{1}{n_c} \cdot \frac{K}{\sum_{c'} 1/n_{c'}}$
+
+    -   Custom: User-defined weights.
+
+All weights are capped at 10 to prevent numerical instability.
