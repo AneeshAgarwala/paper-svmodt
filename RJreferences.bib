@@ -321,3 +321,46 @@ author = {Ricardo Montañana and José A. Gámez and José M. Puerta},
 keywords = {Oblique decision trees, Supervised classification, SVM, Ensemble, Multiclass strategies},
 abstract = {We propose ODTE, a new ensemble that uses oblique decision trees as base classifiers. Additionally, we introduce STree, the base algorithm for growing oblique decision trees, which leverages support vector machines to define hyperplanes within the decision nodes. We embed a multiclass strategy (one-vs-one or one-vs-rest) at the decision nodes, allowing the model to directly handle non-binary classification tasks without the need to cluster instances into two groups, as is common in other approaches from the literature. In each decision node, only the best-performing model (SVM)—the one that minimizes an impurity measure for the n-ary classification—is retained, even if the learned SVM addresses a binary classification subtask. An extensive experimental study involving 49 datasets and various state-of-the-art algorithms for oblique decision tree ensembles has been conducted. Our results show that ODTE ranks consistently above its competitors, achieving significant performance gains when hyperparameters are carefully tuned. Moreover, the oblique decision trees learned through STree are more compact than those produced by other algorithms evaluated in our experiments.}
 }
+
+
+@InProceedings{Street1993,
+  title={Nuclear feature extraction for breast tumor diagnosis},
+  author={William Nick Street and William H. Wolberg and Olvi L. Mangasarian},
+  booktitle={Electronic imaging},
+  year={1993},
+  url={https://api.semanticscholar.org/CorpusID:14922543}
+}
+
+@Software{Montanana2021,
+  author    = {R. Montañana and J. A. Gámez and J. M. Puerta},
+  title     = {STree: a single multi-class oblique decision tree based on support vector machines},
+  booktitle = {Lecture Notes in Computer Science (LNAI), 12882},
+  pages     = {54--64},
+  year      = {2021},
+  publisher = {Springer}
+}
+
+
+@InProceedings{menkovski2008,
+  author={Menkovski, Vlado and Christou, Ioannis T. and Efremidis, Sofoklis},
+  booktitle={2008 7th IEEE International Conference on Cybernetic Intelligent Systems}, 
+  title={Oblique Decision Trees using embedded Support Vector Machines in classifier ensembles}, 
+  year={2008},
+  volume={},
+  number={},
+  pages={1-6},
+  keywords={Decision trees;Support vector machines;Support vector machine classification;Classification tree analysis;Testing;Machine learning;Machine learning algorithms;Entropy;Information technology;Working environment noise;Classification;Decision Trees;On-line Learning;Supervised Learning},
+  doi={10.1109/UKRICIS.2008.4798937}
+  }
+  
+@article{scikit2011,
+  title={Scikit-learn: Machine Learning in {P}ython},
+  author={Pedregosa, F. and Varoquaux, G. and Gramfort, A. and Michel, V.
+          and Thirion, B. and Grisel, O. and Blondel, M. and Prettenhofer, P.
+          and Weiss, R. and Dubourg, V. and Vanderplas, J. and Passos, A. and
+          Cournapeau, D. and Brucher, M. and Perrot, M. and Duchesnay, E.},
+  journal={Journal of Machine Learning Research},
+  volume={12},
+  pages={2825--2830},
+  year={2011}
+}

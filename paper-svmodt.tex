@@ -12,7 +12,7 @@ An abstract of less than 150 words.
 
 \section{Introduction}\label{introduction}
 
-\section{Literature Review}\label{literature-review}
+\section{Background}\label{background}
 
 \subsection{Decision Trees}\label{decision-trees}
 
@@ -158,37 +158,112 @@ Similarly, Rotation-based Double Random Forests (DRaF) \citep{ganaie2022} employ
 
 Recent works such as the Oblique Decision Tree Ensemble (ODTE) \citep{montanana2025} embed multiple SVM classifiers (e.g., one-vs-one or one-vs-rest) directly at each split, dynamically selecting the model that minimizes class impurity. This enables efficient n-ary classification within a single tree structure, mitigating the scalability and imbalance limitations of traditional binary SVM extensions.
 
-\section{Algorithm Description}\label{algorithm-description}
+\subsection{Related Software Packages}\label{related-software-packages}
 
-\subsection{Core Methodology}\label{core-methodology}
+Several software packages provide functionality related to SVM-based decision trees, but fully-featured implementations of SVM Oblique Decision Trees (SVMODT) remain limited, particularly in R. In R, very scarce SVMODT implementation is available. The \CRANpkg{PPforest} package implements projection pursuit random forests, where trees are constructed by splitting on linear combinations of variables to maximize class separation, supporting multi-class problems and variable importance measures. In Python, \textbf{STree} \citep{Montanana2021} provides an oblique decision tree classifier based on SVM nodes, where each node is built and split using scikit-learn's \textbf{SVC} models \citep{scikit2011}. Java-based frameworks such as \textbf{Weka} provide classical decision trees (\textbf{J48}) and SVMs (\textbf{SMO}) that can be adapted for hierarchical SVM trees \citep{menkovski2008}. Overall, while multiple languages provide the building blocks---SVM training, decision tree construction, and ensemble methods---there is currently no widely available, fully integrated SVMODT software in R, highlighting the need for custom implementations or adaptation of existing tools for research and applied purposes.
 
-The SVM Oblique Decision Tree (SVMODT) constructs a binary decision tree where each internal node \(v\) at depth \(d\). The algorithm is implemneted in R using the \CRANpkg{e1071} performs the following operations:
+\section{Methodology}\label{methodology}
 
-\begin{enumerate}
-\def\labelenumi{\arabic{enumi}.}
-\item
-  Feature Selection: Dynamically selects \(m_d\) features from the available feature set \(\mathcal{F}\) using one of three strategies: Random, sampling, Mutual information ranking (via \CRANpkg{FSelectorRcpp}), Correlation-based selection
-\item
-  Feature Scaling: Applies z-score normalization to selected features \(\mathbf{X}_v \in \mathbb{R}^{n \times m_d}\) \[\mathbf{X}_v^{\text{scaled}} = \frac{\mathbf{X}_v - \boldsymbol{\mu}_v}{\boldsymbol{\sigma}_v}\]
-\item
-  SVM Training: Fits a linear SVM with optional class weights \(w_c\) to handle imbalanced data:
-\end{enumerate}
+To better understand the structure and mechanics of decision trees, we first implemented a standard axis-parallel decision tree in R from scratch before extending it into the oblique (SVM-based) variant.
 
-\[\min_{\mathbf{w}, b} \frac{1}{2}\|\mathbf{w}\|^2 + C\sum_{i=1}^{n} w_{y_i}\xi_i\]
+\subsection{Custom Univariate Decision Tree with Integrated Cost-Complexity Pruning}\label{custom-univariate-decision-tree-with-integrated-cost-complexity-pruning}
+
+This implementation presents a decision tree algorithm with \textbf{integrated cost-complexity pruning}, where pruning decisions are made during tree construction rather than as a post-processing step. The algorithm supports multiple splitting criteria and performs real-time pruning based on cost-complexity analysis.
+
+\subsubsection{Algorithm Description}\label{algorithm-description}
+
+At each node \(v\) with samples \(\mathcal{D}_v\) and labels \(\mathcal{Y}_v\), the algorithm:
 
 \begin{enumerate}
 \def\labelenumi{\arabic{enumi}.}
-\setcounter{enumi}{3}
 \item
-  Node Splitting: Computes decision values \(f(x_i) = w^Tx_i+b\) and partitions samples:
+  \textbf{Compute Node Statistics}: At each node of the decision tree, several key statistics are computed to guide the splitting process. The class probabilities are calculated as \(p_c = \frac{n_c}{n},\) where \(n_c\) is the count of samples belonging to class \(c\) in the node, and \(n = |D_v|\) is the total number of samples at the node. The predicted class is assigned as the class with the highest probability, \[\hat{y} = \arg\max_c p_c.\]
+\item
+  \textbf{Select Optimal Split}: The optimal split at each node is determined using one of three criteria:
 
   \begin{itemize}
   \item
-    Left child: \({i:f(x_i)>0}\)
+    \textbf{Gini Impurity} is defined as \[\text{Gini}(\mathcal{Y}) = 1 - \sum_{c=1}^{K} p_c^2,\]where \(p_c\) is the proportion of samples belonging to class \(c\) in node \(\mathcal{Y}\) \citep{breiman1984}.
   \item
-    Right child: \({i:f(x_i)\leq0}\)
+    \textbf{Information Gain} evaluates the reduction in node impurity and is computed as \[\text{IG}(f, s) = H(\mathcal{Y}_v) - \sum_{i \in \{L, R\}} \frac{n_i}{n} H(\mathcal{Y}_i),\]where \(H(\mathcal{Y})\) denotes the impurity of a node (entropy or Gini), \(n_i\) is the number of samples in the child node, and \(n\) is the number of samples in the parent node {[}\citet{breiman1984}{[}.
+  \item
+    \textbf{Gain Ratio} further adjusts Information Gain by penalizing splits that create many small partitions \citep{quinlan1993} and is defined as \[\text{GR}(f, s) = \frac{\text{IG}(f, s)}{\text{SI}(f, s)},\]where the split information is \[\text{SI}(f, s) = -\sum_{i \in \{L, R\}} \frac{n_i}{n} \log_2\left(\frac{n_i}{n}\right).\]
+  \end{itemize}
+\item
+  \textbf{Evaluates Pruning Criteria}: To ensure the tree remains interpret-able and avoids over-fitting, integrated pruning is performed using cost-complexity analysis. The cost of a sub-tree \(T_v\) is given by \[R_\alpha(T_v) = R(T_v) + \alpha \|T_v\|,\] where \(R(T_v)\) is the miss-classification error, \(|T_v|\) is the number of leaves in the sub-tree, and \(\alpha \geq 0\) is a complexity parameter controlling the trade-off between accuracy and simplicity. For a single leaf node \(t_v\), the cost is \[R_\alpha(t_v) = R(t_v) + \alpha.\] A sub-tree \(T_v\) is pruned, i.e., replaced by a single leaf node, if \[R_\alpha(t_v) \leq R_\alpha(T_v),\]ensuring that further splits are retained only when they yield sufficient reduction in classification error to justify the added complexity.
+\end{enumerate}
+
+\begin{algorithm}
+\caption{Decision Tree with Integrated Cost-Complexity Pruning}
+\label{alg:custom-tree}
+\begin{algorithmic}[1]
+\STATE \textbf{Procedure} GenerateTree($\mathcal{Y}, \mathbf{X}, d, d_{\max}, \alpha$)
+    \STATE $n \gets |\mathcal{Y}|$
+    \STATE $\mathbf{p} \gets \text{ClassProbabilities}(\mathcal{Y})$
+    \STATE $\hat{y} \gets \arg\max_c p_c$
+    
+    \IF{$d \geq d_{\max}$ \textbf{or} $|\text{unique}(\mathcal{Y})| \leq 1$}
+        \RETURN $\text{LeafNode}(\hat{y}, \mathbf{p}, n)$
+    \ENDIF
+    
+    \STATE $(f^*, s^*, \text{score}) \gets \text{FeatureSelector}(\mathcal{Y}, \mathbf{X}, \text{criterion})$
+    
+    \IF{$f^* = \text{null}$ \textbf{or} $\text{score} = -\infty$}
+        \RETURN $\text{LeafNode}(\hat{y}, \mathbf{p}, n)$
+    \ENDIF
+    
+    \STATE $\mathcal{I}_L, \mathcal{I}_R \gets \text{Split}(\mathbf{X}[f^*], s^*)$
+    
+    \IF{$|\mathcal{I}_L| = 0$ \textbf{or} $|\mathcal{I}_R| = 0$}
+        \RETURN $\text{LeafNode}(\hat{y}, \mathbf{p}, n)$
+    \ENDIF
+    
+    \STATE $T_L \gets \textsc{GenerateTree}(\mathcal{Y}[\mathcal{I}_L], \mathbf{X}[\mathcal{I}_L], d+1, d_{\max}, \alpha)$
+    \STATE $T_R \gets \textsc{GenerateTree}(\mathcal{Y}[\mathcal{I}_R], \mathbf{X}[\mathcal{I}_R], d+1, d_{\max}, \alpha)$
+    
+    \STATE $T_v \gets \text{InternalNode}(f^*, s^*, T_L, T_R, \hat{y}, \mathbf{p}, n)$
+    
+    \STATE \COMMENT{Integrated pruning decision}
+    \STATE $R_{\text{subtree}} \gets \text{SubtreeError}(T_v) + \alpha \cdot \text{CountLeaves}(T_v)$
+    \STATE $R_{\text{leaf}} \gets (1 - \max(\mathbf{p})) + \alpha$
+    
+    \IF{$R_{\text{leaf}} \leq R_{\text{subtree}}$}
+        \RETURN $\text{LeafNode}(\hat{y}, \mathbf{p}, n)$ \COMMENT{Prune subtree}
+    \ELSE
+        \RETURN $T_v$
+    \ENDIF
+\STATE \textbf{End Procedure}
+\end{algorithmic}
+\end{algorithm}
+
+The custom uni variate decision tree implementation in R combines axis-parallel splits with integrated cost-complexity pruning, offering several key differences from standard CART/\CRANpkg{rpart} trees. Numeric features are split only at midpoints where class labels change, while categorical features use binary splits at each level, reducing computational complexity. Splitting criteria include Gini impurity, information gain, and Gain Ratio---the latter penalizing splits with high split information to favor balanced partitions. Integrated pruning is applied during tree construction using a fixed \(\alpha\) parameter, replacing sub-trees with leaves whenever the cost-complexity criterion is satisfied, unlike CART/\CRANpkg{rpart}, which performs post-pruning via cross-validation. This single-pass pruning approach reduces training time and space requirements, while still producing interpret-able trees. Predictions follow standard tree traversal, returning majority-class labels or probability estimates at leaves.
+
+\subsection{Support Vector Machine based Oblique Decision Trees}\label{support-vector-machine-based-oblique-decision-trees}
+
+\subsubsection{Algorithm Description}\label{algorithm-description-1}
+
+The SVM Oblique Decision Tree (SVMODT) constructs a binary classification decision tree where each internal node \(v\) at depth \(d\). The algorithm is implemented in R using the \CRANpkg{e1071} performs the following operations:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\item
+  \textbf{Feature Selection:} A subset of \(m_d\) features is dynamically selected from the available feature set \(\mathcal{F}\). This selection can be done using one of several strategies, including random selection, sampling, mutual information ranking (using the \CRANpkg{FSelectorRcpp} package), or correlation-based selection. This allows the tree to adaptive-ly focus on the most informative features at each node.
+\item
+  \textbf{Feature Scaling:} Once the features are selected, z-score normalization is applied to standardize them. For the selected feature matrix \(\mathbf{X}_v \in \mathbb{R}^{n \times m_d}\), the scaled features are computed as \[\mathbf{X}_v^{\text{scaled}} = \frac{\mathbf{X}_v - \boldsymbol{\mu}_v}{\boldsymbol{\sigma}_v},\] where \(\boldsymbol{\mu}_v\) and \(\boldsymbol{\sigma}_v\) denote the mean and standard deviation of the features in node \(v\).
+\item
+  \textbf{SVM Training:} A linear SVM is then trained on the scaled features. Optional class weights \(w_c\) can be applied to handle imbalanced data. The SVM optimization problem is formulated as \[\min_{\mathbf{w}, b} \frac{1}{2}\|\mathbf{w}\|^2 + C \sum_{i=1}^{n} w_{y_i} \xi_i,\] where \(C\) is the regularization parameter, \(\xi_i\) are slack variables, and \(w_{y_i}\) represents the class-specific weight for sample \(i\).
+\item
+  \textbf{Node Splitting:} After training, the decision values for each sample are computed as \(f(x_i) = \mathbf{w}^T x_i + b.\) Samples are then partitioned into left and right child nodes according to the sign of \(f(x_i)\):
+
+  \begin{itemize}
+  \item
+    Left child: \(\{i : f(x_i) > 0\}\)
+  \item
+    Right child: \(\{i : f(x_i) \leq 0\}\)
   \end{itemize}
 \end{enumerate}
+
+This process recursively continues for each child node until stopping criteria are met.
 
 \begin{algorithm}
 \caption{SVM Oblique Decision Tree Construction}
@@ -231,45 +306,100 @@ The SVM Oblique Decision Tree (SVMODT) constructs a binary decision tree where e
 \end{algorithmic}
 \end{algorithm}
 
-\subsection{Key Features}\label{key-features}
-
-The algorithm supports three feature selection strategies with optional penalization of previously used features:
+\subsubsection{Key Hyper-parameters}\label{key-hyper-parameters}
 
 \begin{enumerate}
 \def\labelenumi{\arabic{enumi}.}
 \tightlist
 \item
-  Maximum features at depth \(d\): \[
-  m_d =
-  \begin{cases}
-  m_{\text{base}} & \text{constant strategy} \\
-  \lfloor m_{\text{base}} \cdot \alpha^{d-1} \rfloor & \text{decrease strategy} \\
-  \text{Uniform}(\lfloor p \cdot \ell_{\min} \rfloor, \lfloor p \cdot \ell_{\max} \rfloor) & \text{random strategy}
-  \end{cases}
-  \]where \((\alpha \in (0, 1])\) is the decrease rate, \((p)\) is the total number of features, \((\ell_{\min})\) and \((\ell_{\max})\) define the bounds (as fractions of \((p)\)) for the random strategy, and \((m_{\text{base}})\) is the base number of features at depth 1.
+  \textbf{Feature Selection:} The algorithm supports three strategies for selecting features at each node. The maximum number of features considered at depth \(d\) is defined as:
 \end{enumerate}
+
+\[
+m_d =
+\begin{cases}
+m_{\text{base}} & \text{constant strategy} \\
+\lfloor m_{\text{base}} \cdot \alpha^{d-1} \rfloor & \text{decrease strategy} \\
+\text{Uniform}(\lfloor p \cdot \ell_{\min} \rfloor, \lfloor p \cdot \ell_{\max} \rfloor) & \text{random strategy}
+\end{cases}
+\]
+
+Here, \(\alpha \in (0, 1]\) is the decrease rate for the ``decrease strategy,'' \(p\) is the total number of features, \(\ell_{\min}\) and \(\ell_{\max}\) define the fractional bounds for the random strategy, and \(m_{\text{base}}\) is the base number of features at the first depth.
 
 \begin{enumerate}
 \def\labelenumi{\arabic{enumi}.}
 \setcounter{enumi}{1}
 \item
-  Feature penalty: Previously used features have their selection weight reduced by factor \((1 - \lambda)\) where \(\lambda \in [0, 1)\).
+  \textbf{Feature Penalty:} To encourage diversity in feature usage across the tree, previously used features have their selection weight reduced by a factor of \((1 - \lambda)\), where \(\lambda \in [0, 1)\).
 \item
-  Class Weight Handling To address class imbalance, the algorithm supports four weighting schemes:
+  \textbf{Class Weight Handling:} To address class imbalance, the algorithm allows four weighting schemes:
 
   \begin{itemize}
   \item
-    None: \(w_c = 1\) for all classes,
+    \textbf{None:} \(w_c = 1\) for all classes.
   \item
-    Balanced: \(cw_c = \frac{n}{K \cdot n_c}\) where \(K\) is the number of classes and \(n_c\) is the sample count for class \(c\)
+    \textbf{Balanced:} \(w_c = \frac{n}{K \cdot n_c}\), where \(K\) is the total number of classes and \(n_c\) is the number of samples in class \(c\).
   \item
-    Balanced sub-sample: \(w_c = \frac{1}{n_c} \cdot \frac{K}{\sum_{c'} 1/n_{c'}}\)
+    \textbf{Balanced sub-sample:} \(w_c = \frac{1}{n_c} \cdot \frac{K}{\sum_{c'} 1/n_{c'}}\), which adjusts weights for sub-sampled data.
   \item
-    Custom: User-defined weights.
+    \textbf{Custom:} Users can define their own class weights.
   \end{itemize}
 \end{enumerate}
 
-All weights are capped at 10 to prevent numerical instability.
+\subsubsection{Interaction with SVM Training and Node Splitting}\label{interaction-with-svm-training-and-node-splitting}
+
+The hyper-parameters described above directly influence the behavior of the SVM-based decision tree at each node. The feature selection strategy determines which subset of features \(\mathcal{F}_d\) is used to fit the linear SVM at depth \(d\), which affects the orientation and effectiveness of the decision hyper-plane. Feature penalties ensure that no single feature dominates multiple splits, promoting diversity in the learned splits and improving generalization. Once the SVM is trained on the selected and scaled features, the decision values are used to partition the samples into left and right child nodes. By controlling the number of features, penalizing repeated use, and adjusting class weights, the tree can achieve a balance between predictive accuracy, interpret-ability, and computational efficiency.
+
+\section{Data}\label{data}
+
+In this study, we evaluate the SVM-based oblique decision tree (SVMODT) on two widely used benchmark datasets: \textbf{Palmer Penguins} and \textbf{Wisconsin Diagnostic Breast Cancer (WDBC)}. These datasets provide a mix of multi-class and binary classification problems, as well as numeric and categorical features, making them suitable for testing the flexibility and interpretability of SVMODTs.
+
+\subsection{Palmer Penguins}\label{palmer-penguins}
+
+The \CRANpkg{palmerpenguins} data set is a multi-class data set containing morphological measurements for three penguin species (\emph{Adelie}, \emph{Chinstrap}, and \emph{Gentoo}) observed on the Palmer Archipelago, Antarctica. The data set includes 344 complete observations with the following features:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{bill\_length\_mm}: Length of the bill (numeric)\\
+\item
+  \textbf{bill\_depth\_mm}: Depth of the bill (numeric)\\
+\item
+  \textbf{flipper\_length\_mm}: Length of the flipper (numeric)\\
+\item
+  \textbf{body\_mass\_g}: Body mass (numeric)\\
+\item
+  \textbf{sex}: Sex of the penguin (categorical)\\
+\item
+  \textbf{species}: Target class (categorical with three levels)
+\end{itemize}
+
+\subsection{Wisconsin Diagnostic Breast Cancer (WDBC)}\label{wisconsin-diagnostic-breast-cancer-wdbc}
+
+The \textbf{WDBC} \citep{Street1993} data set is a binary classification data set derived from fine needle aspirates of breast tissue. It contains 569 observations with 30 numeric features computed from digitized images of cell nuclei. The features include measures such as \textbf{radius, texture, perimeter, area, smoothness, compactness, concavity, concave points, symmetry, fractal dimension} The target variable is \textbf{diagnosis} (Malignant (M) or benign (B) tumor). This data set is widely used for testing high-dimensional binary classification algorithms. Its numeric nature allows direct evaluation of SVM splits and the effect of class weighting strategies on imbalanced classes.
+
+\subsection{Data Preparation}\label{data-preparation}
+
+For both data sets, the following pre-processing steps are applied before training the SVMODT:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  \textbf{Missing Values}: Rows with missing values are removed.
+\item
+  \textbf{Class Filtering}: For Palmer Penguins, rows corresponding to the \emph{Gentoo} species are removed using \CRANpkg{dplyr} to create a binary classification problem.
+\item
+  \textbf{Categorical Encoding}: Categorical variables (e.g., \textbf{sex} in Palmer Penguins) are encoded as factor levels suitable for training.
+\end{enumerate}
+
+These pre-processing steps ensure that SVMODT can learn meaningful oblique splits across both data sets while maintaining interpret-ability.
+
+\section{Code Examples}\label{code-examples}
+
+\section{Results}\label{results}
+
+\section{Discussion}\label{discussion}
 
 \bibliography{RJreferences.bib}
 
