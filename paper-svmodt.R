@@ -2,7 +2,7 @@
 # Please edit paper-svmodt.Rmd to modify this file
 
 ## ----setup, include=FALSE-----------------------------------------------------
-knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE, fig.width = 5)
 knitr::opts_knit$set(latex_engine = "xelatex")
 library(kableExtra)
 library(dplyr)
@@ -219,7 +219,7 @@ viz$plots$depth_1_Root
 
 
 ## ----penguins-depth-two, results='asis', fig.align='center', fig.cap="Visualization of a node (depth = 2)."----
-gridExtra::grid.arrange(viz$plots$`depth_2_Root_→_L`, viz$plots$`depth_2_Root_→_R`, ncol = 2)
+gridExtra::grid.arrange(viz$plots$`depth_2_Root_→_L`, viz$plots$`depth_2_Root_→_R`, ncol = 1)
 
 
 ## -----------------------------------------------------------------------------
