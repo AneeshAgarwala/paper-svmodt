@@ -6,10 +6,14 @@ knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
 knitr::opts_knit$set(latex_engine = "xelatex")
 library(kableExtra)
 library(dplyr)
-
-devtools::install("../project-svodt/")
+#devtools::install_github("AneeshAgarwala/svmodt")
 library(svmodt)
 library(palmerpenguins)
+library(rpart)
+library(kernlab)
+library(rsample)
+library(ggplot2)
+library(patchwork)
 
 
 ## ----kernels-tab-interactive, eval = knitr::is_html_output()------------------
@@ -67,6 +71,107 @@ kable(
   caption = "Commonly used kernel functions and their parameters."
 ) |>
   kable_styling(font_size = 7, full_width = FALSE, position = "center")
+
+
+## -----------------------------------------------------------------------------
+library(palmerpenguins)
+library(dplyr)
+
+# Prepare data
+penguins_data <- penguins |>
+  filter(species %in% c("Adelie", "Chinstrap")) |>
+  select(species, bill_length_mm, bill_depth_mm, 
+         flipper_length_mm, body_mass_g) |>
+  na.omit() |>
+  mutate(species = droplevels(species))
+
+# Split into training and test sets
+set.seed(234)
+train_idx <- sample(nrow(penguins_data), 0.8 * nrow(penguins_data))
+train_data <- penguins_data[train_idx, ]
+test_data <- penguins_data[-train_idx, ]
+
+
+## -----------------------------------------------------------------------------
+# Train custom tree with Gini impurity
+tree_gini <- svmodt:::generate_tree(
+  target = train_data$species,
+  features = train_data[, -1],  # Exclude response
+  criteria_type = "gini",
+  max_depth = 4,
+  alpha = 0.01  # Cost-complexity parameter
+)
+
+svmodt:::print_tree(tree_gini)
+
+
+## -----------------------------------------------------------------------------
+# Split into training and test sets
+set.seed(234)
+train_idx <- sample(nrow(wdbc), 0.8 * nrow(wdbc))
+train_data <- wdbc[train_idx, ]
+test_data <- wdbc[-train_idx, ]
+
+
+## ----echo=TRUE----------------------------------------------------------------
+set.seed(123)
+
+# Train with Information Gain (using entropy)
+tree_gini <- svmodt:::generate_tree(
+  target = train_data$diagnosis,
+  features = train_data[, -1],
+  criteria_type = "gini",
+  max_depth = 4,
+  alpha = 0.01
+)
+
+tree_ig <- svmodt:::generate_tree(
+  target = train_data$diagnosis,
+  features = train_data[, -1],
+  criteria_type = "info_gain",
+  ig_metric = "entropy",
+  max_depth = 4,
+  alpha = 0.01
+)
+
+# Train with Gain Ratio
+tree_gr <- svmodt:::generate_tree(
+  target = train_data$diagnosis,
+  features = train_data[, -1],
+  criteria_type = "gain_ratio",
+  ig_metric = "entropy",
+  max_depth = 4,
+  alpha = 0.01
+)
+
+
+## -----------------------------------------------------------------------------
+# Compare tree sizes and accuracies
+compare_trees <- data.frame(
+  Criterion = c("Gini", "Info Gain", "Gain Ratio"),
+  Num_Leaves = c(
+    svmodt:::count_leaves(tree_gini),
+    svmodt:::count_leaves(tree_ig),
+    svmodt:::count_leaves(tree_gr)
+  ),
+  Test_Accuracy = c(
+    mean(svmodt:::predict_tree(tree_gini, test_data[, -1]) == test_data$diagnosis),
+    mean(svmodt:::predict_tree(tree_ig, test_data[, -1]) == test_data$diagnosis),
+    mean(svmodt:::predict_tree(tree_gr, test_data[, -1]) == test_data$diagnosis)
+  )
+)
+
+
+## ----compare-custom-tree-latex, eval = knitr::is_latex_output()---------------
+knitr::kable(compare_trees, digits = 3, 
+             caption = "Comparison of splitting criteria on penguin classification.", format = "latex") |> 
+  kable_styling(full_width = FALSE, position = "center", font_size = 7)
+
+
+## ----compare-custom-tree-html, eval = knitr::is_html_output()-----------------
+# knitr::kable(compare_trees, digits = 3,
+#              caption = "Comparison of splitting criteria on penguin classification.", format = "html") |>
+#   kable_styling(full_width = FALSE, position = "center")
 
 
 ## ----palmer-data, eval=TRUE---------------------------------------------------
@@ -215,4 +320,341 @@ tree_random <- svm_split(
 
 print_svm_tree(tree_random, show_penalties = FALSE, 
                show_feature_info = TRUE)
+
+
+## ----cache=TRUE, results='hide'-----------------------------------------------
+set.seed(123)
+n_iter <- 100
+
+results <- data.frame(
+  Custom_Tree = numeric(n_iter),
+  SVMODT = numeric(n_iter),
+  RPART = numeric(n_iter),
+  Linear_SVM = numeric(n_iter),
+  RBF_SVM = numeric(n_iter),
+  Logistic = numeric(n_iter)
+)
+
+for (i in 1:n_iter) {
+  # Stratified train-test split
+  split_data <- initial_split(wdbc, prop = 0.8, strata = diagnosis)
+  train_data <- training(split_data)
+  test_data <- testing(split_data)
+  
+  # Separate features and response
+  x_train <- train_data[, names(wdbc) != "diagnosis"]
+  y_train <- train_data$diagnosis
+  x_test <- test_data[, names(wdbc) != "diagnosis"]
+  y_test <- test_data$diagnosis
+  
+  #------------------- Custom Decision Tree -------------------#
+  custom_tree <- svmodt:::generate_tree(
+    target = y_train,
+    features = x_train,
+    criteria_type = "gini",
+    max_depth = 4,
+    alpha = 0.01
+  )
+  pred_custom <- svmodt:::predict_tree(custom_tree, x_test)
+  results$Custom_Tree[i] <- mean(pred_custom == y_test)
+  
+  #------------------- SVMODT -------------------#
+  svmodt_tree <- svm_split(
+    data = train_data,
+    response = "diagnosis",
+    max_depth = 4,
+    max_features = 29,
+    feature_method = "mutual",
+    max_features_strategy = "decrease",
+    max_features_decrease_rate = 0.5,
+    penalize_used_features = TRUE,
+    verbose = FALSE
+  )
+  pred_svmodt <- svm_predict_tree(svmodt_tree, test_data)
+  results$SVMODT[i] <- mean(pred_svmodt == y_test)
+  
+  #------------------- RPART -------------------#
+  rpart_model <- rpart(
+    formula = diagnosis ~ .,
+    data = train_data,
+    control = rpart.control(cp = 0.01)
+  )
+  pred_rpart <- predict(rpart_model, test_data, type = "class")
+  results$RPART[i] <- mean(pred_rpart == y_test)
+  
+  #------------------- Linear SVM -------------------#
+  linear_svm <- ksvm(
+    diagnosis ~ .,
+    data = train_data,
+    kernel = "vanilladot",
+    prob.model = FALSE
+  )
+  pred_linear <- predict(linear_svm, test_data)
+  results$Linear_SVM[i] <- mean(pred_linear == y_test)
+  
+  #------------------- RBF SVM -------------------#
+  rbf_svm <- ksvm(
+    diagnosis ~ .,
+    data = train_data,
+    kernel = "rbfdot",
+    prob.model = FALSE
+  )
+  pred_rbf <- predict(rbf_svm, test_data)
+  results$RBF_SVM[i] <- mean(pred_rbf == y_test)
+  
+  #------------------- Logistic Regression -------------------#
+  logistic_model <- glm(
+    diagnosis ~ .,
+    data = train_data,
+    family = binomial(link = "logit")
+  )
+  pred_logistic_prob <- predict(logistic_model, test_data, type = "response")
+  pred_logistic <- ifelse(pred_logistic_prob > 0.5, "M", "B")
+  pred_logistic <- factor(pred_logistic, levels = levels(y_test))
+  results$Logistic[i] <- mean(pred_logistic == y_test)
+}
+
+
+## -----------------------------------------------------------------------------
+# Calculate summary statistics
+summary_stats <- results %>%
+  summarise(across(everything(), list(
+    Mean = ~mean(.x),
+    SD = ~sd(.x),
+    Min = ~min(.x),
+    Max = ~max(.x)
+  )))
+
+# Reshape for better presentation
+summary_table <- data.frame(
+  Model = c("Custom Tree", "SVMODT", "RPART", "Linear SVM", "RBF SVM", "Logistic Regression"),
+  Mean = c(
+    mean(results$Custom_Tree),
+    mean(results$SVMODT),
+    mean(results$RPART),
+    mean(results$Linear_SVM),
+    mean(results$RBF_SVM),
+    mean(results$Logistic)
+  ),
+  SD = c(
+    sd(results$Custom_Tree),
+    sd(results$SVMODT),
+    sd(results$RPART),
+    sd(results$Linear_SVM),
+    sd(results$RBF_SVM),
+    sd(results$Logistic)
+  ),
+  Min = c(
+    min(results$Custom_Tree),
+    min(results$SVMODT),
+    min(results$RPART),
+    min(results$Linear_SVM),
+    min(results$RBF_SVM),
+    min(results$Logistic)
+  ),
+  Max = c(
+    max(results$Custom_Tree),
+    max(results$SVMODT),
+    max(results$RPART),
+    max(results$Linear_SVM),
+    max(results$RBF_SVM),
+    max(results$Logistic)
+  )
+)
+
+
+## ----summary-stats-latex, eval = knitr::is_latex_output()---------------------
+kable(summary_table, 
+      digits = 4,
+      col.names = c("Model", "Mean", "SD", "Min", "Max"),
+      format = "latex",
+      caption = "Summary statistics of test accuracy across 50 iterations on WDBC dataset") |>
+  kable_styling(full_width = FALSE, position = "center")
+
+
+## ----summary-stats-html, eval = knitr::is_html_output()-----------------------
+# kable(summary_table,
+#       digits = 4,
+#       col.names = c("Model", "Mean", "SD", "Min", "Max"),
+#       format = "html",
+#       caption = "Summary statistics of test accuracy across 50 iterations on WDBC dataset") |>
+#   kable_styling(full_width = FALSE, position = "center")
+
+
+## ----boxplot-comparison, results='asis', fig.cap="Model Accuracy Distribution (50 Resamples)"----
+# Reshape data for plotting
+results_long <- tidyr::pivot_longer(
+  results,
+  cols = everything(),
+  names_to = "Model",
+  values_to = "Accuracy"
+)
+
+# Rename models for better display
+results_long <- results_long %>%
+  mutate(Model = recode(Model,
+    "Custom_Tree" = "Custom Tree\n(Integrated Pruning)",
+    "SVMODT" = "SVMODT\n(Oblique Splits)",
+    "RPART" = "RPART\n(CART)",
+    "Linear_SVM" = "Linear SVM",
+    "RBF_SVM" = "RBF SVM",
+    "Logistic" = "Logistic\nRegression"
+  ))
+
+# Create boxplot
+ggplot(results_long, aes(x = Model, y = Accuracy, fill = Model)) +
+  geom_boxplot(alpha = 0.7, outlier.shape = 1) +
+  stat_summary(fun = mean, geom = "point", shape = 23, size = 3, fill = "white") +
+  theme_minimal() +
+  scale_fill_brewer(palette = "Set2") +
+  labs(
+    y = "Test Accuracy",
+    x = ""
+  ) +
+  theme(
+    legend.position = "none",
+    plot.title = element_text(hjust = 0.5, face = "bold"),
+    plot.subtitle = element_text(hjust = 0.5)
+  ) +
+  coord_cartesian(ylim = c(0.85, 1.0))
+
+
+## ----custom-vs-rpart, results='asis', fig.cap="Custom Tree vs. RPART Comparison"----
+# Prepare data for Bland-Altman plots
+ba_data <- data.frame(
+  custom = 1 - results$Custom_Tree,  # Convert to error rate
+  rpart = 1 - results$RPART
+)
+
+# Calculate statistics
+mean_diff <- mean(ba_data$custom - ba_data$rpart)
+sd_diff <- sd(ba_data$custom - ba_data$rpart)
+upper_loa <- mean_diff + 1.96 * sd_diff
+lower_loa <- mean_diff - 1.96 * sd_diff
+
+# Scatter plot
+p1 <- ggplot(ba_data, aes(x = rpart, y = custom)) +
+  geom_point(alpha = 0.6, color = "steelblue") +
+  geom_abline(intercept = 0, slope = 1, linetype = "dashed", color = "red") +
+  labs(
+    x = "RPART Prediction Error",
+    y = "Custom Tree Prediction Error",
+    title = "Scatter Plot"
+  ) +
+  theme_minimal() +
+  theme(aspect.ratio = 1) +
+  coord_fixed(ratio = 1)
+
+# Bland-Altman plot
+p2 <- ggplot(ba_data, aes(x = (custom + rpart) / 2, y = custom - rpart)) +
+  geom_point(alpha = 0.6, color = "steelblue") +
+  geom_hline(yintercept = mean_diff, color = "blue", linewidth = 1) +
+  geom_hline(yintercept = upper_loa, color = "green", linewidth = 1, linetype = "dashed") +
+  geom_hline(yintercept = lower_loa, color = "green", linewidth = 1, linetype = "dashed") +
+  annotate("text", x = Inf, y = mean_diff, label = sprintf("Mean: %.4f", mean_diff), 
+           hjust = 1.1, vjust = -0.5, color = "blue") +
+  annotate("text", x = Inf, y = upper_loa, label = sprintf("+1.96 SD: %.4f", upper_loa), 
+           hjust = 1.1, vjust = -0.5, color = "green") +
+  annotate("text", x = Inf, y = lower_loa, label = sprintf("-1.96 SD: %.4f", lower_loa), 
+           hjust = 1.1, vjust = 1.5, color = "green") +
+  labs(
+    x = "Mean Prediction Error",
+    y = "Difference (Custom - RPART)",
+    title = "Bland-Altman Plot"
+  ) +
+  theme_minimal() +
+  theme(aspect.ratio = 1)
+
+# Combine plots
+p1 + p2
+
+
+## ----svmodt-vs-svm, results='asis', fig.cap="SVMODT vs. Linear SVM Comparison"----
+# SVMODT vs Linear SVM
+ba_data_svm <- data.frame(
+  svmodt = 1 - results$SVMODT,
+  linear_svm = 1 - results$Linear_SVM
+)
+
+mean_diff_svm <- mean(ba_data_svm$svmodt - ba_data_svm$linear_svm)
+sd_diff_svm <- sd(ba_data_svm$svmodt - ba_data_svm$linear_svm)
+upper_loa_svm <- mean_diff_svm + 1.96 * sd_diff_svm
+lower_loa_svm <- mean_diff_svm - 1.96 * sd_diff_svm
+
+p3 <- ggplot(ba_data_svm, aes(x = linear_svm, y = svmodt)) +
+  geom_point(alpha = 0.6, color = "coral") +
+  geom_abline(intercept = 0, slope = 1, linetype = "dashed", color = "red") +
+  labs(
+    x = "Linear SVM Prediction Error",
+    y = "SVMODT Prediction Error",
+    title = "Scatter Plot"
+  ) +
+  theme_minimal() +
+  theme(aspect.ratio = 1) +
+  coord_fixed(ratio = 1)
+
+p4 <- ggplot(ba_data_svm, aes(x = (svmodt + linear_svm) / 2, y = svmodt - linear_svm)) +
+  geom_point(alpha = 0.6, color = "coral") +
+  geom_hline(yintercept = mean_diff_svm, color = "blue", linewidth = 1) +
+  geom_hline(yintercept = upper_loa_svm, color = "green", linewidth = 1, linetype = "dashed") +
+  geom_hline(yintercept = lower_loa_svm, color = "green", linewidth = 1, linetype = "dashed") +
+  annotate("text", x = Inf, y = mean_diff_svm, label = sprintf("Mean: %.4f", mean_diff_svm), 
+           hjust = 1.1, vjust = -0.5, color = "blue") +
+  annotate("text", x = Inf, y = upper_loa_svm, label = sprintf("+1.96 SD: %.4f", upper_loa_svm), 
+           hjust = 1.1, vjust = -0.5, color = "green") +
+  annotate("text", x = Inf, y = lower_loa_svm, label = sprintf("-1.96 SD: %.4f", lower_loa_svm), 
+           hjust = 1.1, vjust = 1.5, color = "green") +
+  labs(
+    x = "Mean Prediction Error",
+    y = "Difference (SVMODT - Linear SVM)",
+    title = "Bland-Altman Plot"
+  ) +
+  theme_minimal() +
+  theme(aspect.ratio = 1)
+
+p3 + p4
+
+
+## -----------------------------------------------------------------------------
+# Paired t-tests
+t_test_results <- data.frame(
+  Comparison = character(),
+  Mean_Diff = numeric(),
+  t_statistic = numeric(),
+  p_value = numeric(),
+  stringsAsFactors = FALSE
+)
+
+comparisons <- list(
+  c("Custom_Tree", "RPART", "Custom Tree vs. RPART"),
+  c("SVMODT", "Linear_SVM", "SVMODT vs. Linear SVM"),
+  c("SVMODT", "RBF_SVM", "SVMODT vs. RBF SVM"),
+  c("SVMODT", "Custom_Tree", "SVMODT vs. Custom Tree"),
+  c("Custom_Tree", "Logistic", "Custom Tree vs. Logistic Regression"),
+  c("SVMODT", "Logistic", "SVMODT vs. Logistic Regression")
+)
+
+for (comp in comparisons) {
+  test <- t.test(results[[comp[1]]], results[[comp[2]]], paired = TRUE)
+  t_test_results <- rbind(t_test_results, data.frame(
+    Comparison = comp[3],
+    Mean_Diff = mean(results[[comp[1]]] - results[[comp[2]]]),
+    t_statistic = test$statistic,
+    p_value = test$p.value
+  ))
+}
+
+
+## ----t-test-results-latex, eval = knitr::is_latex_output()--------------------
+kable(t_test_results,
+      digits = 4,
+      caption = "Paired t-test results for model comparisons. Positive mean differences indicate the first model has higher accuracy.") |>
+  kable_styling(full_width = FALSE, position = "center", , font_size = 7)
+
+
+## ----t-test-results-html, eval= knitr::is_html_output()-----------------------
+# kable(t_test_results,
+#       digits = 4,
+#       caption = "Paired t-test results for model comparisons. Positive mean differences indicate the first model has higher accuracy.") |>
+#   kable_styling(full_width = FALSE, position = "center")
 

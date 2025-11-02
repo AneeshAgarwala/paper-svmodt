@@ -466,9 +466,116 @@ These pre-processing steps ensure that SVMODT can learn meaningful oblique split
 
 \section{Usage and Examples}\label{usage-and-examples}
 
-The svmodt package provides an intuitive interface for building SVM-based oblique decision trees. This section demonstrates the core functionality through two practical examples: ecological species classification and medical diagnosis.
+\subsection{Custom Univariate Decision Tree}\label{custom-univariate-decision-tree}
+
+The custom decision tree implementation provides a flexible framework for building axis-aligned decision trees with integrated cost-complexity pruning. This section demonstrates the usage of the \texttt{generate\_tree()} function through practical examples.
 
 \subsection{Basic Usage}\label{basic-usage}
+
+The primary function \texttt{generate\_tree()} constructs a decision tree using the following key parameters:
+
+\begin{itemize}
+\item
+  \textbf{target}: A vector of class labels (factor or character)
+\item
+  \textbf{features}: A data frame containing predictor variables
+\item
+  \textbf{criteria\_type}: Splitting criterion (\texttt{"gini"}, \texttt{"info\_gain"}, \texttt{"gain\_ratio"})
+\item
+  \textbf{ig\_metric}: Impurity metric for information gain (\texttt{"gini"} or \texttt{"entropy"})
+\item
+  \textbf{max\_depth}: Maximum tree depth (controls model complexity)
+\item
+  \textbf{alpha}: Cost-complexity parameter for integrated pruning (\(\alpha \geq 0\))
+\end{itemize}
+
+\subsubsection{Example 1: Palmer Penguins with Gini Impurity}\label{example-1-palmer-penguins-with-gini-impurity}
+
+In this example, we construct an oblique decision tree using the function \texttt{generate\_tree()}. The splitting criterion is set to \textbf{Gini impurity}, with a maximum tree depth of 4. We also specify a cost-complexity pruning parameter \texttt{\$\textbackslash{}alpha\ =\ 0.01\$} to control sub-tree pruning during tree construction, ensuring a balance between model complexity and generalization performance.
+
+\begin{verbatim}
+#>  bill_length_mm <= 44.65 (n = 175 )
+#>   Left:
+#>    bill_length_mm <= 42.4 (n = 125 )
+#>     Left:
+#>      Predict: Adelie (n = 113 )
+#>     Right:
+#>      body_mass_g <= 3450 (n = 12 )
+#>       Left:
+#>        Predict: Chinstrap (n = 4 )
+#>       Right:
+#>        Predict: Adelie (n = 8 )
+#>   Right:
+#>    bill_depth_mm <= 21.1 (n = 50 )
+#>     Left:
+#>      Predict: Chinstrap (n = 49 )
+#>     Right:
+#>      Predict: Adelie (n = 1 )
+\end{verbatim}
+
+The output shows a hierarchical structure where each internal node displays the splitting feature, threshold value, and sample count. For example, a node showing \texttt{bill\_length\_mm\ \textless{}=\ 44.65\ (n\ =\ 175)} indicates that samples with bill length less than or equal to 44.65 mm go to the left child, while others go right. Leaf nodes display the predicted class and sample count.
+
+\subsubsection{Example 2: Comparing Splitting Criteria with Breast Cancer Data}\label{example-2-comparing-splitting-criteria-with-breast-cancer-data}
+
+To compare different splitting criteria, we train three decision trees on the data set (predicting \texttt{diagnosis}). First, a tree using \textbf{Gini impurity} is trained with a maximum depth of 4 and a cost-complexity pruning parameter \texttt{\$\textbackslash{}alpha\ =\ 0.01\$}. Next, an \textbf{Information Gain}-based tree is trained using the entropy metric to evaluate splits. Finally, a tree using \textbf{Gain Ratio} is constructed, also based on entropy, which normalizes information gain by split information to reduce bias toward features with many levels.
+
+\begin{verbatim}
+set.seed(123)
+
+# Train with Information Gain (using entropy)
+tree_gini <- svmodt:::generate_tree(
+  target = train_data$diagnosis,
+  features = train_data[, -1],
+  criteria_type = "gini",
+  max_depth = 4,
+  alpha = 0.01
+)
+
+tree_ig <- svmodt:::generate_tree(
+  target = train_data$diagnosis,
+  features = train_data[, -1],
+  criteria_type = "info_gain",
+  ig_metric = "entropy",
+  max_depth = 4,
+  alpha = 0.01
+)
+
+# Train with Gain Ratio
+tree_gr <- svmodt:::generate_tree(
+  target = train_data$diagnosis,
+  features = train_data[, -1],
+  criteria_type = "gain_ratio",
+  ig_metric = "entropy",
+  max_depth = 4,
+  alpha = 0.01
+)
+\end{verbatim}
+
+\begin{table}
+\centering
+\caption{\label{tab:compare-custom-tree-latex}Comparison of splitting criteria on penguin classification.}
+\centering
+\fontsize{7}{9}\selectfont
+\begin{tabular}[t]{l|r|r}
+\hline
+Criterion & Num\_Leaves & Test\_Accuracy\\
+\hline
+Gini & 5 & 0.912\\
+\hline
+Info Gain & 5 & 0.912\\
+\hline
+Gain Ratio & 4 & 0.895\\
+\hline
+\end{tabular}
+\end{table}
+
+Table \ref{tab:compare-custom-tree-latex} shows the impact of different splitting criteria on the classification of Palmer Penguins. Using the custom decision tree, we compared Gini impurity, information gain, and gain ratio as criteria for feature selection at each node. Both Gini impurity and information gain resulted in trees with six leaves, achieving a test accuracy of 93.9\%. In contrast, gain ratio produced a smaller tree with only three leaves while achieving higher test accuracy of 96.5\%, demonstrating its ability to favor balanced and informative splits, reduce overfitting, and improve generalization performance.
+
+\subsection{Support Vector Machine based Oblique Decision Trees}\label{support-vector-machine-based-oblique-decision-trees-1}
+
+The svmodt package provides an intuitive interface for building SVM-based oblique decision trees. This section demonstrates the core functionality through two practical examples: ecological species classification and medical diagnosis.
+
+\subsubsection{Basic Usage}\label{basic-usage-1}
 
 The primary function \textbf{\texttt{svm\_split()}} constructs an oblique decision tree using the following key parameters:
 
@@ -489,11 +596,11 @@ The primary function \textbf{\texttt{svm\_split()}} constructs an oblique decisi
   \textbf{class\_weights}: Strategy for handling class imbalance
 \end{itemize}
 
-\subsection{Example 1: Penguin Species Classification}\label{example-1-penguin-species-classification}
+\subsubsection{Example 1: Penguin Species Classification}\label{example-1-penguin-species-classification}
 
 We demonstrate the package using the \CRANpkg{palmerpenguins} data set, which contains morphological measurements for three penguin species. We focus on classifying Adelie and Chinstrap penguins.
 
-\subsubsection{Model Training}\label{model-training}
+\paragraph{Model Training}\label{model-training}
 
 In this example, the model is trained on the \texttt{train\_data} data set to predict the categorical response variable, \emph{species}. The function \texttt{svm\_split()} recursively partitions the data using \textbf{linear SVM hyper-planes} at each internal node rather than conventional univariate thresholds, thereby producing \textbf{oblique splits} capable of capturing multivariate relationships among predictors. The argument \texttt{max\_depth\ =\ 3} constrains the tree to a maximum of three levels, providing control over model complexity and mitigating overfitting. Similarly, \texttt{max\_features\ =\ 2} restricts each node to consider only two features when fitting the SVM, enhancing computational efficiency and interpretability. The parameter \texttt{feature\_method\ =\ "mutual"} specifies that feature selection at each node is based on \textbf{mutual information}, ensuring that the most informative variables relative to the response are prioritized. Setting \texttt{verbose\ =\ FALSE} suppresses intermediate output for streamlined execution.
 
@@ -509,7 +616,7 @@ tree <- svm_split(
 )
 \end{verbatim}
 
-\subsubsection{Model Structure}\label{model-structure}
+\paragraph{Model Structure}\label{model-structure}
 
 Each internal node represents a \textbf{binary linear decision boundary} obtained from a fitted SVM model using the features listed at that node. For example, the root node (depth = 1) uses \texttt{bill\_length\_mm} and \texttt{flipper\_length\_mm} to form the first separating hyper-plane. Observations satisfying \(SVM>0\) proceed to the left child, while those with \(SVM \leq 0\) move to the right branch.
 
@@ -531,7 +638,7 @@ Each internal node represents a \textbf{binary linear decision boundary} obtaine
 
 Terminal nodes (labeled as \emph{Leaf}) correspond to final class predictions. In this case, most observations in the left sub-tree are classified as \emph{Adelie}, while the right sub-tree primarily identifies \emph{Chinstrap} penguins. The structure illustrates how \textbf{SVM-based oblique splits} allow the tree to capture complex linear interactions between multiple predictors---something that traditional axis-aligned decision trees cannot achieve.
 
-\subsubsection{Visualizing Decision Boundaries}\label{visualizing-decision-boundaries}
+\paragraph{Visualizing Decision Boundaries}\label{visualizing-decision-boundaries}
 
 The package includes visualization tools to examine the SVM hyper-planes at each node, allowing users to interpret how features contribute to class separation within the tree. \emph{Note that visualization is currently supported only for trees where each node consistently uses exactly two features,} ensuring that the separating hyper-plane can be rendered clearly in two-dimensional feature space. The \texttt{visualize\_svm\_tree()} function produces a graphical representation of the overall decision hierarchy
 
@@ -554,7 +661,7 @@ Fig \ref{fig:penguins-depth-one} depicts the root node of the SVM-based oblique 
 
 Similarly, Fig \ref{fig:penguins-depth-two} shows a node at depth 2 of the tree, where the SVM uses bill\_length\_mm and bill\_depth\_mm to further partition the data. The decision hyper-plane and sample positions are plotted, highlighting how oblique splits can capture multivariate relationships that univariate thresholds cannot. This figure demonstrates the recursive nature of the tree and the refinement of class separation at deeper levels. As with the root node, the visualization is restricted to nodes consistently using exactly two features.
 
-\subsubsection{Prediction Path Tracing}\label{prediction-path-tracing}
+\paragraph{Prediction Path Tracing}\label{prediction-path-tracing}
 
 The \texttt{svmodt} package allows tracing the prediction path of individual observations through the SVM-based oblique decision tree. For each sample, the relevant feature values are evaluated at each node using the linear SVM hyper-plane associated with that node. For instance, a sample with \texttt{bill\_length\_mm\ =\ 39.5}, \texttt{bill\_depth\_mm\ =\ 17.4}, \texttt{flipper\_length\_mm\ =\ 186}, and \texttt{body\_mass\_g\ =\ 3800} first reaches the root node, which considers \texttt{bill\_length\_mm} and \texttt{flipper\_length\_mm}. The SVM decision value at this node is \texttt{2.1098}, which directs the sample along the left branch. At depth 2, the node evaluates \texttt{bill\_length\_mm} and \texttt{bill\_depth\_mm} and produces a decision value of \texttt{1.6592}, again guiding the sample to the left branch. Finally, the sample reaches a leaf node that predicts the class \texttt{Adelie}, which contains 123 training samples. The complete traversal path is \texttt{LEFT\ -\textgreater{}\ LEFT}, resulting in the final prediction of \texttt{Adelie}. This tracing functionality provides interpret-able insights into how each decision is made within the oblique decision tree.
 
@@ -583,11 +690,11 @@ The \texttt{svmodt} package allows tracing the prediction path of individual obs
 #> [1] "Adelie"
 \end{verbatim}
 
-\subsection{Example 2: Breast Cancer Diagnosis}\label{example-2-breast-cancer-diagnosis}
+\subsubsection{Example 2: Breast Cancer Diagnosis}\label{example-2-breast-cancer-diagnosis}
 
 We now demonstrate the package on the Wisconsin Diagnostic Breast Cancer (WDBC) data set, highlighting advanced functionalities such as handling class imbalance, feature sub-setting, and feature penalization. These features allow the SVM-based oblique decision tree to effectively manage real-world challenges, including unequal class distributions, high-dimensional feature spaces, and repeated feature usage, while maintaining interpret-ability and predictive performance.
 
-\subsubsection{Handling Class Imbalance}\label{handling-class-imbalance}
+\paragraph{Handling Class Imbalance}\label{handling-class-imbalance}
 
 The package provides built-in support for handling class imbalance through configurable class weighting. In the first example, the \texttt{svm\_split()} function is applied to the WDBC data set to predict the binary response variable with \texttt{class\_weights\ =\ "balanced"}, which automatically adjusts the weight of each class inversely proportional to its frequency. This ensures that minority classes receive higher influence during SVM training, improving predictive performance on imbalanced data sets.
 
@@ -693,7 +800,7 @@ print_svm_tree(tree = tree_custom,
 #>        (no right child)
 \end{verbatim}
 
-\subsubsection{Feature Penalization}\label{feature-penalization}
+\paragraph{Feature Penalization}\label{feature-penalization}
 
 To encourage feature diversity across the tree, the package implements a feature penalization mechanism that reduces the likelihood of reusing features selected at ancestor nodes.
 
@@ -732,7 +839,7 @@ print_svm_tree(tree_penalty, show_probabilities = FALSE,
 
 Penalization is controlled via the \texttt{feature\_penalty\_weight} parameter, which scales down the selection probability of previously used features. For instance, setting \texttt{feature\_penalty\_weight\ =\ 0.6} reduces the weight of used features by 60\%, promoting the consideration of alternative predictors at subsequent splits. This mechanism helps improve model robustness, reduces redundancy in feature usage, and enhances interpret-ability by encouraging the tree to explore diverse feature combinations.
 
-\subsubsection{Dynamic Feature Selection}\label{dynamic-feature-selection}
+\paragraph{Dynamic Feature Selection}\label{dynamic-feature-selection}
 
 The package also supports dynamic feature selection strategies, which vary the number of features considered at each node depending on tree depth or randomness.
 
@@ -805,9 +912,173 @@ print_svm_tree(tree_random, show_penalties = FALSE,
 
 Alternatively, the \textbf{random strategy} selects a feature count uniformly at random from a specified range (e.g., 5--20\% of the total features) at each node, promoting stochasticity and diversity in splits. These mechanisms provide flexible control over tree complexity and feature exploration, particularly useful in high-dimensional data sets such as the WDBC data set.
 
-\section{Results}\label{results}
+\section{Model Comparison}\label{model-comparison}
 
-\section{Discussion}\label{discussion}
+To evaluate the performance of our proposed methods, we conduct a comprehensive comparison study using the Wisconsin Diagnostic Breast Cancer (WDBC) data set. We compare five classification approaches:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\item
+  \textbf{Custom Decision Tree} - Our implementation with integrated cost-complexity pruning
+\item
+  \textbf{SVMODT} - SVM-based oblique decision tree with dynamic feature selection
+\item
+  \textbf{CART (rpart)} - Standard axis-aligned decision tree
+\item
+  \textbf{Linear SVM} - Support Vector Machine with linear kernel
+\item
+  \textbf{RBF SVM} - Support Vector Machine with radial basis function kernel
+\item
+  \textbf{Logistic Regression} - Generalized linear model for binary classification
+\end{enumerate}
+
+\subsection{Experimental Setup}\label{experimental-setup}
+
+To ensure robust performance estimates, we employ a repeated random sub-sampling validation strategy. For each iteration:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\item
+  The WDBC data set is randomly split into 80\% training and 20\% testing sets, stratified by the \texttt{diagnosis} variable
+\item
+  Each model is trained on the training set with fixed hyper-parameters
+\item
+  Test set accuracy is recorded
+\item
+  This process is repeated 50 times with different random seeds
+\end{enumerate}
+
+The hyper-parameters for each model are configured as follows:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\item
+  \textbf{Custom Tree}: Gini impurity, \texttt{max\_depth\ =\ 4}, \texttt{alpha\ =\ 0.01}
+\item
+  \textbf{SVMODT}: Mutual information feature selection, max\_depth = 4, decreasing feature strategy with rate 0.5, feature penalization enabled
+\item
+  \textbf{CART}: Complexity parameter \texttt{cp\ =\ 0.01}
+\item
+  \textbf{Linear SVM}: Default regularization, linear kernel
+\item
+  \textbf{RBF SVM}: Default regularization, RBF kernel with automatic gamma selection
+\item
+  \textbf{Logistic Regression}: L2 regularization with default parameters
+\end{enumerate}
+
+\subsection{Summary Statistics}\label{summary-statistics}
+
+Table \ref{tab:summary-stats-latex} presents the mean accuracy and standard deviation across 50 iterations for each model.
+
+\begin{table}
+\centering
+\caption{\label{tab:summary-stats-latex}Summary statistics of test accuracy across 50 iterations on WDBC dataset}
+\centering
+\begin{tabular}[t]{l|r|r|r|r}
+\hline
+Model & Mean & SD & Min & Max\\
+\hline
+Custom Tree & 0.9323 & 0.0209 & 0.8609 & 0.9739\\
+\hline
+SVMODT & 0.9737 & 0.0146 & 0.9304 & 1.0000\\
+\hline
+RPART & 0.9289 & 0.0214 & 0.8609 & 0.9652\\
+\hline
+Linear SVM & 0.9730 & 0.0139 & 0.9304 & 1.0000\\
+\hline
+RBF SVM & 0.9745 & 0.0129 & 0.9391 & 1.0000\\
+\hline
+Logistic Regression & 0.9450 & 0.0215 & 0.8783 & 1.0000\\
+\hline
+\end{tabular}
+\end{table}
+
+The \textbf{SVM-based Oblique Decision Tree (SVMODT)} achieved a mean test accuracy of 0.9737 with a standard deviation of 0.0146, demonstrating both high predictive performance and low variability. Traditional decision trees trained using \textbf{rpart} yielded a lower mean accuracy of 0.9289, reflecting limitations of axis-aligned splits. A \textbf{custom cost-complexity tree} achieved a mean accuracy of 0.9323, slightly higher than rpart but still below SVMODT. Among standard SVM classifiers, the \textbf{linear SVM} achieved 0.9730 and the \textbf{RBF kernel SVM} slightly outperformed with 0.9745 mean accuracy. \textbf{Logistic regression} provided competitive results (mean 0.9450) but lagged behind kernel-based methods.
+
+\subsection{Visualization of Results}\label{visualization-of-results}
+
+\subsubsection{Accuracy Distribution}\label{accuracy-distribution}
+
+Fig \ref{fig:boxplot-comparison} shows the distribution of test accuracy across all iterations for each model.
+
+\begin{figure}
+\centering
+\pandocbounded{\includegraphics[keepaspectratio]{paper-svmodt_files/figure-latex/boxplot-comparison-1.pdf}}
+\caption{\label{fig:boxplot-comparison}Model Accuracy Distribution (50 Resamples)}
+\end{figure}
+
+\subsubsection{Pairwise Comparisons}\label{pairwise-comparisons}
+
+We perform pairwise comparisons between our custom tree implementation and RPART, as well as between SVMODT and standard SVMs.
+
+\paragraph{Custom Tree vs.~RPART}\label{custom-tree-vs.-rpart}
+
+Fig \ref{fig:custom-vs-rpart} presents Bland-Altman plots comparing the custom decision tree with RPART.
+
+\begin{figure}
+\centering
+\pandocbounded{\includegraphics[keepaspectratio]{paper-svmodt_files/figure-latex/custom-vs-rpart-1.pdf}}
+\caption{\label{fig:custom-vs-rpart}Custom Tree vs.~RPART Comparison}
+\end{figure}
+
+\paragraph{SVMODT vs.~Standard SVMs}\label{svmodt-vs.-standard-svms}
+
+Fig \ref{fig:svmodt-vs-svm} compares SVMODT against Linear and RBF SVMs.
+
+\begin{figure}
+\centering
+\pandocbounded{\includegraphics[keepaspectratio]{paper-svmodt_files/figure-latex/svmodt-vs-svm-1.pdf}}
+\caption{\label{fig:svmodt-vs-svm}SVMODT vs.~Linear SVM Comparison}
+\end{figure}
+
+\subsection{Statistical Significance Testing}\label{statistical-significance-testing}
+
+We conducted paired t-tests to assess whether differences in predictive accuracy between models were statistically significant across the 50 iterations.
+
+\begin{table}
+\centering
+\caption{\label{tab:t-test-results-latex}Paired t-test results for model comparisons. Positive mean differences indicate the first model has higher accuracy.}
+\centering
+\fontsize{7}{9}\selectfont
+\begin{tabular}[t]{l|l|r|r|r}
+\hline
+  & Comparison & Mean\_Diff & t\_statistic & p\_value\\
+\hline
+t & Custom Tree vs. RPART & 0.0034 & 2.1240 & 0.0362\\
+\hline
+t1 & SVMODT vs. Linear SVM & 0.0006 & 1.0682 & 0.2880\\
+\hline
+t2 & SVMODT vs. RBF SVM & -0.0009 & -0.7089 & 0.4801\\
+\hline
+t3 & SVMODT vs. Custom Tree & 0.0414 & 19.9739 & 0.0000\\
+\hline
+t4 & Custom Tree vs. Logistic Regression & -0.0127 & -4.8400 & 0.0000\\
+\hline
+t5 & SVMODT vs. Logistic Regression & 0.0287 & 13.6221 & 0.0000\\
+\hline
+\end{tabular}
+\end{table}
+
+From Table \ref{t-test-results-latex} Positive mean differences indicate that the first model in each comparison outperformed the second. The \textbf{Custom Tree} achieved a slightly higher mean accuracy than \CRANpkg{rpart} (mean difference = 0.0034, \emph{p} = 0.0362), suggesting a marginal but significant improvement. \textbf{SVMODT} showed comparable performance to \textbf{Linear SVM} (mean difference = 0.0006, \emph{p} = 0.2880) and \textbf{RBF SVM} (mean difference = -0.0009, \emph{p} = 0.4801), indicating no significant difference, while significantly outperforming the \textbf{Custom Tree} (mean difference = 0.0414, \emph{p} \textless{} 0.001) and \textbf{Logistic Regression} (mean difference = 0.0287, \emph{p} \textless{} 0.001). Conversely, the Custom Tree performed worse than logistic regression (mean difference = -0.0127, \emph{p} \textless{} 0.001).
+
+\subsection{Discussion of Results}\label{discussion-of-results}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  \textbf{Tree-based Methods Performance}: Both the custom decision tree and RPART achieve comparable accuracy, demonstrating that the integrated pruning approach performs competitively with the established CART algorithm. The Bland-Altman analysis in Fig \ref{fig:custom-vs-rpart} shows that differences between the two methods are generally small and fall within acceptable limits of agreement.
+\item
+  \textbf{SVMODT Advantage}: The SVMODT consistently outperforms traditional axis-aligned decision trees, achieving mean accuracy of 0.9737. This improvement demonstrates the benefit of oblique splits in capturing complex decision boundaries that cannot be efficiently represented by axis-parallel partitions. The ability to combine features through linear SVM hyper-planes enables more compact and potentially more generalized tree structures.
+\item
+  \textbf{Comparison with Standard SVMs}: SVMODT achieves accuracy comparable to standard Linear SVM while maintaining the interpret ability advantages of tree structures. The RBF SVM shows slightly higher accuracy (mean = 0.9745), which is expected given its ability to model nonlinear decision boundaries. However, this comes at the cost of reduced interpret-ability---the SVMODT offers a transparent decision path that can be visualized and understood, while RBF SVM predictions are essentially black-box.
+\item
+  \textbf{Logistic Regression Baseline}: Logistic regression achieves competitive performance (mean accuracy = 0.945), demonstrating that the WDBC data set is largely linearly separable. However, both SVMODT and standard SVMs outperform logistic regression, suggesting that margin-based optimization provides additional robustness.
+\item
+  \textbf{Variance in Performance}: All methods show relatively low variance across the 50 re-sampling iterations, indicating stable performance across different train-test splits. The RBF SVM exhibits the lowest variance, followed closely by Linear SVM and SVMODT.
+\item
+  \textbf{Integrated Pruning Effectiveness}: The custom tree's competitive performance validates the integrated cost-complexity pruning approach. By making pruning decisions during tree construction rather than as post-processing, the method achieves similar accuracy to CART while potentially offering computational advantages (though timing comparisons were not the focus of this experiment).
+\end{enumerate}
 
 \bibliography{RJreferences.bib}
 
