@@ -160,7 +160,7 @@ Recent works such as the Oblique Decision Tree Ensemble (ODTE) \citep{montanana2
 
 \subsection{Related Software Packages}\label{related-software-packages}
 
-Several software packages provide functionality related to SVM-based decision trees, but fully-featured implementations of SVM Oblique Decision Trees (SVMODT) remain limited, particularly in R. In R, very scarce SVMODT implementation is available. The \CRANpkg{PPforest} package implements projection pursuit random forests, where trees are constructed by splitting on linear combinations of variables to maximize class separation, supporting multi-class problems and variable importance measures. In Python, \textbf{STree} \citep{Montanana2021} provides an oblique decision tree classifier based on SVM nodes, where each node is built and split using scikit-learn's \textbf{SVC} models \citep{scikit2011}. Java-based frameworks such as \textbf{Weka} provide classical decision trees (\textbf{J48}) and SVMs (\textbf{SMO}) that can be adapted for hierarchical SVM trees \citep{menkovski2008}. Overall, while multiple languages provide the building blocks---SVM training, decision tree construction, and ensemble methods---there is currently no widely available, fully integrated SVMODT software in R, highlighting the need for custom implementations or adaptation of existing tools for research and applied purposes.
+Several software packages provide functionality related to SVM-based decision trees, but fully-featured implementations of SVM Oblique Decision Trees (SVMODT) remain limited, particularly in R. In R, very scarce SVMODT implementation is available. The \CRANpkg{PPforest} package implements projection pursuit random forests, where trees are constructed by splitting on linear combinations of variables to maximize class separation, supporting multi-class problems and variable importance measures. In Python, \textbf{STree} \citep{Montanana2021} provides an oblique decision tree classifier based on SVM nodes, where each node is built and split using scikit-learn's \textbf{SVC} models \citep{scikit2011}. Java-based frameworks such as \textbf{Weka} provide classical decision trees (\textbf{J48}) and SVMs (\textbf{SMO}) that can be adapted for hierarchical SVM trees \citep{menkovski2008}. Overall, while multiple languages provide the building blocks for SVM training, decision tree construction, and ensemble methods---there is currently no widely available, fully integrated SVMODT software in R, highlighting the need for custom implementations or adaptation of existing tools for research and applied purposes.
 
 \section{Methodology}\label{methodology}
 
@@ -390,12 +390,359 @@ For both data sets, the following pre-processing steps are applied before traini
 \item
   \textbf{Class Filtering}: For Palmer Penguins, rows corresponding to the \emph{Gentoo} species are removed using \CRANpkg{dplyr} to create a binary classification problem.
 \item
-  \textbf{Categorical Encoding}: Categorical variables (e.g., \textbf{sex} in Palmer Penguins) are encoded as factor levels suitable for training.
+  \textbf{Categorical Encoding}: Categorical variables are encoded as factor levels suitable for training.
 \end{enumerate}
 
 These pre-processing steps ensure that SVMODT can learn meaningful oblique splits across both data sets while maintaining interpret-ability.
 
-\section{Code Examples}\label{code-examples}
+\section{Usage and Examples}\label{usage-and-examples}
+
+The svmodt package provides an intuitive interface for building SVM-based oblique decision trees. This section demonstrates the core functionality through two practical examples: ecological species classification and medical diagnosis.
+
+\subsection{Basic Usage}\label{basic-usage}
+
+The primary function \textbf{\texttt{svm\_split()}} constructs an oblique decision tree using the following key parameters:
+
+\begin{itemize}
+\item
+  \textbf{data}: A data frame containing predictors and response
+\item
+  response: Name of the response variable (as a string)
+\item
+  \textbf{max\_depth}: Maximum tree depth (controls model complexity)
+\item
+  \textbf{min\_samples}: Minimum samples required to split a node
+\item
+  \textbf{max\_features}: Maximum features to consider at each split
+\item
+  \textbf{feature\_method}: Feature selection strategy (``random'', ``mutual'', ``cor'')
+\item
+  \textbf{class\_weights}: Strategy for handling class imbalance
+\end{itemize}
+
+\subsection{Example 1: Penguin Species Classification}\label{example-1-penguin-species-classification}
+
+We demonstrate the package using the \CRANpkg{palmerpenguins} data set, which contains morphological measurements for three penguin species. We focus on classifying Adelie and Chinstrap penguins.
+
+\subsubsection{Model Training}\label{model-training}
+
+In this example, the model is trained on the \texttt{train\_data} data set to predict the categorical response variable, \emph{species}. The function \texttt{svm\_split()} recursively partitions the data using \textbf{linear SVM hyper-planes} at each internal node rather than conventional univariate thresholds, thereby producing \textbf{oblique splits} capable of capturing multivariate relationships among predictors. The argument \texttt{max\_depth\ =\ 3} constrains the tree to a maximum of three levels, providing control over model complexity and mitigating overfitting. Similarly, \texttt{max\_features\ =\ 2} restricts each node to consider only two features when fitting the SVM, enhancing computational efficiency and interpretability. The parameter \texttt{feature\_method\ =\ "mutual"} specifies that feature selection at each node is based on \textbf{mutual information}, ensuring that the most informative variables relative to the response are prioritized. Setting \texttt{verbose\ =\ FALSE} suppresses intermediate output for streamlined execution.
+
+\begin{verbatim}
+# Train SVMODT with mutual information feature selection
+tree <- svm_split(
+  data = train_data,
+  response = "species",
+  max_depth = 3,
+  max_features = 2,
+  feature_method = "mutual",
+  verbose = FALSE
+)
+\end{verbatim}
+
+\subsubsection{Model Structure}\label{model-structure}
+
+Each internal node represents a \textbf{binary linear decision boundary} obtained from a fitted SVM model using the features listed at that node. For example, the root node (depth = 1) uses \texttt{bill\_length\_mm} and \texttt{flipper\_length\_mm} to form the first separating hyper-plane. Observations satisfying \(SVM>0\) proceed to the left child, while those with \(SVM \leq 0\) move to the right branch.
+
+\begin{verbatim}
+#>  [Node] depth = 1 | n = 175 | features = [bill_length_mm,flipper_length_mm] | max_feat = 2
+#>  |- Left branch (SVM > 0):
+#> |   [Node] depth = 2 | n = 125 | features = [bill_length_mm,bill_depth_mm]
+#> |   |- Left branch (SVM > 0):
+#> |  |   [Leaf] predict = Adelie | n = 123 | features = [bill_length_mm,bill_depth_mm]
+#> |   `- Right branch (SVM <= 0):
+#> |      (no right child)
+#>  `- Right branch (SVM <= 0):
+#>     [Node] depth = 2 | n = 50 | features = [bill_length_mm,bill_depth_mm]
+#>     |- Left branch (SVM > 0):
+#>    |   [Leaf] predict = Chinstrap | n = 48
+#>     `- Right branch (SVM <= 0):
+#>        (no right child)
+\end{verbatim}
+
+Terminal nodes (labeled as \emph{Leaf}) correspond to final class predictions. In this case, most observations in the left sub-tree are classified as \emph{Adelie}, while the right sub-tree primarily identifies \emph{Chinstrap} penguins. The structure illustrates how \textbf{SVM-based oblique splits} allow the tree to capture complex linear interactions between multiple predictors---something that traditional axis-aligned decision trees cannot achieve.
+
+\subsubsection{Visualizing Decision Boundaries}\label{visualizing-decision-boundaries}
+
+The package includes visualization tools to examine the SVM hyper-planes at each node, allowing users to interpret how features contribute to class separation within the tree. \emph{Note that visualization is currently supported only for trees where each node consistently uses exactly two features,} ensuring that the separating hyper-plane can be rendered clearly in two-dimensional feature space. The \texttt{visualize\_svm\_tree()} function produces a graphical representation of the overall decision hierarchy
+
+\begin{figure}
+\centering
+\pandocbounded{\includegraphics[keepaspectratio]{paper-svmodt_files/figure-latex/penguins-depth-one-1.pdf}}
+\caption{\label{fig:penguins-depth-one}Visualization of the root node (depth = 1) of the SVM-based oblique decision tree.}
+\end{figure}
+
+Fig \ref{fig:penguins-depth-one} depicts the root node of the SVM-based oblique decision tree, where the first split is performed using the features \texttt{bill\_length\_mm} and \texttt{flipper\_length\_mm}. The figure illustrates how the linear SVM at the root node divides the dataset into two branches, guiding samples toward subsequent child nodes. \textbf{Note:} This visualization is only possible because the node considers exactly two features, a requirement for 2D plotting.
+
+\begin{figure}
+
+{\centering \includegraphics{paper-svmodt_files/figure-latex/penguins-depth-two-1} 
+
+}
+
+\caption{Visualization of a node (depth = 2).}\label{fig:penguins-depth-two}
+\end{figure}
+
+Similarly, Fig \ref{fig:penguins-depth-two} shows a node at depth 2 of the tree, where the SVM uses bill\_length\_mm and bill\_depth\_mm to further partition the data. The decision hyper-plane and sample positions are plotted, highlighting how oblique splits can capture multivariate relationships that univariate thresholds cannot. This figure demonstrates the recursive nature of the tree and the refinement of class separation at deeper levels. As with the root node, the visualization is restricted to nodes consistently using exactly two features.
+
+\subsubsection{Prediction Path Tracing}\label{prediction-path-tracing}
+
+The \texttt{svmodt} package allows tracing the prediction path of individual observations through the SVM-based oblique decision tree. For each sample, the relevant feature values are evaluated at each node using the linear SVM hyper-plane associated with that node. For instance, a sample with \texttt{bill\_length\_mm\ =\ 39.5}, \texttt{bill\_depth\_mm\ =\ 17.4}, \texttt{flipper\_length\_mm\ =\ 186}, and \texttt{body\_mass\_g\ =\ 3800} first reaches the root node, which considers \texttt{bill\_length\_mm} and \texttt{flipper\_length\_mm}. The SVM decision value at this node is \texttt{2.1098}, which directs the sample along the left branch. At depth 2, the node evaluates \texttt{bill\_length\_mm} and \texttt{bill\_depth\_mm} and produces a decision value of \texttt{1.6592}, again guiding the sample to the left branch. Finally, the sample reaches a leaf node that predicts the class \texttt{Adelie}, which contains 123 training samples. The complete traversal path is \texttt{LEFT\ -\textgreater{}\ LEFT}, resulting in the final prediction of \texttt{Adelie}. This tracing functionality provides interpret-able insights into how each decision is made within the oblique decision tree.
+
+\begin{verbatim}
+#> === Tracing Prediction Path ===
+#> Sample 1 :
+#>    species = 1 
+#>    bill_length_mm = 39.5 
+#>    bill_depth_mm = 17.4 
+#>    flipper_length_mm = 186 
+#>    body_mass_g = 3800 
+#> 
+#>  [Node 1 ] features = bill_length_mm,flipper_length_mm 
+#>    SVM decision value: 2.1098 
+#>    -> Going LEFT (decision > 0)
+#>    [Node 2 ] features = bill_length_mm,bill_depth_mm 
+#>      SVM decision value: 1.6592 
+#>      -> Going LEFT (decision > 0)
+#>      [FINAL] Predict Adelie (n = 123 )
+#>      Path taken: LEFT -> LEFT 
+#> 
+#> Final prediction: Adelie
+\end{verbatim}
+
+\begin{verbatim}
+#> [1] "Adelie"
+\end{verbatim}
+
+\subsection{Example 2: Breast Cancer Diagnosis}\label{example-2-breast-cancer-diagnosis}
+
+We now demonstrate the package on the Wisconsin Diagnostic Breast Cancer (WDBC) data set, highlighting advanced functionalities such as handling class imbalance, feature sub-setting, and feature penalization. These features allow the SVM-based oblique decision tree to effectively manage real-world challenges, including unequal class distributions, high-dimensional feature spaces, and repeated feature usage, while maintaining interpret-ability and predictive performance.
+
+\subsubsection{Handling Class Imbalance}\label{handling-class-imbalance}
+
+The package provides built-in support for handling class imbalance through configurable class weighting. In the first example, the \texttt{svm\_split()} function is applied to the WDBC data set to predict the binary response variable with \texttt{class\_weights\ =\ "balanced"}, which automatically adjusts the weight of each class inversely proportional to its frequency. This ensures that minority classes receive higher influence during SVM training, improving predictive performance on imbalanced data sets.
+
+\begin{verbatim}
+# Train with balanced class weights
+tree_balanced <- svm_split(
+  data = train_wdbc,
+  response = "diagnosis",
+  max_depth = 4,
+  max_features = 5,
+  feature_method = "mutual",
+  class_weights = "balanced",  # Automatic balancing
+  verbose = FALSE
+)
+
+print_svm_tree(tree = tree_balanced, 
+               show_feature_info = FALSE, 
+               show_penalties = FALSE, show_probabilities = TRUE)
+\end{verbatim}
+
+\begin{verbatim}
+#>  [Node] depth = 1 | n = 455
+#>  |- Left branch (SVM > 0):
+#> |   [Node] depth = 2 | n = 177
+#> |   |- Left branch (SVM > 0):
+#> |  |   [Node] depth = 3 | n = 147
+#> |  |   |- Left branch (SVM > 0):
+#> |  |  |   [Leaf] predict = M | n = 144 | probs = [B = 0, M = 1]
+#> |  |   `- Right branch (SVM <= 0):
+#> |  |      (no right child)
+#> |   `- Right branch (SVM <= 0):
+#> |      [Node] depth = 3 | n = 30
+#> |      |- Left branch (SVM > 0):
+#> |     |   [Node] depth = 4 | n = 13
+#> |     |   |- Left branch (SVM > 0):
+#> |     |  |   [Leaf] predict = M | n = 5 | probs = [B = 0, M = 1]
+#> |     |   `- Right branch (SVM <= 0):
+#> |     |      [Leaf] predict = B | n = 8 | probs = [B = 0.5, M = 0.5]
+#> |      `- Right branch (SVM <= 0):
+#> |         [Node] depth = 4 | n = 17
+#> |         |- Left branch (SVM > 0):
+#> |        |   [Leaf] predict = B | n = 13 | probs = [B = 1, M = 0]
+#> |         `- Right branch (SVM <= 0):
+#> |            (no right child)
+#>  `- Right branch (SVM <= 0):
+#>     [Node] depth = 2 | n = 278
+#>     |- Left branch (SVM > 0):
+#>    |   [Leaf] predict = B | n = 256 | probs = [B = 0.988, M = 0.012]
+#>     `- Right branch (SVM <= 0):
+#>        [Node] depth = 3 | n = 22
+#>        |- Left branch (SVM > 0):
+#>       |   [Leaf] predict = M | n = 5 | probs = [B = 0.4, M = 0.6]
+#>        `- Right branch (SVM <= 0):
+#>           [Node] depth = 4 | n = 17
+#>           |- Left branch (SVM > 0):
+#>          |   [Leaf] predict = B | n = 11 | probs = [B = 1, M = 0]
+#>           `- Right branch (SVM <= 0):
+#>              [Leaf] predict = B | n = 6 | probs = [B = 0.833, M = 0.167]
+\end{verbatim}
+
+In the second example, custom class weights can be specified via the \texttt{custom\_class\_weights} argument, assigning a higher penalty to the malignant class (\texttt{"M"\ =\ 3}) relative to the benign class (\texttt{"B"\ =\ 1}) to emphasize minimizing false negatives. The resulting trees (\texttt{tree\_balanced} and \texttt{tree\_custom}) incorporate these weights during the recursive SVM-based splits, enabling more equitable class separation while still leveraging the oblique decision tree structure.
+
+\begin{verbatim}
+# Custom class weights for domain-specific costs
+custom_weights <- c("B" = 1, "M" = 3)  # Penalize false negatives
+tree_custom <- svm_split(
+  data = train_wdbc,
+  response = "diagnosis",
+  max_depth = 4,
+  max_features = 5,
+  class_weights = "custom",
+  custom_class_weights = custom_weights,
+  verbose = FALSE
+)
+
+print_svm_tree(tree = tree_custom, 
+               show_feature_info = FALSE, 
+               show_penalties = FALSE, 
+               show_probabilities = FALSE)
+\end{verbatim}
+
+\begin{verbatim}
+#>  [Node] depth = 1 | n = 455
+#>  |- Left branch (SVM > 0):
+#> |   [Node] depth = 2 | n = 190
+#> |   |- Left branch (SVM > 0):
+#> |  |   [Node] depth = 3 | n = 188
+#> |  |   |- Left branch (SVM > 0):
+#> |  |  |   [Leaf] predict = M | n = 171
+#> |  |   `- Right branch (SVM <= 0):
+#> |  |      [Leaf] predict = B | n = 17
+#> |   `- Right branch (SVM <= 0):
+#> |      (no right child)
+#>  `- Right branch (SVM <= 0):
+#>     [Node] depth = 2 | n = 265
+#>     |- Left branch (SVM > 0):
+#>    |   [Node] depth = 3 | n = 264
+#>    |   |- Left branch (SVM > 0):
+#>    |  |   [Leaf] predict = B | n = 263
+#>    |   `- Right branch (SVM <= 0):
+#>    |      (no right child)
+#>     `- Right branch (SVM <= 0):
+#>        (no right child)
+\end{verbatim}
+
+\subsubsection{Feature Penalization}\label{feature-penalization}
+
+To encourage feature diversity across the tree, the package implements a feature penalization mechanism that reduces the likelihood of reusing features selected at ancestor nodes.
+
+\begin{verbatim}
+set.seed(123)
+tree_penalty <- svm_split(
+  data = train_wdbc,
+  response = "diagnosis",
+  max_depth = 4,
+  max_features = 4,
+  penalize_used_features = TRUE,
+  feature_penalty_weight = 0.6,
+  verbose = FALSE
+)
+
+stringr::str_wrap(print_svm_tree(tree_penalty, show_probabilities = FALSE, 
+               show_feature_info = TRUE, 
+               show_penalties = FALSE)) 
+\end{verbatim}
+
+\begin{verbatim}
+#>  [Node] depth = 1 | n = 455 | features = [smoothness_se,symmetry_se,area_se,perimeter_mean] | max_feat = 4
+#>  |- Left branch (SVM > 0):
+#> |   [Leaf] predict = M | n = 138 | features = [perimeter_mean,perimeter_se,fractal_dimension_worst,compactness_mean]
+#>  `- Right branch (SVM <= 0):
+#>     [Node] depth = 2 | n = 317 | features = [concave.points_mean,radius_se,compactness_mean,area_worst] | max_feat = 4
+#>     |- Left branch (SVM > 0):
+#>    |   [Leaf] predict = B | n = 291 | features = [perimeter_worst,concave.points_se,concavity_se,texture_mean]
+#>     `- Right branch (SVM <= 0):
+#>        [Node] depth = 3 | n = 26 | features = [concavity_worst,perimeter_mean,smoothness_mean,compactness_worst]
+#>        |- Left branch (SVM > 0):
+#>       |   [Leaf] predict = M | n = 22
+#>        `- Right branch (SVM <= 0):
+#>           (no right child)
+\end{verbatim}
+
+\begin{verbatim}
+#> character(0)
+\end{verbatim}
+
+Penalization is controlled via the \texttt{feature\_penalty\_weight} parameter, which scales down the selection probability of previously used features. For instance, setting \texttt{feature\_penalty\_weight\ =\ 0.6} reduces the weight of used features by 60\%, promoting the consideration of alternative predictors at subsequent splits. This mechanism helps improve model robustness, reduces redundancy in feature usage, and enhances interpret-ability by encouraging the tree to explore diverse feature combinations.
+
+\subsubsection{Dynamic Feature Selection}\label{dynamic-feature-selection}
+
+The package also supports dynamic feature selection strategies, which vary the number of features considered at each node depending on tree depth or randomness.
+
+\begin{verbatim}
+tree_decrease <- svm_split(
+  data = train_wdbc,
+  response = "diagnosis", 
+  feature_method = "mutual",
+  max_depth = 3,
+  max_features = 4,
+  max_features_strategy = "decrease",
+  max_features_decrease_rate = 0.5,
+  verbose = FALSE
+)
+
+stringr::str_wrap(print_svm_tree(tree_decrease, show_penalties = FALSE, 
+               show_feature_info = TRUE)) 
+\end{verbatim}
+
+\begin{verbatim}
+#>  [Node] depth = 1 | n = 455 | features = [perimeter_worst,concave.points_mean,concave.points_worst,radius_worst] | max_feat = 4
+#>  |- Left branch (SVM > 0):
+#> |   [Node] depth = 2 | n = 155 | features = [perimeter_worst,texture_worst]
+#> |   |- Left branch (SVM > 0):
+#> |  |   [Leaf] predict = M | n = 152 | features = [concavity_worst]
+#> |   `- Right branch (SVM <= 0):
+#> |      (no right child)
+#>  `- Right branch (SVM <= 0):
+#>     [Leaf] predict = B | n = 300 | features = [radius_worst,perimeter_worst]
+\end{verbatim}
+
+\begin{verbatim}
+#> character(0)
+\end{verbatim}
+
+In the \textbf{decrease strategy}, the number of candidate features at depth \(d\) is scaled by a decay factor \(\alpha\) , e.g., \(m_0 = m_0 \cdot \alpha^{d-1}\) , reducing feature count at deeper levels to improve efficiency and prevent over-fitting.
+
+\begin{verbatim}
+set.seed(123)
+
+tree_random <- svm_split(
+  data = train_wdbc,
+  response = "diagnosis",
+  feature_method = "mutual",
+  max_depth = 4,
+  max_features_strategy = "random",
+  max_features_random_range = c(0.05, 0.2),  # 30-80% of features
+  verbose = FALSE
+)
+
+print_svm_tree(tree_random, show_penalties = FALSE, 
+               show_feature_info = TRUE)
+\end{verbatim}
+
+\begin{verbatim}
+#>  [Node] depth = 1 | n = 455 | features = [perimeter_worst,concave.points_mean,concave.points_worst,radius_worst] | max_feat = 4
+#>  |- Left branch (SVM > 0):
+#> |   [Node] depth = 2 | n = 155 | features = [perimeter_worst,texture_worst]
+#> |   |- Left branch (SVM > 0):
+#> |  |   [Node] depth = 3 | n = 152 | features = [concavity_worst,concavity_mean,concave.points_mean,concavity_se,texture_worst]
+#> |  |   |- Left branch (SVM > 0):
+#> |  |  |   [Leaf] predict = M | n = 149 | features = [radius_mean,texture_mean]
+#> |  |   `- Right branch (SVM <= 0):
+#> |  |      (no right child)
+#> |   `- Right branch (SVM <= 0):
+#> |      (no right child)
+#>  `- Right branch (SVM <= 0):
+#>     [Node] depth = 2 | n = 300 | features = [radius_worst,perimeter_worst,area_worst,area_mean,area_se]
+#>     |- Left branch (SVM > 0):
+#>    |   [Leaf] predict = B | n = 299 | features = [area_mean,radius_worst,perimeter_worst,area_worst]
+#>     `- Right branch (SVM <= 0):
+#>        (no right child)
+\end{verbatim}
+
+Alternatively, the \textbf{random strategy} selects a feature count uniformly at random from a specified range (e.g., 5--20\% of the total features) at each node, promoting stochasticity and diversity in splits. These mechanisms provide flexible control over tree complexity and feature exploration, particularly useful in high-dimensional data sets such as the WDBC data set.
 
 \section{Results}\label{results}
 

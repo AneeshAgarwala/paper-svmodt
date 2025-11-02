@@ -3,7 +3,13 @@
 
 ## ----setup, include=FALSE-----------------------------------------------------
 knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
+knitr::opts_knit$set(latex_engine = "xelatex")
 library(kableExtra)
+library(dplyr)
+
+devtools::install("../project-svodt/")
+library(svmodt)
+library(palmerpenguins)
 
 
 ## ----kernels-tab-interactive, eval = knitr::is_html_output()------------------
@@ -61,4 +67,152 @@ kable(
   caption = "Commonly used kernel functions and their parameters."
 ) |>
   kable_styling(font_size = 7, full_width = FALSE, position = "center")
+
+
+## ----palmer-data, eval=TRUE---------------------------------------------------
+# Prepare data
+penguins_data <- penguins |>
+  filter(species %in% c("Adelie", "Chinstrap")) |>
+  select(species, bill_length_mm, bill_depth_mm, 
+         flipper_length_mm, body_mass_g) |>
+  na.omit() |>
+  mutate(species = droplevels(species))
+
+# Split data
+set.seed(234)
+train_idx <- sample(nrow(penguins_data), 0.8 * nrow(penguins_data))
+train_data <- penguins_data[train_idx, ]
+test_data <- penguins_data[-train_idx, ]
+
+
+## ----palmer-model-train, echo=TRUE, results='asis'----------------------------
+# Train SVMODT with mutual information feature selection
+tree <- svm_split(
+  data = train_data,
+  response = "species",
+  max_depth = 3,
+  max_features = 2,
+  feature_method = "mutual",
+  verbose = FALSE
+)
+
+
+## ----palemr-model-print-------------------------------------------------------
+print_svm_tree(tree, show_penalties = FALSE)
+
+
+## ----penguins-depth-one, results='asis', fig.cap="Visualization of the root node (depth = 1) of the SVM-based oblique decision tree."----
+viz <- visualize_svm_tree(
+  tree = tree,
+  original_data = train_data,
+  response_col = "species",
+  max_depth = 2
+)
+
+# Display root node boundary
+viz$plots$depth_1_Root
+
+
+## ----penguins-depth-two, results='asis', fig.align='center', fig.cap="Visualization of a node (depth = 2)."----
+gridExtra::grid.arrange(viz$plots$`depth_2_Root_→_L`, viz$plots$`depth_2_Root_→_R`, ncol = 2)
+
+
+## -----------------------------------------------------------------------------
+trace_prediction_path(tree, test_data, sample_idx = 1)
+
+
+## -----------------------------------------------------------------------------
+data("wdbc", package = "svmodt")
+
+# Split data
+set.seed(234)
+train_idx <- sample(nrow(wdbc), 0.8 * nrow(wdbc))
+train_wdbc <- wdbc[train_idx, ]
+test_wdbc <- wdbc[-train_idx, ]
+
+
+## ----echo=TRUE----------------------------------------------------------------
+# Train with balanced class weights
+tree_balanced <- svm_split(
+  data = train_wdbc,
+  response = "diagnosis",
+  max_depth = 4,
+  max_features = 5,
+  feature_method = "mutual",
+  class_weights = "balanced",  # Automatic balancing
+  verbose = FALSE
+)
+
+print_svm_tree(tree = tree_balanced, 
+               show_feature_info = FALSE, 
+               show_penalties = FALSE, show_probabilities = TRUE)
+
+
+## ----echo=TRUE----------------------------------------------------------------
+# Custom class weights for domain-specific costs
+custom_weights <- c("B" = 1, "M" = 3)  # Penalize false negatives
+tree_custom <- svm_split(
+  data = train_wdbc,
+  response = "diagnosis",
+  max_depth = 4,
+  max_features = 5,
+  class_weights = "custom",
+  custom_class_weights = custom_weights,
+  verbose = FALSE
+)
+
+print_svm_tree(tree = tree_custom, 
+               show_feature_info = FALSE, 
+               show_penalties = FALSE, 
+               show_probabilities = FALSE)
+
+
+## ----echo=TRUE----------------------------------------------------------------
+set.seed(123)
+tree_penalty <- svm_split(
+  data = train_wdbc,
+  response = "diagnosis",
+  max_depth = 4,
+  max_features = 4,
+  penalize_used_features = TRUE,
+  feature_penalty_weight = 0.6,
+  verbose = FALSE
+)
+
+stringr::str_wrap(print_svm_tree(tree_penalty, show_probabilities = FALSE, 
+               show_feature_info = TRUE, 
+               show_penalties = FALSE)) 
+
+
+## ----echo=TRUE----------------------------------------------------------------
+tree_decrease <- svm_split(
+  data = train_wdbc,
+  response = "diagnosis", 
+  feature_method = "mutual",
+  max_depth = 3,
+  max_features = 4,
+  max_features_strategy = "decrease",
+  max_features_decrease_rate = 0.5,
+  verbose = FALSE
+)
+
+stringr::str_wrap(print_svm_tree(tree_decrease, show_penalties = FALSE, 
+               show_feature_info = TRUE)) 
+
+
+## ----echo=TRUE----------------------------------------------------------------
+set.seed(123)
+
+tree_random <- svm_split(
+  data = train_wdbc,
+  response = "diagnosis",
+  feature_method = "mutual",
+  max_depth = 4,
+  max_features_strategy = "random",
+  max_features_random_range = c(0.05, 0.2),  # 30-80% of features
+  verbose = FALSE
+)
+
+print_svm_tree(tree_random, show_penalties = FALSE, 
+               show_feature_info = TRUE)
 

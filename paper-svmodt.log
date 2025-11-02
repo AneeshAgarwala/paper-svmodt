@@ -1,11 +1,11 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.28 (TeX Live 2025) (preloaded format=pdflatex 2025.10.23)  1 NOV 2025 19:41
+This is pdfTeX, Version 3.141592653-2.6-1.40.28 (TeX Live 2025) (preloaded format=pdflatex 2025.11.2)  2 NOV 2025 20:07
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
 **paper-svmodt.tex
 (./paper-svmodt.tex
-LaTeX2e <2025-06-01> patch level 1
-L3 programming layer <2025-09-02>
+LaTeX2e <2025-11-01>
+L3 programming layer <2025-10-24>
 ! Undefined control sequence.
 l.7 \maketitle
               
@@ -17,11 +17,11 @@ and I'll forget about whatever was undefined.
 
  
 Here is how much of TeX's memory you used:
- 14 strings out of 469667
- 364 string characters out of 5473186
- 433696 words of memory out of 5000000
- 28568 multiletter control sequences out of 15000+600000
+ 14 strings out of 469558
+ 364 string characters out of 5468973
+ 433736 words of memory out of 5000000
+ 28723 multiletter control sequences out of 15000+600000
  627721 words of font info for 40 fonts, out of 8000000 for 9000
- 36 hyphenation exceptions out of 8191
+ 14 hyphenation exceptions out of 8191
  12i,0n,13p,91b,8s stack positions out of 10000i,1000n,20000p,200000b,200000s
 !  ==> Fatal error occurred, no output PDF file produced!

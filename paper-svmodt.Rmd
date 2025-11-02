@@ -30,12 +30,19 @@ header-includes:
   \usepackage{algorithmic}
   \usepackage{amsmath}
   \usepackage{amssymb}
+  \providecommand{\pandocbounded}[1]{#1}
 bibliography: RJreferences.bib
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
+knitr::opts_knit$set(latex_engine = "xelatex")
 library(kableExtra)
+library(dplyr)
+
+devtools::install("../project-svodt/")
+library(svmodt)
+library(palmerpenguins)
 ```
 
 # Introduction
@@ -223,7 +230,7 @@ Recent works such as the Oblique Decision Tree Ensemble (ODTE) [@montanana2025] 
 
 ## Related Software Packages
 
-Several software packages provide functionality related to SVM-based decision trees, but fully-featured implementations of SVM Oblique Decision Trees (SVMODT) remain limited, particularly in R. In R, very scarce SVMODT implementation is available. The \CRANpkg{PPforest} package implements projection pursuit random forests, where trees are constructed by splitting on linear combinations of variables to maximize class separation, supporting multi-class problems and variable importance measures. In Python, **STree** [@Montanana2021] provides an oblique decision tree classifier based on SVM nodes, where each node is built and split using scikit-learn’s **SVC** models [@scikit2011]. Java-based frameworks such as **Weka** provide classical decision trees (**J48**) and SVMs (**SMO**) that can be adapted for hierarchical SVM trees [@menkovski2008]. Overall, while multiple languages provide the building blocks—SVM training, decision tree construction, and ensemble methods—there is currently no widely available, fully integrated SVMODT software in R, highlighting the need for custom implementations or adaptation of existing tools for research and applied purposes.
+Several software packages provide functionality related to SVM-based decision trees, but fully-featured implementations of SVM Oblique Decision Trees (SVMODT) remain limited, particularly in R. In R, very scarce SVMODT implementation is available. The \CRANpkg{PPforest} package implements projection pursuit random forests, where trees are constructed by splitting on linear combinations of variables to maximize class separation, supporting multi-class problems and variable importance measures. In Python, **STree** [@Montanana2021] provides an oblique decision tree classifier based on SVM nodes, where each node is built and split using scikit-learn’s **SVC** models [@scikit2011]. Java-based frameworks such as **Weka** provide classical decision trees (**J48**) and SVMs (**SMO**) that can be adapted for hierarchical SVM trees [@menkovski2008]. Overall, while multiple languages provide the building blocks for SVM training, decision tree construction, and ensemble methods—there is currently no widely available, fully integrated SVMODT software in R, highlighting the need for custom implementations or adaptation of existing tools for research and applied purposes.
 
 # Methodology
 
@@ -415,11 +422,229 @@ For both data sets, the following pre-processing steps are applied before traini
 
 1.  **Missing Values**: Rows with missing values are removed.
 2.  **Class Filtering**: For Palmer Penguins, rows corresponding to the *Gentoo* species are removed using \CRANpkg{dplyr} to create a binary classification problem.
-3.  **Categorical Encoding**: Categorical variables (e.g., **sex** in Palmer Penguins) are encoded as factor levels suitable for training.
+3.  **Categorical Encoding**: Categorical variables are encoded as factor levels suitable for training.
 
 These pre-processing steps ensure that SVMODT can learn meaningful oblique splits across both data sets while maintaining interpret-ability.
 
-# Code Examples
+# Usage and Examples
+
+The svmodt package provides an intuitive interface for building SVM-based oblique decision trees. This section demonstrates the core functionality through two practical examples: ecological species classification and medical diagnosis.
+
+## Basic Usage
+
+The primary function **`svm_split()`** constructs an oblique decision tree using the following key parameters:
+
+-   **data**: A data frame containing predictors and response
+
+-   response: Name of the response variable (as a string)
+
+-   **max_depth**: Maximum tree depth (controls model complexity)
+
+-   **min_samples**: Minimum samples required to split a node
+
+-   **max_features**: Maximum features to consider at each split
+
+-   **feature_method**: Feature selection strategy ("random", "mutual", "cor")
+
+-   **class_weights**: Strategy for handling class imbalance
+
+## Example 1: Penguin Species Classification
+
+We demonstrate the package using the \CRANpkg{palmerpenguins} data set, which contains morphological measurements for three penguin species. We focus on classifying Adelie and Chinstrap penguins.
+
+```{r palmer-data, eval=TRUE}
+# Prepare data
+penguins_data <- penguins |>
+  filter(species %in% c("Adelie", "Chinstrap")) |>
+  select(species, bill_length_mm, bill_depth_mm, 
+         flipper_length_mm, body_mass_g) |>
+  na.omit() |>
+  mutate(species = droplevels(species))
+
+# Split data
+set.seed(234)
+train_idx <- sample(nrow(penguins_data), 0.8 * nrow(penguins_data))
+train_data <- penguins_data[train_idx, ]
+test_data <- penguins_data[-train_idx, ]
+```
+
+### Model Training
+
+In this example, the model is trained on the `train_data` data set to predict the categorical response variable, *species*. The function `svm_split()` recursively partitions the data using **linear SVM hyper-planes** at each internal node rather than conventional univariate thresholds, thereby producing **oblique splits** capable of capturing multivariate relationships among predictors. The argument `max_depth = 3` constrains the tree to a maximum of three levels, providing control over model complexity and mitigating overfitting. Similarly, `max_features = 2` restricts each node to consider only two features when fitting the SVM, enhancing computational efficiency and interpretability. The parameter `feature_method = "mutual"` specifies that feature selection at each node is based on **mutual information**, ensuring that the most informative variables relative to the response are prioritized. Setting `verbose = FALSE` suppresses intermediate output for streamlined execution.
+
+```{r palmer-model-train, echo=TRUE, results='asis'}
+# Train SVMODT with mutual information feature selection
+tree <- svm_split(
+  data = train_data,
+  response = "species",
+  max_depth = 3,
+  max_features = 2,
+  feature_method = "mutual",
+  verbose = FALSE
+)
+```
+
+### Model Structure
+
+Each internal node represents a **binary linear decision boundary** obtained from a fitted SVM model using the features listed at that node. For example, the root node (depth = 1) uses `bill_length_mm` and `flipper_length_mm` to form the first separating hyper-plane. Observations satisfying $SVM>0$ proceed to the left child, while those with $SVM \leq 0$ move to the right branch.
+
+```{r palemr-model-print}
+print_svm_tree(tree, show_penalties = FALSE)
+```
+
+Terminal nodes (labeled as *Leaf*) correspond to final class predictions. In this case, most observations in the left sub-tree are classified as *Adelie*, while the right sub-tree primarily identifies *Chinstrap* penguins. The structure illustrates how **SVM-based oblique splits** allow the tree to capture complex linear interactions between multiple predictors—something that traditional axis-aligned decision trees cannot achieve.
+
+### Visualizing Decision Boundaries
+
+The package includes visualization tools to examine the SVM hyper-planes at each node, allowing users to interpret how features contribute to class separation within the tree. *Note that visualization is currently supported only for trees where each node consistently uses exactly two features,* ensuring that the separating hyper-plane can be rendered clearly in two-dimensional feature space. The `visualize_svm_tree()` function produces a graphical representation of the overall decision hierarchy
+
+```{r penguins-depth-one, results='asis', fig.cap="Visualization of the root node (depth = 1) of the SVM-based oblique decision tree."}
+viz <- visualize_svm_tree(
+  tree = tree,
+  original_data = train_data,
+  response_col = "species",
+  max_depth = 2
+)
+
+# Display root node boundary
+viz$plots$depth_1_Root
+```
+
+Fig \@ref(fig:penguins-depth-one) depicts the root node of the SVM-based oblique decision tree, where the first split is performed using the features `bill_length_mm` and `flipper_length_mm`. The figure illustrates how the linear SVM at the root node divides the dataset into two branches, guiding samples toward subsequent child nodes. **Note:** This visualization is only possible because the node considers exactly two features, a requirement for 2D plotting.
+
+```{r penguins-depth-two, results='asis', fig.align='center', fig.cap="Visualization of a node (depth = 2)."}
+gridExtra::grid.arrange(viz$plots$`depth_2_Root_→_L`, viz$plots$`depth_2_Root_→_R`, ncol = 2)
+```
+
+Similarly, Fig \@ref(fig:penguins-depth-two) shows a node at depth 2 of the tree, where the SVM uses bill_length_mm and bill_depth_mm to further partition the data. The decision hyper-plane and sample positions are plotted, highlighting how oblique splits can capture multivariate relationships that univariate thresholds cannot. This figure demonstrates the recursive nature of the tree and the refinement of class separation at deeper levels. As with the root node, the visualization is restricted to nodes consistently using exactly two features.
+
+### Prediction Path Tracing
+
+The `svmodt` package allows tracing the prediction path of individual observations through the SVM-based oblique decision tree. For each sample, the relevant feature values are evaluated at each node using the linear SVM hyper-plane associated with that node. For instance, a sample with `bill_length_mm = 39.5`, `bill_depth_mm = 17.4`, `flipper_length_mm = 186`, and `body_mass_g = 3800` first reaches the root node, which considers `bill_length_mm` and `flipper_length_mm`. The SVM decision value at this node is `2.1098`, which directs the sample along the left branch. At depth 2, the node evaluates `bill_length_mm` and `bill_depth_mm` and produces a decision value of `1.6592`, again guiding the sample to the left branch. Finally, the sample reaches a leaf node that predicts the class `Adelie`, which contains 123 training samples. The complete traversal path is `LEFT -> LEFT`, resulting in the final prediction of `Adelie`. This tracing functionality provides interpret-able insights into how each decision is made within the oblique decision tree.
+
+```{r}
+trace_prediction_path(tree, test_data, sample_idx = 1)
+```
+
+## Example 2: Breast Cancer Diagnosis
+
+```{r}
+data("wdbc", package = "svmodt")
+
+# Split data
+set.seed(234)
+train_idx <- sample(nrow(wdbc), 0.8 * nrow(wdbc))
+train_wdbc <- wdbc[train_idx, ]
+test_wdbc <- wdbc[-train_idx, ]
+```
+
+We now demonstrate the package on the Wisconsin Diagnostic Breast Cancer (WDBC) data set, highlighting advanced functionalities such as handling class imbalance, feature sub-setting, and feature penalization. These features allow the SVM-based oblique decision tree to effectively manage real-world challenges, including unequal class distributions, high-dimensional feature spaces, and repeated feature usage, while maintaining interpret-ability and predictive performance.
+
+### Handling Class Imbalance
+
+The package provides built-in support for handling class imbalance through configurable class weighting. In the first example, the `svm_split()` function is applied to the WDBC data set to predict the binary response variable with `class_weights = "balanced"`, which automatically adjusts the weight of each class inversely proportional to its frequency. This ensures that minority classes receive higher influence during SVM training, improving predictive performance on imbalanced data sets.
+
+```{r, echo=TRUE}
+# Train with balanced class weights
+tree_balanced <- svm_split(
+  data = train_wdbc,
+  response = "diagnosis",
+  max_depth = 4,
+  max_features = 5,
+  feature_method = "mutual",
+  class_weights = "balanced",  # Automatic balancing
+  verbose = FALSE
+)
+
+print_svm_tree(tree = tree_balanced, 
+               show_feature_info = FALSE, 
+               show_penalties = FALSE, show_probabilities = TRUE)
+```
+
+In the second example, custom class weights can be specified via the `custom_class_weights` argument, assigning a higher penalty to the malignant class (`"M" = 3`) relative to the benign class (`"B" = 1`) to emphasize minimizing false negatives. The resulting trees (`tree_balanced` and `tree_custom`) incorporate these weights during the recursive SVM-based splits, enabling more equitable class separation while still leveraging the oblique decision tree structure.
+
+```{r echo=TRUE}
+# Custom class weights for domain-specific costs
+custom_weights <- c("B" = 1, "M" = 3)  # Penalize false negatives
+tree_custom <- svm_split(
+  data = train_wdbc,
+  response = "diagnosis",
+  max_depth = 4,
+  max_features = 5,
+  class_weights = "custom",
+  custom_class_weights = custom_weights,
+  verbose = FALSE
+)
+
+print_svm_tree(tree = tree_custom, 
+               show_feature_info = FALSE, 
+               show_penalties = FALSE, 
+               show_probabilities = FALSE)
+```
+
+### Feature Penalization
+
+To encourage feature diversity across the tree, the package implements a feature penalization mechanism that reduces the likelihood of reusing features selected at ancestor nodes.
+
+```{r echo=TRUE}
+set.seed(123)
+tree_penalty <- svm_split(
+  data = train_wdbc,
+  response = "diagnosis",
+  max_depth = 4,
+  max_features = 4,
+  penalize_used_features = TRUE,
+  feature_penalty_weight = 0.6,
+  verbose = FALSE
+)
+
+stringr::str_wrap(print_svm_tree(tree_penalty, show_probabilities = FALSE, 
+               show_feature_info = TRUE, 
+               show_penalties = FALSE)) 
+```
+
+Penalization is controlled via the `feature_penalty_weight` parameter, which scales down the selection probability of previously used features. For instance, setting `feature_penalty_weight = 0.6` reduces the weight of used features by 60%, promoting the consideration of alternative predictors at subsequent splits. This mechanism helps improve model robustness, reduces redundancy in feature usage, and enhances interpret-ability by encouraging the tree to explore diverse feature combinations.
+
+### Dynamic Feature Selection
+
+The package also supports dynamic feature selection strategies, which vary the number of features considered at each node depending on tree depth or randomness.
+
+```{r echo=TRUE}
+tree_decrease <- svm_split(
+  data = train_wdbc,
+  response = "diagnosis", 
+  feature_method = "mutual",
+  max_depth = 3,
+  max_features = 4,
+  max_features_strategy = "decrease",
+  max_features_decrease_rate = 0.5,
+  verbose = FALSE
+)
+
+stringr::str_wrap(print_svm_tree(tree_decrease, show_penalties = FALSE, 
+               show_feature_info = TRUE)) 
+```
+
+In the **decrease strategy**, the number of candidate features at depth $d$ is scaled by a decay factor $\alpha$ , e.g.,  $m_0 = m_0 \cdot \alpha^{d-1}$ , reducing feature count at deeper levels to improve efficiency and prevent over-fitting.
+
+```{r echo=TRUE}
+set.seed(123)
+
+tree_random <- svm_split(
+  data = train_wdbc,
+  response = "diagnosis",
+  feature_method = "mutual",
+  max_depth = 4,
+  max_features_strategy = "random",
+  max_features_random_range = c(0.05, 0.2),  # 30-80% of features
+  verbose = FALSE
+)
+
+print_svm_tree(tree_random, show_penalties = FALSE, 
+               show_feature_info = TRUE)
+```
+
+Alternatively, the **random strategy** selects a feature count uniformly at random from a specified range (e.g., 5–20% of the total features) at each node, promoting stochasticity and diversity in splits. These mechanisms provide flexible control over tree complexity and feature exploration, particularly useful in high-dimensional data sets such as the WDBC data set.
 
 # Results
 
