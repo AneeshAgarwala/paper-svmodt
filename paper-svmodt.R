@@ -179,9 +179,9 @@ tree_penalty <- svm_split(
   verbose = FALSE
 )
 
-stringr::str_wrap(print_svm_tree(tree_penalty, show_probabilities = FALSE, 
+print_svm_tree(tree_penalty, show_probabilities = FALSE, 
                show_feature_info = TRUE, 
-               show_penalties = FALSE)) 
+               show_penalties = FALSE)
 
 
 ## ----echo=TRUE----------------------------------------------------------------
@@ -196,8 +196,8 @@ tree_decrease <- svm_split(
   verbose = FALSE
 )
 
-stringr::str_wrap(print_svm_tree(tree_decrease, show_penalties = FALSE, 
-               show_feature_info = TRUE)) 
+print_svm_tree(tree_decrease, show_penalties = FALSE, 
+               show_feature_info = TRUE)
 
 
 ## ----echo=TRUE----------------------------------------------------------------

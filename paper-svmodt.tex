@@ -162,6 +162,75 @@ Recent works such as the Oblique Decision Tree Ensemble (ODTE) \citep{montanana2
 
 Several software packages provide functionality related to SVM-based decision trees, but fully-featured implementations of SVM Oblique Decision Trees (SVMODT) remain limited, particularly in R. In R, very scarce SVMODT implementation is available. The \CRANpkg{PPforest} package implements projection pursuit random forests, where trees are constructed by splitting on linear combinations of variables to maximize class separation, supporting multi-class problems and variable importance measures. In Python, \textbf{STree} \citep{Montanana2021} provides an oblique decision tree classifier based on SVM nodes, where each node is built and split using scikit-learn's \textbf{SVC} models \citep{scikit2011}. Java-based frameworks such as \textbf{Weka} provide classical decision trees (\textbf{J48}) and SVMs (\textbf{SMO}) that can be adapted for hierarchical SVM trees \citep{menkovski2008}. Overall, while multiple languages provide the building blocks for SVM training, decision tree construction, and ensemble methods---there is currently no widely available, fully integrated SVMODT software in R, highlighting the need for custom implementations or adaptation of existing tools for research and applied purposes.
 
+\section{Research Gaps \& Contributions}\label{research-gaps-contributions}
+
+\subsection{Identified Research Gaps}\label{identified-research-gaps}
+
+Despite significant advances in decision tree methodologies and SVM-based hybrid approaches, several critical limitations persist in existing implementations:
+
+\subsubsection{Limited Flexibility in Oblique Decision Tree Software}\label{limited-flexibility-in-oblique-decision-tree-software}
+
+As discussed before, while oblique decision trees using SVMs have been theoretically established since \citet{bennet1998}, accessible and feature-rich implementations remain scarce, particularly in R. Existing approaches such as Optimal Decision Tree SVM (ODT-SVM) \citep{bala2011} and recent extensions like MPDRaF \citep{ganaie2022} and ODTE \citep{montanana2025} have advanced the field theoretically, but face several practical limitations:
+
+\begin{itemize}
+\item
+  \textbf{Software accessibility}: The \CRANpkg{PPforest} package provides projection pursuit forests but lacks true SVM-based splitting. Python's \textbf{STree} \citep{Montanana2021} offers oblique trees but is not available in R, leaving a significant gap in the R ecosystem for practitioners who prefer or require R-based workflows.
+\item
+  \textbf{Limited customization}: Existing implementations typically offer rigid feature selection mechanisms, with most using either all features or a fixed random subset at each split. There is very limited support for depth-dependent feature selection strategies or mechanisms to encourage feature diversity across tree paths.
+\item
+  \textbf{Class imbalance handling}: While SVMs inherently support class weighting, most hybrid DTSVM implementations apply weights globally at the tree level rather than computing node-specific weights that adapt to local class distributions encountered during recursive splitting.
+\item
+  \textbf{Interpret-ability tools}: Despite the advantage of tree-based models in interpret ability, existing packages lack comprehensive visualization tools for examining individual SVM hyper-planes, tracing prediction paths, or understanding how oblique splits contribute to final decisions.
+\end{itemize}
+
+\subsubsection{Absence of Integrated Pruning in Modern Decision Trees}\label{absence-of-integrated-pruning-in-modern-decision-trees}
+
+Classical decision tree algorithms, such as CART \citep{breiman1984}, typically employ a two-phase process: a maximal tree is first grown, and pruning is applied afterward using cost-complexity analysis with cross-validation. This approach introduces several inefficiencies. Branches that will ultimately be pruned are fully constructed, consuming unnecessary computational resources, and practitioners must tune both tree-growing parameters (e.g., depth, minimum samples) and pruning parameters (\(\alpha\)), increasing model selection complexity. Furthermore, deferring pruning to a post-processing phase prevents early stopping opportunities that could reduce training time. While C4.5 \citep{quinlan1993} implemented error-based pruning and some modern algorithms include early stopping criteria, integrated cost-complexity pruning; where pruning decisions are made in real time during tree construction remains largely unexplored, despite its potential to improve computational efficiency.
+
+\subsection{Our Contributions}\label{our-contributions}
+
+This paper introduces the \textbf{svmodt} R package, which addresses the limitations identified in existing decision tree and SVM-based methods through two complementary algorithms and a comprehensive software implementation. Our contributions span algorithmic innovation, theoretical analysis, and practical software engineering.
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  \textbf{SVM-Based Oblique Decision Trees with Advanced Features}\\
+  We propose a flexible oblique decision tree algorithm that uses linear SVMs at each internal node. The implementation offers several novel features:
+
+  \begin{enumerate}
+  \def\labelenumii{\arabic{enumii}.}
+  \tightlist
+  \item
+    \textbf{Dynamic Feature Selection Strategies:} We introduce three strategies to control the number of features considered at each depth \(d\):
+
+    \begin{itemize}
+    \tightlist
+    \item
+      \emph{Constant strategy:} fixed number of features at all depths;
+    \item
+      \emph{Decrease strategy:} the feature count decreases with depth, mitigating over-fitting and improving computational efficiency;
+    \item
+      \emph{Random strategy:} a random subset of features is selected at each node, promoting diversity in feature usage. These strategies extend beyond the fixed \(m = \sqrt{p}\) approach used in Random Forests, giving practitioners explicit control over feature complexity throughout the tree.
+    \end{itemize}
+  \item
+    \textbf{Feature Diversity via Penalization:} To reduce redundancy and encourage diverse feature usage, features used in ancestor nodes have their selection weights reduced by a factor \(1-\lambda\) controlled via the \texttt{penalize\_used\_features} and \texttt{feature\_penalty\_weight} parameters. Unlike naive random sampling, this approach explicitly discourages repeated feature use while maintaining flexibility.
+  \item
+    \textbf{Node-Specific Class Weighting:} Four weighting strategies are implemented, with weights recalculated at each node based on local class distributions: none, balanced, balanced sub-sample, and custom user-defined weights. All weights are capped to prevent numerical instability, enabling adaptive handling of class imbalance throughout the tree.
+  \end{enumerate}
+\end{enumerate}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{1}
+\item
+  \textbf{Decision Tree with Integrated Cost-Complexity Pruning}\\
+  We implement a decision tree algorithm where pruning occurs during construction rather than as a post-processing step. At each node, the algorithm immediately compares the cost-complexity of a leaf versus its sub-tree and prunes in real time if beneficial. This approach eliminates the need for separate pruning phases, reduces computational cost, simplifies hyper-parameter tuning, and maintains optimal equivalent to CART's post-pruning.
+\item
+  \textbf{Comprehensive R Package Implementation}\\
+  The \textbf{svmodt} package provides a production-ready implementation with a well-documented API that includes type checking and input validation to ensure robust and user-friendly operation. It supports both binary and multi-class classification and leverages vectorized operations for computational efficiency. For interpret-ability and diagnostics, the package includes functions such as \texttt{print\_svm\_tree()} for hierarchical ASCII visualization, \texttt{trace\_prediction\_path()} for sample-level decision path tracing, and \texttt{visualize\_svm\_tree()} for automated 2D plotting of SVM hyper-planes. The package also comes with included data sets, such as the Wisconsin Diagnostic Breast Cancer (WDBC) data set. Comprehensive documentation is provided, including vignettes and Roxygen2-based function documentation, along with reproducible example code to facilitate practical application and comparison with alternative methods.
+\end{enumerate}
+
 \section{Methodology}\label{methodology}
 
 To better understand the structure and mechanics of decision trees, we first implemented a standard axis-parallel decision tree in R from scratch before extending it into the oblique (SVM-based) variant.
@@ -640,9 +709,9 @@ tree_penalty <- svm_split(
   verbose = FALSE
 )
 
-stringr::str_wrap(print_svm_tree(tree_penalty, show_probabilities = FALSE, 
+print_svm_tree(tree_penalty, show_probabilities = FALSE, 
                show_feature_info = TRUE, 
-               show_penalties = FALSE)) 
+               show_penalties = FALSE)
 \end{verbatim}
 
 \begin{verbatim}
@@ -659,10 +728,6 @@ stringr::str_wrap(print_svm_tree(tree_penalty, show_probabilities = FALSE,
 #>       |   [Leaf] predict = M | n = 22
 #>        `- Right branch (SVM <= 0):
 #>           (no right child)
-\end{verbatim}
-
-\begin{verbatim}
-#> character(0)
 \end{verbatim}
 
 Penalization is controlled via the \texttt{feature\_penalty\_weight} parameter, which scales down the selection probability of previously used features. For instance, setting \texttt{feature\_penalty\_weight\ =\ 0.6} reduces the weight of used features by 60\%, promoting the consideration of alternative predictors at subsequent splits. This mechanism helps improve model robustness, reduces redundancy in feature usage, and enhances interpret-ability by encouraging the tree to explore diverse feature combinations.
@@ -683,8 +748,8 @@ tree_decrease <- svm_split(
   verbose = FALSE
 )
 
-stringr::str_wrap(print_svm_tree(tree_decrease, show_penalties = FALSE, 
-               show_feature_info = TRUE)) 
+print_svm_tree(tree_decrease, show_penalties = FALSE, 
+               show_feature_info = TRUE)
 \end{verbatim}
 
 \begin{verbatim}
@@ -697,10 +762,6 @@ stringr::str_wrap(print_svm_tree(tree_decrease, show_penalties = FALSE,
 #> |      (no right child)
 #>  `- Right branch (SVM <= 0):
 #>     [Leaf] predict = B | n = 300 | features = [radius_worst,perimeter_worst]
-\end{verbatim}
-
-\begin{verbatim}
-#> character(0)
 \end{verbatim}
 
 In the \textbf{decrease strategy}, the number of candidate features at depth \(d\) is scaled by a decay factor \(\alpha\) , e.g., \(m_0 = m_0 \cdot \alpha^{d-1}\) , reducing feature count at deeper levels to improve efficiency and prevent over-fitting.

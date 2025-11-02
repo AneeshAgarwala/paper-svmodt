@@ -2979,11 +2979,47 @@ Sigmoid
 <p>Recent works such as the Oblique Decision Tree Ensemble (ODTE) <span class="citation" data-cites="montanana2025">(<a href="#ref-montanana2025" role="doc-biblioref">Montañana et al. 2025</a>)</span> embed multiple SVM classifiers (e.g., one-vs-one or one-vs-rest) directly at each split, dynamically selecting the model that minimizes class impurity. This enables efficient n-ary classification within a single tree structure, mitigating the scalability and imbalance limitations of traditional binary SVM extensions.</p>
 <h3 data-number="2.4" id="related-software-packages"><span class="header-section-number">2.4</span> Related Software Packages</h3>
 <p>Several software packages provide functionality related to SVM-based decision trees, but fully-featured implementations of SVM Oblique Decision Trees (SVMODT) remain limited, particularly in R. In R, very scarce SVMODT implementation is available. The <a href="https://cran.r-project.org/package=PPforest">PPforest</a> package implements projection pursuit random forests, where trees are constructed by splitting on linear combinations of variables to maximize class separation, supporting multi-class problems and variable importance measures. In Python, <strong>STree</strong> <span class="citation" data-cites="Montanana2021">(<a href="#ref-Montanana2021" role="doc-biblioref">Montañana et al. 2021</a>)</span> provides an oblique decision tree classifier based on SVM nodes, where each node is built and split using scikit-learn’s <strong>SVC</strong> models <span class="citation" data-cites="scikit2011">(<a href="#ref-scikit2011" role="doc-biblioref">Pedregosa et al. 2011</a>)</span>. Java-based frameworks such as <strong>Weka</strong> provide classical decision trees (<strong>J48</strong>) and SVMs (<strong>SMO</strong>) that can be adapted for hierarchical SVM trees <span class="citation" data-cites="menkovski2008">(<a href="#ref-menkovski2008" role="doc-biblioref">Menkovski et al. 2008</a>)</span>. Overall, while multiple languages provide the building blocks for SVM training, decision tree construction, and ensemble methods—there is currently no widely available, fully integrated SVMODT software in R, highlighting the need for custom implementations or adaptation of existing tools for research and applied purposes.</p>
-<h2 data-number="3" id="methodology"><span class="header-section-number">3</span> Methodology</h2>
+<h2 data-number="3" id="research-gaps-contributions"><span class="header-section-number">3</span> Research Gaps &amp; Contributions</h2>
+<h3 data-number="3.1" id="identified-research-gaps"><span class="header-section-number">3.1</span> Identified Research Gaps</h3>
+<p>Despite significant advances in decision tree methodologies and SVM-based hybrid approaches, several critical limitations persist in existing implementations:</p>
+<h4 class="unnumbered" data-number="3.1.1" id="limited-flexibility-in-oblique-decision-tree-software">Limited Flexibility in Oblique Decision Tree Software</h4>
+<p>As discussed before, while oblique decision trees using SVMs have been theoretically established since <span class="citation" data-cites="bennet1998">Bennett and Blue (<a href="#ref-bennet1998" role="doc-biblioref">1998</a>)</span>, accessible and feature-rich implementations remain scarce, particularly in R. Existing approaches such as Optimal Decision Tree SVM (ODT-SVM) <span class="citation" data-cites="bala2011">(<a href="#ref-bala2011" role="doc-biblioref">Bala and Agrawal 2011</a>)</span> and recent extensions like MPDRaF <span class="citation" data-cites="ganaie2022">(<a href="#ref-ganaie2022" role="doc-biblioref">Ganaie et al. 2022</a>)</span> and ODTE <span class="citation" data-cites="montanana2025">(<a href="#ref-montanana2025" role="doc-biblioref">Montañana et al. 2025</a>)</span> have advanced the field theoretically, but face several practical limitations:</p>
+<ul>
+<li><p><strong>Software accessibility</strong>: The <a href="https://cran.r-project.org/package=PPforest">PPforest</a> package provides projection pursuit forests but lacks true SVM-based splitting. Python’s <strong>STree</strong> <span class="citation" data-cites="Montanana2021">(<a href="#ref-Montanana2021" role="doc-biblioref">Montañana et al. 2021</a>)</span> offers oblique trees but is not available in R, leaving a significant gap in the R ecosystem for practitioners who prefer or require R-based workflows.</p></li>
+<li><p><strong>Limited customization</strong>: Existing implementations typically offer rigid feature selection mechanisms, with most using either all features or a fixed random subset at each split. There is very limited support for depth-dependent feature selection strategies or mechanisms to encourage feature diversity across tree paths.</p></li>
+<li><p><strong>Class imbalance handling</strong>: While SVMs inherently support class weighting, most hybrid DTSVM implementations apply weights globally at the tree level rather than computing node-specific weights that adapt to local class distributions encountered during recursive splitting.</p></li>
+<li><p><strong>Interpret-ability tools</strong>: Despite the advantage of tree-based models in interpret ability, existing packages lack comprehensive visualization tools for examining individual SVM hyper-planes, tracing prediction paths, or understanding how oblique splits contribute to final decisions.</p></li>
+</ul>
+<h4 class="unnumbered" data-number="3.1.2" id="absence-of-integrated-pruning-in-modern-decision-trees">Absence of Integrated Pruning in Modern Decision Trees</h4>
+<p>Classical decision tree algorithms, such as CART <span class="citation" data-cites="breiman1984">(<a href="#ref-breiman1984" role="doc-biblioref">Breiman et al. 1984</a>)</span>, typically employ a two-phase process: a maximal tree is first grown, and pruning is applied afterward using cost-complexity analysis with cross-validation. This approach introduces several inefficiencies. Branches that will ultimately be pruned are fully constructed, consuming unnecessary computational resources, and practitioners must tune both tree-growing parameters (e.g., depth, minimum samples) and pruning parameters (<span class="math inline">\(\alpha\)</span>), increasing model selection complexity. Furthermore, deferring pruning to a post-processing phase prevents early stopping opportunities that could reduce training time. While C4.5 <span class="citation" data-cites="quinlan1993">(<a href="#ref-quinlan1993" role="doc-biblioref">Quinlan 2014</a>)</span> implemented error-based pruning and some modern algorithms include early stopping criteria, integrated cost-complexity pruning; where pruning decisions are made in real time during tree construction remains largely unexplored, despite its potential to improve computational efficiency.</p>
+<h3 data-number="3.2" id="our-contributions"><span class="header-section-number">3.2</span> Our Contributions</h3>
+<p>This paper introduces the <strong>svmodt</strong> R package, which addresses the limitations identified in existing decision tree and SVM-based methods through two complementary algorithms and a comprehensive software implementation. Our contributions span algorithmic innovation, theoretical analysis, and practical software engineering.</p>
+<ol type="1">
+<li><strong>SVM-Based Oblique Decision Trees with Advanced Features</strong><br />
+We propose a flexible oblique decision tree algorithm that uses linear SVMs at each internal node. The implementation offers several novel features:
+<ol type="1">
+<li><strong>Dynamic Feature Selection Strategies:</strong> We introduce three strategies to control the number of features considered at each depth <span class="math inline">\(d\)</span>:
+<ul>
+<li><em>Constant strategy:</em> fixed number of features at all depths;</li>
+<li><em>Decrease strategy:</em> the feature count decreases with depth, mitigating over-fitting and improving computational efficiency;</li>
+<li><em>Random strategy:</em> a random subset of features is selected at each node, promoting diversity in feature usage. These strategies extend beyond the fixed <span class="math inline">\(m = \sqrt{p}\)</span> approach used in Random Forests, giving practitioners explicit control over feature complexity throughout the tree.</li>
+</ul></li>
+<li><strong>Feature Diversity via Penalization:</strong> To reduce redundancy and encourage diverse feature usage, features used in ancestor nodes have their selection weights reduced by a factor <span class="math inline">\(1-\lambda\)</span> controlled via the <code>penalize_used_features</code> and <code>feature_penalty_weight</code> parameters. Unlike naive random sampling, this approach explicitly discourages repeated feature use while maintaining flexibility.</li>
+<li><strong>Node-Specific Class Weighting:</strong> Four weighting strategies are implemented, with weights recalculated at each node based on local class distributions: none, balanced, balanced sub-sample, and custom user-defined weights. All weights are capped to prevent numerical instability, enabling adaptive handling of class imbalance throughout the tree.</li>
+</ol></li>
+</ol>
+<!-- -->
+<ol start="2" type="1">
+<li><p><strong>Decision Tree with Integrated Cost-Complexity Pruning</strong><br />
+We implement a decision tree algorithm where pruning occurs during construction rather than as a post-processing step. At each node, the algorithm immediately compares the cost-complexity of a leaf versus its sub-tree and prunes in real time if beneficial. This approach eliminates the need for separate pruning phases, reduces computational cost, simplifies hyper-parameter tuning, and maintains optimal equivalent to CART’s post-pruning.</p></li>
+<li><p><strong>Comprehensive R Package Implementation</strong><br />
+The <strong>svmodt</strong> package provides a production-ready implementation with a well-documented API that includes type checking and input validation to ensure robust and user-friendly operation. It supports both binary and multi-class classification and leverages vectorized operations for computational efficiency. For interpret-ability and diagnostics, the package includes functions such as <code>print_svm_tree()</code> for hierarchical ASCII visualization, <code>trace_prediction_path()</code> for sample-level decision path tracing, and <code>visualize_svm_tree()</code> for automated 2D plotting of SVM hyper-planes. The package also comes with included data sets, such as the Wisconsin Diagnostic Breast Cancer (WDBC) data set. Comprehensive documentation is provided, including vignettes and Roxygen2-based function documentation, along with reproducible example code to facilitate practical application and comparison with alternative methods.</p></li>
+</ol>
+<h2 data-number="4" id="methodology"><span class="header-section-number">4</span> Methodology</h2>
 <p>To better understand the structure and mechanics of decision trees, we first implemented a standard axis-parallel decision tree in R from scratch before extending it into the oblique (SVM-based) variant.</p>
-<h3 data-number="3.1" id="custom-univariate-decision-tree-with-integrated-cost-complexity-pruning"><span class="header-section-number">3.1</span> Custom Univariate Decision Tree with Integrated Cost-Complexity Pruning</h3>
+<h3 data-number="4.1" id="custom-univariate-decision-tree-with-integrated-cost-complexity-pruning"><span class="header-section-number">4.1</span> Custom Univariate Decision Tree with Integrated Cost-Complexity Pruning</h3>
 <p>This implementation presents a decision tree algorithm with <strong>integrated cost-complexity pruning</strong>, where pruning decisions are made during tree construction rather than as a post-processing step. The algorithm supports multiple splitting criteria and performs real-time pruning based on cost-complexity analysis.</p>
-<h4 class="unnumbered" data-number="3.1.1" id="algorithm-description">Algorithm Description</h4>
+<h4 class="unnumbered" data-number="4.1.1" id="algorithm-description">Algorithm Description</h4>
 <p>At each node <span class="math inline">\(v\)</span> with samples <span class="math inline">\(\mathcal{D}_v\)</span> and labels <span class="math inline">\(\mathcal{Y}_v\)</span>, the algorithm:</p>
 <ol type="1">
 <li><p><strong>Compute Node Statistics</strong>: At each node of the decision tree, several key statistics are computed to guide the splitting process. The class probabilities are calculated as <span class="math inline">\(p_c = \frac{n_c}{n},\)</span> where <span class="math inline">\(n_c\)</span> is the count of samples belonging to class <span class="math inline">\(c\)</span> in the node, and <span class="math inline">\(n = |D_v|\)</span> is the total number of samples at the node. The predicted class is assigned as the class with the highest probability, <span class="math display">\[\hat{y} = \arg\max_c p_c.\]</span></p></li>
@@ -2996,8 +3032,8 @@ Sigmoid
 <li><p><strong>Evaluates Pruning Criteria</strong>: To ensure the tree remains interpret-able and avoids over-fitting, integrated pruning is performed using cost-complexity analysis. The cost of a sub-tree <span class="math inline">\(T_v\)</span> is given by <span class="math display">\[R_\alpha(T_v) = R(T_v) + \alpha \|T_v\|,\]</span> where <span class="math inline">\(R(T_v)\)</span> is the miss-classification error, <span class="math inline">\(|T_v|\)</span> is the number of leaves in the sub-tree, and <span class="math inline">\(\alpha \geq 0\)</span> is a complexity parameter controlling the trade-off between accuracy and simplicity. For a single leaf node <span class="math inline">\(t_v\)</span>, the cost is <span class="math display">\[R_\alpha(t_v) = R(t_v) + \alpha.\]</span> A sub-tree <span class="math inline">\(T_v\)</span> is pruned, i.e., replaced by a single leaf node, if <span class="math display">\[R_\alpha(t_v) \leq R_\alpha(T_v),\]</span>ensuring that further splits are retained only when they yield sufficient reduction in classification error to justify the added complexity.</p></li>
 </ol>
 <p>The custom uni variate decision tree implementation in R combines axis-parallel splits with integrated cost-complexity pruning, offering several key differences from standard CART/<a href="https://cran.r-project.org/package=rpart">rpart</a> trees. Numeric features are split only at midpoints where class labels change, while categorical features use binary splits at each level, reducing computational complexity. Splitting criteria include Gini impurity, information gain, and Gain Ratio—the latter penalizing splits with high split information to favor balanced partitions. Integrated pruning is applied during tree construction using a fixed <span class="math inline">\(\alpha\)</span> parameter, replacing sub-trees with leaves whenever the cost-complexity criterion is satisfied, unlike CART/<a href="https://cran.r-project.org/package=rpart">rpart</a>, which performs post-pruning via cross-validation. This single-pass pruning approach reduces training time and space requirements, while still producing interpret-able trees. Predictions follow standard tree traversal, returning majority-class labels or probability estimates at leaves.</p>
-<h3 data-number="3.2" id="support-vector-machine-based-oblique-decision-trees"><span class="header-section-number">3.2</span> Support Vector Machine based Oblique Decision Trees</h3>
-<h4 class="unnumbered" data-number="3.2.1" id="algorithm-description-1">Algorithm Description</h4>
+<h3 data-number="4.2" id="support-vector-machine-based-oblique-decision-trees"><span class="header-section-number">4.2</span> Support Vector Machine based Oblique Decision Trees</h3>
+<h4 class="unnumbered" data-number="4.2.1" id="algorithm-description-1">Algorithm Description</h4>
 <p>The SVM Oblique Decision Tree (SVMODT) constructs a binary classification decision tree where each internal node <span class="math inline">\(v\)</span> at depth <span class="math inline">\(d\)</span>. The algorithm is implemented in R using the <a href="https://cran.r-project.org/package=e1071">e1071</a> performs the following operations:</p>
 <ol type="1">
 <li><p><strong>Feature Selection:</strong> A subset of <span class="math inline">\(m_d\)</span> features is dynamically selected from the available feature set <span class="math inline">\(\mathcal{F}\)</span>. This selection can be done using one of several strategies, including random selection, sampling, mutual information ranking (using the <a href="https://cran.r-project.org/package=FSelectorRcpp">FSelectorRcpp</a> package), or correlation-based selection. This allows the tree to adaptive-ly focus on the most informative features at each node.</p></li>
@@ -3010,7 +3046,7 @@ Sigmoid
 </ul></li>
 </ol>
 <p>This process recursively continues for each child node until stopping criteria are met.</p>
-<h4 class="unnumbered" data-number="3.2.2" id="key-hyper-parameters">Key Hyper-parameters</h4>
+<h4 class="unnumbered" data-number="4.2.2" id="key-hyper-parameters">Key Hyper-parameters</h4>
 <ol type="1">
 <li><strong>Feature Selection:</strong> The algorithm supports three strategies for selecting features at each node. The maximum number of features considered at depth <span class="math inline">\(d\)</span> is defined as:</li>
 </ol>
@@ -3033,11 +3069,11 @@ m_{\text{base}} &amp; \text{constant strategy} \\
 <li><p><strong>Custom:</strong> Users can define their own class weights.</p></li>
 </ul></li>
 </ol>
-<h4 class="unnumbered" data-number="3.2.3" id="interaction-with-svm-training-and-node-splitting">Interaction with SVM Training and Node Splitting</h4>
+<h4 class="unnumbered" data-number="4.2.3" id="interaction-with-svm-training-and-node-splitting">Interaction with SVM Training and Node Splitting</h4>
 <p>The hyper-parameters described above directly influence the behavior of the SVM-based decision tree at each node. The feature selection strategy determines which subset of features <span class="math inline">\(\mathcal{F}_d\)</span> is used to fit the linear SVM at depth <span class="math inline">\(d\)</span>, which affects the orientation and effectiveness of the decision hyper-plane. Feature penalties ensure that no single feature dominates multiple splits, promoting diversity in the learned splits and improving generalization. Once the SVM is trained on the selected and scaled features, the decision values are used to partition the samples into left and right child nodes. By controlling the number of features, penalizing repeated use, and adjusting class weights, the tree can achieve a balance between predictive accuracy, interpret-ability, and computational efficiency.</p>
-<h2 data-number="4" id="data"><span class="header-section-number">4</span> Data</h2>
+<h2 data-number="5" id="data"><span class="header-section-number">5</span> Data</h2>
 <p>In this study, we evaluate the SVM-based oblique decision tree (SVMODT) on two widely used benchmark datasets: <strong>Palmer Penguins</strong> and <strong>Wisconsin Diagnostic Breast Cancer (WDBC)</strong>. These datasets provide a mix of multi-class and binary classification problems, as well as numeric and categorical features, making them suitable for testing the flexibility and interpretability of SVMODTs.</p>
-<h3 data-number="4.1" id="palmer-penguins"><span class="header-section-number">4.1</span> Palmer Penguins</h3>
+<h3 data-number="5.1" id="palmer-penguins"><span class="header-section-number">5.1</span> Palmer Penguins</h3>
 <p>The <a href="https://cran.r-project.org/package=palmerpenguins">palmerpenguins</a> data set is a multi-class data set containing morphological measurements for three penguin species (<em>Adelie</em>, <em>Chinstrap</em>, and <em>Gentoo</em>) observed on the Palmer Archipelago, Antarctica. The data set includes 344 complete observations with the following features:</p>
 <ul>
 <li><strong>bill_length_mm</strong>: Length of the bill (numeric)<br />
@@ -3052,9 +3088,9 @@ m_{\text{base}} &amp; \text{constant strategy} \\
 </li>
 <li><strong>species</strong>: Target class (categorical with three levels)</li>
 </ul>
-<h3 data-number="4.2" id="wisconsin-diagnostic-breast-cancer-wdbc"><span class="header-section-number">4.2</span> Wisconsin Diagnostic Breast Cancer (WDBC)</h3>
+<h3 data-number="5.2" id="wisconsin-diagnostic-breast-cancer-wdbc"><span class="header-section-number">5.2</span> Wisconsin Diagnostic Breast Cancer (WDBC)</h3>
 <p>The <strong>WDBC</strong> <span class="citation" data-cites="Street1993">(<a href="#ref-Street1993" role="doc-biblioref">Street et al. 1993</a>)</span> data set is a binary classification data set derived from fine needle aspirates of breast tissue. It contains 569 observations with 30 numeric features computed from digitized images of cell nuclei. The features include measures such as <strong>radius, texture, perimeter, area, smoothness, compactness, concavity, concave points, symmetry, fractal dimension</strong> The target variable is <strong>diagnosis</strong> (Malignant (M) or benign (B) tumor). This data set is widely used for testing high-dimensional binary classification algorithms. Its numeric nature allows direct evaluation of SVM splits and the effect of class weighting strategies on imbalanced classes.</p>
-<h3 data-number="4.3" id="data-preparation"><span class="header-section-number">4.3</span> Data Preparation</h3>
+<h3 data-number="5.3" id="data-preparation"><span class="header-section-number">5.3</span> Data Preparation</h3>
 <p>For both data sets, the following pre-processing steps are applied before training the SVMODT:</p>
 <ol type="1">
 <li><strong>Missing Values</strong>: Rows with missing values are removed.</li>
@@ -3062,9 +3098,9 @@ m_{\text{base}} &amp; \text{constant strategy} \\
 <li><strong>Categorical Encoding</strong>: Categorical variables are encoded as factor levels suitable for training.</li>
 </ol>
 <p>These pre-processing steps ensure that SVMODT can learn meaningful oblique splits across both data sets while maintaining interpret-ability.</p>
-<h2 data-number="5" id="usage-and-examples"><span class="header-section-number">5</span> Usage and Examples</h2>
+<h2 data-number="6" id="usage-and-examples"><span class="header-section-number">6</span> Usage and Examples</h2>
 <p>The svmodt package provides an intuitive interface for building SVM-based oblique decision trees. This section demonstrates the core functionality through two practical examples: ecological species classification and medical diagnosis.</p>
-<h3 data-number="5.1" id="basic-usage"><span class="header-section-number">5.1</span> Basic Usage</h3>
+<h3 data-number="6.1" id="basic-usage"><span class="header-section-number">6.1</span> Basic Usage</h3>
 <p>The primary function <strong><code>svm_split()</code></strong> constructs an oblique decision tree using the following key parameters:</p>
 <ul>
 <li><p><strong>data</strong>: A data frame containing predictors and response</p></li>
@@ -3075,12 +3111,12 @@ m_{\text{base}} &amp; \text{constant strategy} \\
 <li><p><strong>feature_method</strong>: Feature selection strategy (“random”, “mutual”, “cor”)</p></li>
 <li><p><strong>class_weights</strong>: Strategy for handling class imbalance</p></li>
 </ul>
-<h3 data-number="5.2" id="example-1-penguin-species-classification"><span class="header-section-number">5.2</span> Example 1: Penguin Species Classification</h3>
+<h3 data-number="6.2" id="example-1-penguin-species-classification"><span class="header-section-number">6.2</span> Example 1: Penguin Species Classification</h3>
 <p>We demonstrate the package using the <a href="https://cran.r-project.org/package=palmerpenguins">palmerpenguins</a> data set, which contains morphological measurements for three penguin species. We focus on classifying Adelie and Chinstrap penguins.</p>
 <div class="layout-chunk" data-layout="l-body">
 
 </div>
-<h4 class="unnumbered" data-number="5.2.1" id="model-training">Model Training</h4>
+<h4 class="unnumbered" data-number="6.2.1" id="model-training">Model Training</h4>
 <p>In this example, the model is trained on the <code>train_data</code> data set to predict the categorical response variable, <em>species</em>. The function <code>svm_split()</code> recursively partitions the data using <strong>linear SVM hyper-planes</strong> at each internal node rather than conventional univariate thresholds, thereby producing <strong>oblique splits</strong> capable of capturing multivariate relationships among predictors. The argument <code>max_depth = 3</code> constrains the tree to a maximum of three levels, providing control over model complexity and mitigating overfitting. Similarly, <code>max_features = 2</code> restricts each node to consider only two features when fitting the SVM, enhancing computational efficiency and interpretability. The parameter <code>feature_method = &quot;mutual&quot;</code> specifies that feature selection at each node is based on <strong>mutual information</strong>, ensuring that the most informative variables relative to the response are prioritized. Setting <code>verbose = FALSE</code> suppresses intermediate output for streamlined execution.</p>
 <div class="layout-chunk" data-layout="l-body">
 <div class="sourceCode">
@@ -3095,7 +3131,7 @@ m_{\text{base}} &amp; \text{constant strategy} \\
 <span><span class="op">)</span></span></code></pre>
 </div>
 </div>
-<h4 class="unnumbered" data-number="5.2.2" id="model-structure">Model Structure</h4>
+<h4 class="unnumbered" data-number="6.2.2" id="model-structure">Model Structure</h4>
 <p>Each internal node represents a <strong>binary linear decision boundary</strong> obtained from a fitted SVM model using the features listed at that node. For example, the root node (depth = 1) uses <code>bill_length_mm</code> and <code>flipper_length_mm</code> to form the first separating hyper-plane. Observations satisfying <span class="math inline">\(SVM&gt;0\)</span> proceed to the left child, while those with <span class="math inline">\(SVM \leq 0\)</span> move to the right branch.</p>
 <div class="layout-chunk" data-layout="l-body">
 <pre><code> [Node] depth = 1 | n = 175 | features = [bill_length_mm,flipper_length_mm] | max_feat = 2
@@ -3113,7 +3149,7 @@ m_{\text{base}} &amp; \text{constant strategy} \\
        (no right child)</code></pre>
 </div>
 <p>Terminal nodes (labeled as <em>Leaf</em>) correspond to final class predictions. In this case, most observations in the left sub-tree are classified as <em>Adelie</em>, while the right sub-tree primarily identifies <em>Chinstrap</em> penguins. The structure illustrates how <strong>SVM-based oblique splits</strong> allow the tree to capture complex linear interactions between multiple predictors—something that traditional axis-aligned decision trees cannot achieve.</p>
-<h4 class="unnumbered" data-number="5.2.3" id="visualizing-decision-boundaries">Visualizing Decision Boundaries</h4>
+<h4 class="unnumbered" data-number="6.2.3" id="visualizing-decision-boundaries">Visualizing Decision Boundaries</h4>
 <p>The package includes visualization tools to examine the SVM hyper-planes at each node, allowing users to interpret how features contribute to class separation within the tree. <em>Note that visualization is currently supported only for trees where each node consistently uses exactly two features,</em> ensuring that the separating hyper-plane can be rendered clearly in two-dimensional feature space. The <code>visualize_svm_tree()</code> function produces a graphical representation of the overall decision hierarchy</p>
 <div class="layout-chunk" data-layout="l-body">
 <div class="figure"><span style="display:block;" id="fig:penguins-depth-one"></span>
@@ -3133,7 +3169,7 @@ Figure 2: Visualization of a node (depth = 2).
 </div>
 </div>
 <p>Similarly, Fig <a href="#fig:penguins-depth-two">2</a> shows a node at depth 2 of the tree, where the SVM uses bill_length_mm and bill_depth_mm to further partition the data. The decision hyper-plane and sample positions are plotted, highlighting how oblique splits can capture multivariate relationships that univariate thresholds cannot. This figure demonstrates the recursive nature of the tree and the refinement of class separation at deeper levels. As with the root node, the visualization is restricted to nodes consistently using exactly two features.</p>
-<h4 class="unnumbered" data-number="5.2.4" id="prediction-path-tracing">Prediction Path Tracing</h4>
+<h4 class="unnumbered" data-number="6.2.4" id="prediction-path-tracing">Prediction Path Tracing</h4>
 <p>The <code>svmodt</code> package allows tracing the prediction path of individual observations through the SVM-based oblique decision tree. For each sample, the relevant feature values are evaluated at each node using the linear SVM hyper-plane associated with that node. For instance, a sample with <code>bill_length_mm = 39.5</code>, <code>bill_depth_mm = 17.4</code>, <code>flipper_length_mm = 186</code>, and <code>body_mass_g = 3800</code> first reaches the root node, which considers <code>bill_length_mm</code> and <code>flipper_length_mm</code>. The SVM decision value at this node is <code>2.1098</code>, which directs the sample along the left branch. At depth 2, the node evaluates <code>bill_length_mm</code> and <code>bill_depth_mm</code> and produces a decision value of <code>1.6592</code>, again guiding the sample to the left branch. Finally, the sample reaches a leaf node that predicts the class <code>Adelie</code>, which contains 123 training samples. The complete traversal path is <code>LEFT -&gt; LEFT</code>, resulting in the final prediction of <code>Adelie</code>. This tracing functionality provides interpret-able insights into how each decision is made within the oblique decision tree.</p>
 <div class="layout-chunk" data-layout="l-body">
 <pre><code>=== Tracing Prediction Path ===
@@ -3156,12 +3192,12 @@ Sample 1 :
 Final prediction: Adelie </code></pre>
 <pre><code>[1] &quot;Adelie&quot;</code></pre>
 </div>
-<h3 data-number="5.3" id="example-2-breast-cancer-diagnosis"><span class="header-section-number">5.3</span> Example 2: Breast Cancer Diagnosis</h3>
+<h3 data-number="6.3" id="example-2-breast-cancer-diagnosis"><span class="header-section-number">6.3</span> Example 2: Breast Cancer Diagnosis</h3>
 <div class="layout-chunk" data-layout="l-body">
 
 </div>
 <p>We now demonstrate the package on the Wisconsin Diagnostic Breast Cancer (WDBC) data set, highlighting advanced functionalities such as handling class imbalance, feature sub-setting, and feature penalization. These features allow the SVM-based oblique decision tree to effectively manage real-world challenges, including unequal class distributions, high-dimensional feature spaces, and repeated feature usage, while maintaining interpret-ability and predictive performance.</p>
-<h4 class="unnumbered" data-number="5.3.1" id="handling-class-imbalance">Handling Class Imbalance</h4>
+<h4 class="unnumbered" data-number="6.3.1" id="handling-class-imbalance">Handling Class Imbalance</h4>
 <p>The package provides built-in support for handling class imbalance through configurable class weighting. In the first example, the <code>svm_split()</code> function is applied to the WDBC data set to predict the binary response variable with <code>class_weights = &quot;balanced&quot;</code>, which automatically adjusts the weight of each class inversely proportional to its frequency. This ensures that minority classes receive higher influence during SVM training, improving predictive performance on imbalanced data sets.</p>
 <div class="layout-chunk" data-layout="l-body">
 <div class="sourceCode">
@@ -3260,7 +3296,7 @@ Final prediction: Adelie </code></pre>
     `- Right branch (SVM &lt;= 0):
        (no right child)</code></pre>
 </div>
-<h4 class="unnumbered" data-number="5.3.2" id="feature-penalization">Feature Penalization</h4>
+<h4 class="unnumbered" data-number="6.3.2" id="feature-penalization">Feature Penalization</h4>
 <p>To encourage feature diversity across the tree, the package implements a feature penalization mechanism that reduces the likelihood of reusing features selected at ancestor nodes.</p>
 <div class="layout-chunk" data-layout="l-body">
 <div class="sourceCode">
@@ -3275,9 +3311,9 @@ Final prediction: Adelie </code></pre>
 <span>  verbose <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">stringr</span><span class="fu">::</span><span class="fu"><a href="https://stringr.tidyverse.org/reference/str_wrap.html">str_wrap</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/svmodt/man/print_svm_tree.html">print_svm_tree</a></span><span class="op">(</span><span class="va">tree_penalty</span>, show_probabilities <span class="op">=</span> <span class="cn">FALSE</span>, </span>
+<span><span class="fu"><a href="https://rdrr.io/pkg/svmodt/man/print_svm_tree.html">print_svm_tree</a></span><span class="op">(</span><span class="va">tree_penalty</span>, show_probabilities <span class="op">=</span> <span class="cn">FALSE</span>, </span>
 <span>               show_feature_info <span class="op">=</span> <span class="cn">TRUE</span>, </span>
-<span>               show_penalties <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span><span class="op">)</span> </span></code></pre>
+<span>               show_penalties <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre>
 </div>
 <pre><code> [Node] depth = 1 | n = 455 | features = [smoothness_se,symmetry_se,area_se,perimeter_mean] | max_feat = 4
  |- Left branch (SVM &gt; 0):
@@ -3292,10 +3328,9 @@ Final prediction: Adelie </code></pre>
       |   [Leaf] predict = M | n = 22
        `- Right branch (SVM &lt;= 0):
           (no right child)</code></pre>
-<pre><code>character(0)</code></pre>
 </div>
 <p>Penalization is controlled via the <code>feature_penalty_weight</code> parameter, which scales down the selection probability of previously used features. For instance, setting <code>feature_penalty_weight = 0.6</code> reduces the weight of used features by 60%, promoting the consideration of alternative predictors at subsequent splits. This mechanism helps improve model robustness, reduces redundancy in feature usage, and enhances interpret-ability by encouraging the tree to explore diverse feature combinations.</p>
-<h4 class="unnumbered" data-number="5.3.3" id="dynamic-feature-selection">Dynamic Feature Selection</h4>
+<h4 class="unnumbered" data-number="6.3.3" id="dynamic-feature-selection">Dynamic Feature Selection</h4>
 <p>The package also supports dynamic feature selection strategies, which vary the number of features considered at each node depending on tree depth or randomness.</p>
 <div class="layout-chunk" data-layout="l-body">
 <div class="sourceCode">
@@ -3310,8 +3345,8 @@ Final prediction: Adelie </code></pre>
 <span>  verbose <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">stringr</span><span class="fu">::</span><span class="fu"><a href="https://stringr.tidyverse.org/reference/str_wrap.html">str_wrap</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/svmodt/man/print_svm_tree.html">print_svm_tree</a></span><span class="op">(</span><span class="va">tree_decrease</span>, show_penalties <span class="op">=</span> <span class="cn">FALSE</span>, </span>
-<span>               show_feature_info <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span> </span></code></pre>
+<span><span class="fu"><a href="https://rdrr.io/pkg/svmodt/man/print_svm_tree.html">print_svm_tree</a></span><span class="op">(</span><span class="va">tree_decrease</span>, show_penalties <span class="op">=</span> <span class="cn">FALSE</span>, </span>
+<span>               show_feature_info <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre>
 </div>
 <pre><code> [Node] depth = 1 | n = 455 | features = [perimeter_worst,concave.points_mean,concave.points_worst,radius_worst] | max_feat = 4
  |- Left branch (SVM &gt; 0):
@@ -3322,7 +3357,6 @@ Final prediction: Adelie </code></pre>
 |      (no right child)
  `- Right branch (SVM &lt;= 0):
     [Leaf] predict = B | n = 300 | features = [radius_worst,perimeter_worst]</code></pre>
-<pre><code>character(0)</code></pre>
 </div>
 <p>In the <strong>decrease strategy</strong>, the number of candidate features at depth <span class="math inline">\(d\)</span> is scaled by a decay factor <span class="math inline">\(\alpha\)</span> , e.g., <span class="math inline">\(m_0 = m_0 \cdot \alpha^{d-1}\)</span> , reducing feature count at deeper levels to improve efficiency and prevent over-fitting.</p>
 <div class="layout-chunk" data-layout="l-body">
@@ -3361,12 +3395,12 @@ Final prediction: Adelie </code></pre>
        (no right child)</code></pre>
 </div>
 <p>Alternatively, the <strong>random strategy</strong> selects a feature count uniformly at random from a specified range (e.g., 5–20% of the total features) at each node, promoting stochasticity and diversity in splits. These mechanisms provide flexible control over tree complexity and feature exploration, particularly useful in high-dimensional data sets such as the WDBC data set.</p>
-<h2 data-number="6" id="results"><span class="header-section-number">6</span> Results</h2>
-<h2 data-number="7" id="discussion"><span class="header-section-number">7</span> Discussion</h2>
-<div class="sourceCode" id="cb11"><pre class="sourceCode r distill-force-highlighting-css"><code class="sourceCode r"></code></pre></div>
-<h3 class="appendix" data-number="7.1" id="cran-packages-used"><span class="header-section-number">7.1</span> CRAN packages used</h3>
+<h2 data-number="7" id="results"><span class="header-section-number">7</span> Results</h2>
+<h2 data-number="8" id="discussion"><span class="header-section-number">8</span> Discussion</h2>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r distill-force-highlighting-css"><code class="sourceCode r"></code></pre></div>
+<h3 class="appendix" data-number="8.1" id="cran-packages-used"><span class="header-section-number">8.1</span> CRAN packages used</h3>
 <p><a href="https://cran.r-project.org/package=PPforest">PPforest</a>, <a href="https://cran.r-project.org/package=rpart">rpart</a>, <a href="https://cran.r-project.org/package=e1071">e1071</a>, <a href="https://cran.r-project.org/package=FSelectorRcpp">FSelectorRcpp</a>, <a href="https://cran.r-project.org/package=palmerpenguins">palmerpenguins</a>, <a href="https://cran.r-project.org/package=dplyr">dplyr</a></p>
-<h3 class="appendix" data-number="7.2" id="cran-task-views-implied-by-cited-packages"><span class="header-section-number">7.2</span> CRAN Task Views implied by cited packages</h3>
+<h3 class="appendix" data-number="8.2" id="cran-task-views-implied-by-cited-packages"><span class="header-section-number">8.2</span> CRAN Task Views implied by cited packages</h3>
 <p><a href="https://cran.r-project.org/view=Cluster">Cluster</a>, <a href="https://cran.r-project.org/view=Databases">Databases</a>, <a href="https://cran.r-project.org/view=Distributions">Distributions</a>, <a href="https://cran.r-project.org/view=Environmetrics">Environmetrics</a>, <a href="https://cran.r-project.org/view=MachineLearning">MachineLearning</a>, <a href="https://cran.r-project.org/view=ModelDeployment">ModelDeployment</a>, <a href="https://cran.r-project.org/view=Psychometrics">Psychometrics</a>, <a href="https://cran.r-project.org/view=Survival">Survival</a></p>
 <div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
 <div id="ref-bala2011" class="csl-entry" role="listitem">
