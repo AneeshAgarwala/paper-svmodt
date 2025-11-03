@@ -16,26 +16,26 @@ library(ggplot2)
 library(patchwork)
 
 
+## -----------------------------------------------------------------------------
+kernel_table <- data.frame(
+  "Kernel Type" = c("Linear", "Polynomial", "Gaussian", "Sigmoid"),
+  "Mathematical Definition" = c(
+    "$K(\\mathbf{x}_i, \\mathbf{x}_j) = \\mathbf{x}_i^\\top \\mathbf{x}_j$",
+    "$K(\\mathbf{x}_i, \\mathbf{x}_j) = (\\mathbf{x}_i^\\top \\mathbf{x}_j + 1)^d$",
+    "$K(\\mathbf{x}_i, \\mathbf{x}_j) = \\exp\\left(-\\frac{\\|\\mathbf{x}_i - \\mathbf{x}_j\\|^2}{2\\sigma^2}\\right)$",
+    "$K(\\mathbf{x}_i, \\mathbf{x}_j) = \\tanh(\\kappa \\mathbf{x}_i^\\top \\mathbf{x}_j + \\theta)$"
+  ),
+  "Key Parameters" = c(
+    "None",
+    "Degree $d$",
+    "Bandwidth $\\sigma$",
+    "$\\kappa, \\theta$"
+  ),
+  check.names = FALSE
+)
+
+
 ## ----kernels-tab-interactive, eval = knitr::is_html_output()------------------
-# kernel_table <- data.frame(
-#   "Kernel Type" = c("Linear", "Polynomial", "Gaussian", "RBF", "Sigmoid"),
-#   "Mathematical Definition" = c(
-#     "$K(\\mathbf{x}_i, \\mathbf{x}_j) = \\mathbf{x}_i^\\top \\mathbf{x}_j$",
-#     "$K(\\mathbf{x}_i, \\mathbf{x}_j) = (\\mathbf{x}_i^\\top \\mathbf{x}_j + 1)^d$",
-#     "$K(\\mathbf{x}_i, \\mathbf{x}_j) = \\exp\\left(-\\frac{\\|\\mathbf{x}_i - \\mathbf{x}_j\\|^2}{2\\sigma^2}\\right)$",
-#     "$K(\\mathbf{x}_i, \\mathbf{x}_j) = \\exp(-\\gamma \\|\\mathbf{x}_i - \\mathbf{x}_j\\|^2)$",
-#     "$K(\\mathbf{x}_i, \\mathbf{x}_j) = \\tanh(\\kappa \\mathbf{x}_i^\\top \\mathbf{x}_j + \\theta)$"
-#   ),
-#   "Key Parameters" = c(
-#     "None",
-#     "Degree $d$",
-#     "Bandwidth $\\sigma$",
-#     "$\\gamma$",
-#     "$\\kappa, \\theta$"
-#   ),
-#   check.names = FALSE
-# )
-# 
 # kable(
 #   kernel_table,
 #   escape = FALSE,
@@ -45,25 +45,6 @@ library(patchwork)
 
 
 ## ----kernels-tab-static, eval = knitr::is_latex_output()----------------------
-kernel_table <- data.frame(
-  "Kernel Type" = c("Linear", "Polynomial", "Gaussian", "RBF", "Sigmoid"),
-  "Mathematical Definition" = c(
-    "$K(\\mathbf{x}_i, \\mathbf{x}_j) = \\mathbf{x}_i^\\top \\mathbf{x}_j$",
-    "$K(\\mathbf{x}_i, \\mathbf{x}_j) = (\\mathbf{x}_i^\\top \\mathbf{x}_j + 1)^d$",
-    "$K(\\mathbf{x}_i, \\mathbf{x}_j) = \\exp\\left(-\\frac{\\|\\mathbf{x}_i - \\mathbf{x}_j\\|^2}{2\\sigma^2}\\right)$",
-    "$K(\\mathbf{x}_i, \\mathbf{x}_j) = \\exp(-\\gamma \\|\\mathbf{x}_i - \\mathbf{x}_j\\|^2)$",
-    "$K(\\mathbf{x}_i, \\mathbf{x}_j) = \\tanh(\\kappa \\mathbf{x}_i^\\top \\mathbf{x}_j + \\theta)$"
-  ),
-  "Key Parameters" = c(
-    "None",
-    "Degree $d$",
-    "Bandwidth $\\sigma$",
-    "$\\gamma$",
-    "$\\kappa, \\theta$"
-  ),
-  check.names = FALSE
-)
-
 kable(
   kernel_table,
   escape = FALSE,
@@ -107,14 +88,14 @@ svmodt:::print_tree(tree_gini)
 
 ## -----------------------------------------------------------------------------
 # Split into training and test sets
-set.seed(234)
+set.seed(678)
 train_idx <- sample(nrow(wdbc), 0.8 * nrow(wdbc))
 train_data <- wdbc[train_idx, ]
 test_data <- wdbc[-train_idx, ]
 
 
 ## ----echo=TRUE----------------------------------------------------------------
-set.seed(123)
+set.seed(234)
 
 # Train with Information Gain (using entropy)
 tree_gini <- svmodt:::generate_tree(
@@ -462,10 +443,25 @@ summary_table <- data.frame(
   )
 )
 
+summary_table <- summary_table |>
+  mutate(
+    Mean = sprintf("%.4f", Mean),
+    SD   = sprintf("%.4f", SD),
+    Min  = sprintf("%.4f", Min),
+    Max  = sprintf("%.4f", Max)
+  ) |>
+  mutate(
+    Mean = cell_spec(Mean, bold = Mean == max(Mean)),
+    SD   = cell_spec(SD, bold = SD == min(SD)),
+    Min  = cell_spec(Min, bold = Min == max(Min)),
+    Max  = cell_spec(Max, bold = Max == max(Max))
+  )
+
 
 ## ----summary-stats-latex, eval = knitr::is_latex_output()---------------------
 kable(summary_table, 
       digits = 4,
+      escape = FALSE,
       col.names = c("Model", "Mean", "SD", "Min", "Max"),
       format = "latex",
       caption = "Summary statistics of test accuracy across 50 iterations on WDBC dataset") |>
@@ -479,44 +475,6 @@ kable(summary_table,
 #       format = "html",
 #       caption = "Summary statistics of test accuracy across 50 iterations on WDBC dataset") |>
 #   kable_styling(full_width = FALSE, position = "center")
-
-
-## ----boxplot-comparison, results='asis', fig.cap="Model Accuracy Distribution (50 Resamples)"----
-# Reshape data for plotting
-results_long <- tidyr::pivot_longer(
-  results,
-  cols = everything(),
-  names_to = "Model",
-  values_to = "Accuracy"
-)
-
-# Rename models for better display
-results_long <- results_long %>%
-  mutate(Model = recode(Model,
-    "Custom_Tree" = "Custom Tree\n(Integrated Pruning)",
-    "SVMODT" = "SVMODT\n(Oblique Splits)",
-    "RPART" = "RPART\n(CART)",
-    "Linear_SVM" = "Linear SVM",
-    "RBF_SVM" = "RBF SVM",
-    "Logistic" = "Logistic\nRegression"
-  ))
-
-# Create boxplot
-ggplot(results_long, aes(x = Model, y = Accuracy, fill = Model)) +
-  geom_boxplot(alpha = 0.7, outlier.shape = 1) +
-  stat_summary(fun = mean, geom = "point", shape = 23, size = 3, fill = "white") +
-  theme_minimal() +
-  scale_fill_brewer(palette = "Set2") +
-  labs(
-    y = "Test Accuracy",
-    x = ""
-  ) +
-  theme(
-    legend.position = "none",
-    plot.title = element_text(hjust = 0.5, face = "bold"),
-    plot.subtitle = element_text(hjust = 0.5)
-  ) +
-  coord_cartesian(ylim = c(0.85, 1.0))
 
 
 ## ----custom-vs-rpart, results='asis', fig.cap="Custom Tree vs. RPART Comparison"----
@@ -645,14 +603,14 @@ for (comp in comparisons) {
 }
 
 
-## ----t-test-results-latex, eval = knitr::is_latex_output()--------------------
+## ----t-test-results-latex, eval=knitr::is_latex_output()----------------------
 kable(t_test_results,
       digits = 4,
       caption = "Paired t-test results for model comparisons. Positive mean differences indicate the first model has higher accuracy.") |>
   kable_styling(full_width = FALSE, position = "center", , font_size = 7)
 
 
-## ----t-test-results-html, eval= knitr::is_html_output()-----------------------
+## ----t-test-results-html, eval=knitr::is_html_output()------------------------
 # kable(t_test_results,
 #       digits = 4,
 #       caption = "Paired t-test results for model comparisons. Positive mean differences indicate the first model has higher accuracy.") |>

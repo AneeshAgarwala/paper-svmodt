@@ -2,7 +2,7 @@
 title: "svmodt: An R Package for Linear SVM-Based Oblique Decision Trees"
 date: "2025-10-29"
 abstract: >
-  Decision trees are widely used for classification tasks due to their interpret-ability, but traditional axis-aligned splits often require deep trees to approximate complex decision boundaries. We introduce svmodt, an R package implementing two novel decision tree algorithms: (1) a custom decision tree with integrated cost-complexity pruning that makes pruning decisions during construction rather than as post-processing, and (2) an SVM-based oblique decision tree (SVMODT) that uses linear Support Vector Machines at each node to create multivariate splits. The package supports dynamic feature selection strategies, node-specific class weighting for handling imbalanced data, and feature diversity mechanisms through penalization. We demonstrate that SVMODT achieves competitive accuracy with standard SVMs (mean accuracy 0.974 on WDBC dataset) while maintaining the interpret-ability advantages of tree structures. The package includes comprehensive visualization tools, detailed documentation, and is freely available on GitHub.
+  Decision trees are widely used for classification tasks due to their interpretability, but traditional axis-aligned splits often require deep trees to approximate complex decision boundaries. We introduce svmodt, an R package implementing two novel decision tree algorithms: (1) a custom decision tree with integrated cost-complexity pruning that makes pruning decisions during construction rather than as post-processing, and (2) an SVM-based oblique decision tree (SVMODT) that uses linear Support Vector Machines at each node to create multivariate splits. The package supports dynamic feature selection strategies, node-specific class weighting for handling imbalanced data, and feature diversity mechanisms through penalization. We demonstrate that SVMODT achieves competitive accuracy with standard SVMs (mean accuracy 0.974 on Wisconsin Breast Cancer dataset) while maintaining the interpretability advantages of tree structures. The package includes comprehensive visualization tools, detailed documentation, and is freely available on GitHub.
 draft: true
 author:  
   - name: Aneesh Agarwal
@@ -22,7 +22,9 @@ author:
     email: Erik.Sverdrup@monash.edu
 type: package
 output: 
-  rjtools::rjournal_article:
+  rjtools::rjournal_pdf_article:
+    toc: no
+  rjtools::rjournal_web_article:
     self_contained: yes
     toc: no
 header-includes:
@@ -49,21 +51,23 @@ library(ggplot2)
 library(patchwork)
 ```
 
+#### [Github Repository](https://github.com/AneeshAgarwala/svmodt)
+
 # Introduction
 
-Decision trees remain among the most widely adopted machine learning algorithms due to their interpret-ability, ease of use, and ability to handle both categorical and numerical data without extensive preprocessing. Classical algorithms such as CART [\@breiman1984] and C4.5 [\@quinlan] employ axis-aligned (univariate) splits that partition the feature space along coordinate axes. While this approach ensures transparency in decision-making, it often necessitates deep trees with many nodes to approximate diagonal or curved decision boundaries, leading to increased model complexity and potential overfitting [\@murthy1994].
+Decision trees remain among the most widely adopted machine learning algorithms due to their interpretability, ease of use, and ability to handle both categorical and numerical data without extensive preprocessing. Classical algorithms such as CART [@breiman1984] and C4.5 [@quinlan1993] employ axis-aligned (univariate) splits that partition the feature space along coordinate axes. While this approach ensures transparency in decision-making, it often necessitates deep trees with many nodes to approximate diagonal or curved decision boundaries, leading to increased model complexity and potential overfitting [@pagallo1990].
 
-**Oblique decision trees**, which allow splits based on linear combinations of features, address this limitation by enabling more flexible partitioning of the feature space. A single oblique split such as $w_1x_1 + w_2x_2 < \theta$ can replace multiple axis-aligned splits needed to approximate the same boundary. Despite their representational advantages, oblique trees have seen limited adoption in practice, partly due to the computational complexity of finding optimal multivariate splits and the scarcity of accessible, well-documented software implementations, particularly in R [\@heath1993; \@brodley1995].
+**Oblique decision trees**, which allow splits based on linear combinations of features, address this limitation by enabling more flexible partitioning of the feature space. A single oblique split such as $w_1x_1 + w_2x_2 < \theta$ can replace multiple axis-aligned splits ($x_1 < \theta$) needed to approximate the same boundary. Despite their representational advantages, oblique trees have seen limited adoption in practice, partly due to the computational complexity of finding optimal multivariate splits [@brodley1995] and the scarcity of accessible, well-documented software implementations, particularly in R.
 
-Support Vector Machines (SVMs), introduced by \@cortes1995, provide a principled approach to finding optimal separating hyperplanes by maximizing the margin between classes. The integration of SVMs into decision tree structures was pioneered by \@bennet1998, who proposed fitting an SVM at each internal node to determine multivariate splits. This hybrid approach combines the interpret-ability of trees with the robust margin-based optimization of SVMs. Subsequent work has extended this concept through various algorithmic refinements [\@takahashi2002; \@bala2011; \@ganaie2022], yet fully-featured, accessible implementations remain scarce in the R ecosystem.
+Support Vector Machines (SVMs), introduced by @cortes1995, provide a principled approach to finding optimal separating hyperplanes by maximizing the margin between classes. The integration of SVMs into decision tree structures was pioneered by @bennet1998, who proposed fitting an SVM at each internal node to determine multivariate splits. This hybrid approach combines the interpretability of trees with the robust margin-based optimization of SVMs. Subsequent work has extended this concept through various algorithmic refinements [@takahashi2002; @bala2011; @ganaie2022], yet fully-featured, accessible implementations remain scarce in the R ecosystem.
 
 ## Research Objectives
 
 This paper addresses three key limitations in existing decision tree implementations:
 
-**First**, we tackle the computational inefficiency of traditional two-phase pruning approaches. Classical methods like CART grow a maximal tree before applying cost-complexity pruning via cross-validation [\@breiman1984classification]. This approach wastes computation on branches that are ultimately removed and requires tuning multiple hyper-parameters. We propose **integrated cost-complexity pruning**, where pruning decisions are made in real-time during tree construction, eliminating unnecessary computation while maintaining theoretical optimality.
+**First**, we tackle the computational inefficiency of traditional two-phase pruning approaches. Classical methods like CART grow a maximal tree before applying cost-complexity pruning via cross-validation [@breiman1984]. This approach wastes computation on branches that are ultimately removed and requires tuning multiple hyper-parameters. We propose **integrated cost-complexity pruning**, where pruning decisions are made in real-time during tree construction. We propose integrated cost-complexity pruning where pruning decisions are made in real-time during tree construction to maintain theoretical optimality.
 
-**Second**, we address the lack of flexible oblique tree implementations in R. While Python's STree [\@Montanana2021] and specialized packages exist, R practitioners lack access to SVM-based oblique trees with modern features such as dynamic feature selection, node-specific class weighting, and built-in visualization tools. Our **SVMODT** (SVM-based Oblique Decision Tree) implementation fills this gap with a comprehensive, well-documented package designed for both research and practical applications.
+**Second**, we address the lack of flexible oblique tree implementations in R. While Python's STree [@Montanana2021] and specialized packages exist, R practitioners lack access to SVM-based oblique trees with modern features such as dynamic feature selection, node-specific class weighting, and built-in visualization tools. Our **SVMODT** (SVM-based Oblique Decision Tree) implementation fills this gap with a comprehensive, well-documented package designed for both research and practical applications.
 
 **Third**, we introduce novel algorithmic enhancements including: (1) **dynamic feature selection strategies** that adjust the number of features considered based on tree depth; (2) **feature diversity through penalization**, which discourages repeated use of the same features across ancestor-descendant paths; and (3) **node-specific class weighting** that adapts to local class distributions during recursive splitting, providing more effective handling of imbalanced data sets than global weighting schemes.
 
@@ -75,7 +79,7 @@ The remainder of this paper is organized as follows. Section 2 reviews the theor
 
 ## Decision Trees
 
-Decision Trees (DTs) are interpretable classification models that represent their decision-making process through a hierarchical, tree-like structure. This structure comprises internal nodes containing splitting criteria and terminal (leaf) nodes corresponding to class labels. The nodes are connected by directed edges, each representing a possible outcome of a splitting criterion. Formally, a DT can be expressed as a rooted, directed tree $T = (G(V, E), v_1)$, where $V$ denotes the set of nodes, $E$ represents the set of edges linking these nodes, and $v_1$ is the root node.
+Decision Trees (DTs) are interpretable classification models that represent their decision-making process through a hierarchical, tree-like structure. This structure comprises of internal nodes containing splitting criteria and terminal (leaf) nodes corresponding to predicted outcomes (class labels and probabilities). The nodes are connected by directed edges, each representing a possible outcome of a splitting criterion. Formally, a DT can be expressed as a rooted, directed tree $T = (G(V, E), v_1)$, where $V$ denotes the set of nodes, $E$ represents the set of edges linking these nodes, and $v_1$ is the root node.
 
 If the tree $T$ has $m$ nodes, then for any $j \in \{1, \ldots, m\}$, the set of child nodes of $v_j \in V$ can be defined as:
 
@@ -83,33 +87,33 @@ $$
 N^{+}(v_j) = \{ v_k \in V \mid k \in \{1, \ldots, m\},\; k \neq j,\; (v_j, v_k) \in E \}.
 $$
 
-Here, $N^{+}(v_j)$ denotes the set of nodes that are directly connected to $v_j$ through outgoing edges, representing all possible child nodes that can be reached from $v_j$ within the tree structure [@lopez2018].
+Here, $N^{+}(v_j)$ denotes the set of nodes that are directly connected to $v_j$ through outgoing edges, representing two subsequent child nodes that can be reached from $v_j$ within the tree structure [@lopez2018].
 
 Decision tree algorithms can be categorized based on whether the same type of test is applied at all internal nodes. **Homogeneous trees** employ a single algorithm throughout (e.g., univariate or multivariate splits), whereas **hybrid trees** allow different algorithms such as linear discriminant functions, $k$-nearest neighbors, or univariate splits that can be used in different sub-trees [@brodley1995]. Hybrid trees exploit the principle of *selective superiority*, allowing subsets of the data to be modeled by the most appropriate classifier, thereby improving flexibility and accuracy.
 
 ### Univariate Decision Trees
 
-Univariate Decision Trees (UDTs) trees represent axis-parallel hyper-planes dividing the instance space into several disjoint regions. Axis-parallel decision trees, such as CART and C4.5, represent two of the most widely used algorithms for classification tasks. The **CART (Classification and Regression Trees)** algorithm employs a binary recursive partitioning procedure capable of handling both continuous and categorical variables as predictors or targets. It operates directly on raw data without requiring binning. The tree is expanded recursively until no further splits are possible, after which **cost-complexity pruning** is applied to remove branches that contribute least to predictive performance. This pruning process generates a sequence of nested sub-trees, from which the optimal model is selected using independent test data or cross-validation, rather than internal training measures [@breiman1984].
+Univariate Decision Trees (UDTs) trees represent axis-parallel hyper-planes dividing the instance space into several disjoint regions. Axis-parallel decision trees, such as CART and C4.5, represent two of the most widely used algorithms for classification tasks. The **CART (Classification and Regression Trees)** algorithm employs a binary recursive partitioning procedure at capable of handling both continuous and categorical variables as predictors or targets. At each node, the algorithm systematically evaluates every available variable and its potential split points to determine the optimal partition. It operates directly on raw data without requiring binning. The tree is expanded recursively until no further splits are possible, after which **cost-complexity pruning** is applied to remove branches that contribute least to predictive performance. This pruning process generates a sequence of nested sub-trees, from which the optimal model is selected using independent test data or cross-validation, rather than internal training measures
 
 In contrast, **C4.5**, an extension of the earlier **ID3** algorithm [@quinlan1986], utilizing information theory measures such as **information gain** and **gain ratio** to select the most informative attribute for each split [@quinlan1993]. C4.5 also includes mechanisms to handle missing attribute values by weighting instances according to the proportion of known data and employs an **error-based pruning** method to reduce overfitting. Although these techniques are effective across diverse data sets, studies have shown that the choice of pruning strategy and stopping criteria can significantly affect model performance across different domains [@mingers1989; @schaffer1992].
 
-While UDTs are highly interpret-ability, they are characterized by several representational limitations. Such trees often grow unnecessarily large, as they must approximate complex relationship between features through multiple axis-aligned partitions. This can result in the replication of sub-trees and repeated testing of the same feature along different paths, both of which reduce efficiency and hinder generalization performance [@pagallo1990].
+While UDTs are highly interpretability, they have several representational limitations. Such trees often grow unnecessarily large, as they must approximate complex relationship between features through multiple axis-aligned partitions. This can result in the replication of sub-trees and repeated testing of the same feature along different paths, both of which reduce efficiency and hinder generalization performance [@pagallo1990].
 
 ### Multivariate Decision Trees
 
-Multivariate decision trees (MDTs) extends UDTs by allowing each internal node to perform splits based on linear or nonlinear combinations of multiple features. This flexibility enables the tree to form oblique decision boundaries that more accurately partition the instance space. For example, a single multivariate test such as $x + y < 8$ can replace multiple univariate splits needed to approximate the same boundary. The construction of MDTs introduces several design considerations, including how to represent multivariate tests, determine their coefficients, select features to include, handle symbolic and missing data, and prune to avoid over-fitting [@brodley1995].
+Multivariate decision trees (MDTs) extends UDTs by allowing each internal node to perform splits based on linear or nonlinear combinations [@said2025] of multiple features. This flexibility enables the tree to form oblique decision boundaries that more accurately partition the instance space. For example, a single multivariate test such as $x + y < 8$ can replace multiple univariate splits needed to approximate the same boundary. The construction of MDTs introduces several design considerations, including how to represent multivariate tests, determine their coefficients, select features to include, handle symbolic and missing data, and prune to avoid over-fitting [@brodley1995].
 
-Various optimization algorithms—such as recursive least squares [@young1984], the pocket algorithm [@gallant1986], or thermal training [@frean1990]—may be used to estimate the weights. However, MDTs trade interpret-ability for representational power and often require additional mechanisms for **local feature selection**, such as *sequential forward selection* (SFS) or *sequential backward elimination* (SBE) [@kittler1986].
+Various optimization algorithms such as recursive least squares [@young1984], the pocket algorithm [@gallant1986], or thermal training [@frean1990] may be used to estimate the weights. However, MDTs trade interpretability for representational power and often require additional mechanisms for **local feature selection**, such as *sequential forward selection* (SFS) or *sequential backward elimination* (SBE) [@kittler1986].
 
-Empirical comparisons across multiple data sets demonstrate that multivariate trees generally achieve higher accuracy and smaller tree sizes than their univariate counterparts, though this comes at the cost of reduced interpret-ability. Moreover, MDTs retain key advantages of standard decision trees—such as sequential split criteria evaluation and transparent decision procedures—while offering improved modeling flexibility for complex data sets [@kozial2009; @friedl1997; @huan1998; @canete].
+Empirical comparisons across multiple data sets demonstrate that multivariate trees generally achieve higher accuracy and smaller tree sizes than their univariate counterparts, though this comes at the cost of reduced interpretability. Moreover, MDTs retain key advantages of standard decision trees such as sequential split criteria evaluation and transparent decision procedures while offering improved modeling flexibility for complex data sets [@kozial2009; @friedl1997; @huan1998; @canete].
 
 ## Support Vector Machines (SVMs)
 
-Support Vector Machines (SVMs) are powerful supervised learning models used for classification and regression tasks. They aim to determine an optimal separating hyperplane that maximizes the margin between different classes in the data. This margin-based approach enhances the generalization ability of the model, making SVMs robust and effective for many real-world problems [@cristianini2000].
+Support Vector Machines (SVMs) are powerful supervised learning models used for classification and regression tasks. They aim to determine an optimal separating hyperplane that maximizes the margin between binary classes in the data. This margin-based approach enhances the generalization ability of the model, making SVMs robust and effective for many real-world problems [@cristianini2000].
 
 ### Linear SVMs
 
-A simplest **linear SVMs** construct a separating hyperplane in an $n$-dimensional space such that the margin between the classes is maximized. Given a training dataset $\{(\mathbf{x}_i, y_i)\}_{i=1}^{N}$, where $\mathbf{x}_i \in \mathbb{R}^n$ and $y_i \in \{-1, +1\}$, the decision function is defined as:
+A simplest **linear SVMs** construct a separating hyperplane in an $p$-dimensional space such that the margin between the classes is maximized. Given a training dataset $\{(\mathbf{x}_i, y_i)\}_{i=1}^{N}$, where $\mathbf{x}_i \in \mathbb{R}^p$ and $y_i \in \{-1, +1\}$, the decision function is defined as:
 
 $$
 f(\mathbf{x}) = \text{sign}(\mathbf{w}^\top \mathbf{x} + b),
@@ -125,7 +129,7 @@ $$ subject to: $$
 y_i (\mathbf{w}^\top \mathbf{x}_i + b) \geq 1, \quad i = 1, 2, \ldots, N.
 $$
 
-Here, $\|\mathbf{w}\|$ represents the norm of the weight vector and acts as a regularization term that controls the complexity of the model. The constraint ensures that all data points are correctly classified and lie outside the margin boundaries.
+Here, $\|\mathbf{w}\|$ represents the $L2$ norm of the weight vector and acts as a regularization term that controls the complexity of the model. The constraint ensures that all data points are correctly classified and lie outside the margin boundaries.
 
 However, in most practical situations, perfect linear separability is not achievable. To address this, **soft-margin SVMs** introduce slack variables $\xi_i \geq 0$ to allow certain violations of the margin constraints, resulting in the following optimization problem:
 
@@ -140,18 +144,18 @@ The parameter $C > 0$ controls the trade-off between maximizing the margin and m
 The solution to this constrained optimization problem is obtained using **Lagrange multipliers**, resulting in a dual formulation expressed as:
 
 $$
-\max_{\alpha} \sum_{i=1}^{N} \alpha_i - \frac{1}{2} \sum_{i=1}^{N}\sum_{j=1}^{N} \alpha_i \alpha_j y_i y_j \langle \mathbf{x}_i, \mathbf{x}_j \rangle
+\max_{\alpha} \sum_{i=1}^{N} \alpha_i - \frac{1}{2} \sum_{i=1}^{N}\sum_{j=1}^{N} \alpha_i \alpha_j y_i y_j \langle \mathbf{x}_i^T \mathbf{x}_j \rangle
 $$ subject to: $$
 \sum_{i=1}^{N} \alpha_i y_i = 0, \quad 0 \leq \alpha_i \leq C.
 $$
 
-The data points corresponding to non-zero $\alpha_i$ values are the **support vectors**, which define the decision boundary. The resulting decision function for a new observation $\mathbf{x}$ is given by:
+he constrained optimization problem can be efficiently solved using standard quadratic programming solvers, such as those available in the \CRANpkg{quadprog} package in R. The data points corresponding to non-zero $\alpha_i$ values are the **support vectors**, which define the decision boundary. The resulting decision function for a new observation $\mathbf{x}$ is given by:
 
 $$
-f(\mathbf{x}) = \text{sign}\left(\sum_{i=1}^{N} \alpha_i y_i \langle \mathbf{x}_i, \mathbf{x} \rangle + b\right).
+f(\mathbf{x}) = \text{sign}\left(\sum_{i=1}^{N} \alpha_i^* y_i \langle \mathbf{x}_i, \mathbf{x} \rangle + b\right).
 $$
 
-This formulation highlights one of the most important properties of SVMs — the decision boundary depends only on a subset of the training data (the support vectors), making SVMs both efficient and robust in representing the learned model [@cervantes2020].
+This formulation highlights one of the most important properties of SVMs, the decision boundary depends only on a subset of the training data (the support vectors), making SVMs both efficient and robust in representing the learned model [@cervantes2020].
 
 ### Non-Linear SVMs
 
@@ -177,26 +181,26 @@ where $\alpha_i$ are the Lagrange multipliers obtained during training.
 
 For a function $K$ to be a valid kernel, it must satisfy **Mercer’s condition** [@vapnik2013] i.e., the kernel matrix must be symmetric and positive semi-definite. Table `r knitr::asis_output(ifelse(knitr::is_html_output(), '\\@ref(tab:kernels-tab-interactive)', '\\@ref(tab:kernels-tab-static)'))`
 
-```{r kernels-tab-interactive, eval = knitr::is_html_output()}
+```{r}
 kernel_table <- data.frame(
-  "Kernel Type" = c("Linear", "Polynomial", "Gaussian", "RBF", "Sigmoid"),
+  "Kernel Type" = c("Linear", "Polynomial", "Gaussian", "Sigmoid"),
   "Mathematical Definition" = c(
     "$K(\\mathbf{x}_i, \\mathbf{x}_j) = \\mathbf{x}_i^\\top \\mathbf{x}_j$",
     "$K(\\mathbf{x}_i, \\mathbf{x}_j) = (\\mathbf{x}_i^\\top \\mathbf{x}_j + 1)^d$",
     "$K(\\mathbf{x}_i, \\mathbf{x}_j) = \\exp\\left(-\\frac{\\|\\mathbf{x}_i - \\mathbf{x}_j\\|^2}{2\\sigma^2}\\right)$",
-    "$K(\\mathbf{x}_i, \\mathbf{x}_j) = \\exp(-\\gamma \\|\\mathbf{x}_i - \\mathbf{x}_j\\|^2)$",
     "$K(\\mathbf{x}_i, \\mathbf{x}_j) = \\tanh(\\kappa \\mathbf{x}_i^\\top \\mathbf{x}_j + \\theta)$"
   ),
   "Key Parameters" = c(
     "None",
     "Degree $d$",
     "Bandwidth $\\sigma$",
-    "$\\gamma$",
     "$\\kappa, \\theta$"
   ),
   check.names = FALSE
 )
+```
 
+```{r kernels-tab-interactive, eval = knitr::is_html_output()}
 kable(
   kernel_table,
   escape = FALSE,
@@ -206,25 +210,6 @@ kable(
 ```
 
 ```{r kernels-tab-static, eval = knitr::is_latex_output()}
-kernel_table <- data.frame(
-  "Kernel Type" = c("Linear", "Polynomial", "Gaussian", "RBF", "Sigmoid"),
-  "Mathematical Definition" = c(
-    "$K(\\mathbf{x}_i, \\mathbf{x}_j) = \\mathbf{x}_i^\\top \\mathbf{x}_j$",
-    "$K(\\mathbf{x}_i, \\mathbf{x}_j) = (\\mathbf{x}_i^\\top \\mathbf{x}_j + 1)^d$",
-    "$K(\\mathbf{x}_i, \\mathbf{x}_j) = \\exp\\left(-\\frac{\\|\\mathbf{x}_i - \\mathbf{x}_j\\|^2}{2\\sigma^2}\\right)$",
-    "$K(\\mathbf{x}_i, \\mathbf{x}_j) = \\exp(-\\gamma \\|\\mathbf{x}_i - \\mathbf{x}_j\\|^2)$",
-    "$K(\\mathbf{x}_i, \\mathbf{x}_j) = \\tanh(\\kappa \\mathbf{x}_i^\\top \\mathbf{x}_j + \\theta)$"
-  ),
-  "Key Parameters" = c(
-    "None",
-    "Degree $d$",
-    "Bandwidth $\\sigma$",
-    "$\\gamma$",
-    "$\\kappa, \\theta$"
-  ),
-  check.names = FALSE
-)
-
 kable(
   kernel_table,
   escape = FALSE,
@@ -240,11 +225,11 @@ Although SVMs exhibit strong theoretical foundations and robust generalization c
 
 The earliest formalization of Support Vector Machine–based Decision Trees (DTSVMs) was introduced by @bennet1998 , who extended the principles of Statistical Learning Theory [@vapnik2013] and Structural Risk Minimization (SRM) to the construction of binary decision trees. Each node of a decision tree was treated as an SVM that partitions data along an optimal hyperplane. This approach allowed for multivariate SVM decisions at each node. @takahashi2002 extended DTSVMs to multiclass problems, using a recursive tree-based partitioning where the root separates the most separable class (or classes) from the rest. Subsequent nodes repeat this process until each leaf contains a single class, ensuring that all regions of the feature space are classified.
 
-Subsequent studies have built upon this foundation to address scalability, optimization, and generalization issues. Optimal Decision Tree SVM (ODT-SVM) [@bala2011] introduced split-selection criteria based on Gini index, information gain, and scatter matrix separability to balance tree interpret-ability and margin-based precision.
+Subsequent studies have built upon this foundation to address scalability, optimization, and generalization issues. Optimal Decision Tree SVM (ODT-SVM) [@bala2011] introduced split-selection criteria based on Gini index, information gain, and scatter matrix separability to balance tree interpretability and margin-based precision.
 
 ### Oblique and Rotation-Based Extensions
 
-Recent research has explored oblique and rotation-based decision ensembles that generalize the DTSVM concept. Oblique Double Random Forests with MPSVM (MPDRaF) [@ganaie2022] introduce multivariate (oblique) splits at each node using Multi-Plane SVM (MPSVM) formulations [@Mangasarian2006], enhancing the geometric flexibility of decision boundaries. Regularization variants—such as Tikhonov, axis-parallel, and null-space—address sample-size limitations at deeper nodes, ensuring better generalization.
+Recent research has explored oblique and rotation-based decision ensembles that generalize the DTSVM concept. Oblique Double Random Forests with MPSVM (MPDRaF) [@ganaie2022] introduce multivariate (oblique) splits at each node using Multi-Plane SVM (MPSVM) formulations [@Mangasarian2006], enhancing the geometric flexibility of decision boundaries. Regularization variants such as Tikhonov, axis-parallel, and null-space address sample-size limitations at deeper nodes, ensuring better generalization.
 
 Similarly, Rotation-based Double Random Forests (DRaF) [@ganaie2022] employ Principal Component Analysis (PCA) and Linear Discriminant Analysis (LDA) transformations at non-terminal nodes to create diverse subspaces, improving ensemble diversity and classification stability.
 
@@ -254,15 +239,13 @@ Recent works such as the Oblique Decision Tree Ensemble (ODTE) [@montanana2025] 
 
 ## Related Software Packages
 
-Several software packages provide functionality related to SVM-based decision trees, but fully-featured implementations of SVM Oblique Decision Trees (SVMODT) remain limited, particularly in R. In R, very scarce SVMODT implementation is available. The \CRANpkg{PPforest} package implements projection pursuit random forests, where trees are constructed by splitting on linear combinations of variables to maximize class separation, supporting multi-class problems and variable importance measures. In Python, **STree** [@Montanana2021] provides an oblique decision tree classifier based on SVM nodes, where each node is built and split using scikit-learn’s **SVC** models [@scikit2011]. Java-based frameworks such as **Weka** provide classical decision trees (**J48**) and SVMs (**SMO**) that can be adapted for hierarchical SVM trees [@menkovski2008]. Overall, while multiple languages provide the building blocks for SVM training, decision tree construction, and ensemble methods—there is currently no widely available, fully integrated SVMODT software in R, highlighting the need for custom implementations or adaptation of existing tools for research and applied purposes.
+Several software packages provide functionality related to SVM-based decision trees, but fully-featured implementations of SVM Oblique Decision Trees (SVMODT) remain limited, particularly in R. In R, very scarce SVMODT implementation is available. The \CRANpkg{PPforest} package implements projection pursuit random forests, where trees are constructed by splitting on linear combinations of variables to maximize class separation, supporting multi-class problems and variable importance measures. In Python, **STree** [@Montanana2021] provides an oblique decision tree classifier based on SVM nodes, where each node is built and split using scikit-learn’s **SVC** models [@scikit2011]. Java-based frameworks such as **Weka** provide classical decision trees (**J48**) and SVMs (**SMO**) that can be adapted for hierarchical SVM trees [@menkovski2008]. Overall, while multiple languages provide the building blocks for SVM training, decision tree construction, and ensemble methods, there is currently no widely available, fully integrated SVMODT software in R, highlighting the need for custom implementations or adaptation of existing tools for research and applied purposes.
 
 # Research Gaps & Contributions
 
-## Identified Research Gaps
-
 Despite significant advances in decision tree methodologies and SVM-based hybrid approaches, several critical limitations persist in existing implementations:
 
-### Limited Flexibility in Oblique Decision Tree Software
+## Limited Flexibility in Oblique Decision Tree Software
 
 As discussed before, while oblique decision trees using SVMs have been theoretically established since @bennet1998, accessible and feature-rich implementations remain scarce, particularly in R. Existing approaches such as Optimal Decision Tree SVM (ODT-SVM) [@bala2011] and recent extensions like MPDRaF [@ganaie2022] and ODTE [@montanana2025] have advanced the field theoretically, but face several practical limitations:
 
@@ -272,9 +255,9 @@ As discussed before, while oblique decision trees using SVMs have been theoretic
 
 -   **Class imbalance handling**: While SVMs inherently support class weighting, most hybrid DTSVM implementations apply weights globally at the tree level rather than computing node-specific weights that adapt to local class distributions encountered during recursive splitting.
 
--   **Interpret-ability tools**: Despite the advantage of tree-based models in interpret ability, existing packages lack comprehensive visualization tools for examining individual SVM hyper-planes, tracing prediction paths, or understanding how oblique splits contribute to final decisions.
+-   **interpretability tools**: Despite the advantage of tree-based models in interpret ability, existing packages lack comprehensive visualization tools for examining individual SVM hyper-planes, tracing prediction paths, or understanding how oblique splits contribute to final decisions.
 
-### Absence of Integrated Pruning in Modern Decision Trees
+## Absence of Integrated Pruning in Modern Decision Trees
 
 Classical decision tree algorithms, such as CART [@breiman1984], typically employ a two-phase process: a maximal tree is first grown, and pruning is applied afterward using cost-complexity analysis with cross-validation. This approach introduces several inefficiencies. Branches that will ultimately be pruned are fully constructed, consuming unnecessary computational resources, and practitioners must tune both tree-growing parameters (e.g., depth, minimum samples) and pruning parameters ($\alpha$), increasing model selection complexity. Furthermore, deferring pruning to a post-processing phase prevents early stopping opportunities that could reduce training time. While C4.5 [@quinlan1993] implemented error-based pruning and some modern algorithms include early stopping criteria, integrated cost-complexity pruning; where pruning decisions are made in real time during tree construction remains largely unexplored, despite its potential to improve computational efficiency.
 
@@ -284,20 +267,16 @@ This paper introduces the **svmodt** R package, which addresses the limitations 
 
 1.  **SVM-Based Oblique Decision Trees with Advanced Features**\
     We propose a flexible oblique decision tree algorithm that uses linear SVMs at each internal node. The implementation offers several novel features:
-    1.  **Dynamic Feature Selection Strategies:** We introduce three strategies to control the number of features considered at each depth $d$:
+    i.  **Dynamic Feature Selection Strategies:** We introduce three strategies to control the number of features considered at each depth $d$:
         -   *Constant strategy:* fixed number of features at all depths;
         -   *Decrease strategy:* the feature count decreases with depth, mitigating over-fitting and improving computational efficiency;
         -   *Random strategy:* a random subset of features is selected at each node, promoting diversity in feature usage. These strategies extend beyond the fixed $m = \sqrt{p}$ approach used in Random Forests, giving practitioners explicit control over feature complexity throughout the tree.
-    2.  **Feature Diversity via Penalization:** To reduce redundancy and encourage diverse feature usage, features used in ancestor nodes have their selection weights reduced by a factor $1-\lambda$ controlled via the `penalize_used_features` and `feature_penalty_weight` parameters. Unlike naive random sampling, this approach explicitly discourages repeated feature use while maintaining flexibility.
-    3.  **Node-Specific Class Weighting:** Four weighting strategies are implemented, with weights recalculated at each node based on local class distributions: none, balanced, balanced sub-sample, and custom user-defined weights. All weights are capped to prevent numerical instability, enabling adaptive handling of class imbalance throughout the tree.
-
-<!-- -->
-
+    ii. **Feature Diversity via Penalization:** To reduce redundancy and encourage diverse feature usage, features used in ancestor nodes have their selection weights reduced by a factor $1-\lambda$ controlled via the `penalize_used_features` and `feature_penalty_weight` parameters. Unlike naive random sampling, this approach explicitly discourages repeated feature use while maintaining flexibility.
+    iii. **Node-Specific Class Weighting:** Four weighting strategies are implemented, with weights recalculated at each node based on local class distributions: none, balanced, balanced sub-sample, and custom user-defined weights. All weights are capped to prevent numerical instability, enabling adaptive handling of class imbalance throughout the tree.
 2.  **Decision Tree with Integrated Cost-Complexity Pruning**\
-    We implement a decision tree algorithm where pruning occurs during construction rather than as a post-processing step. At each node, the algorithm immediately compares the cost-complexity of a leaf versus its sub-tree and prunes in real time if beneficial. This approach eliminates the need for separate pruning phases, reduces computational cost, simplifies hyper-parameter tuning, and maintains optimal equivalent to CART’s post-pruning.
-
+    We implement a decision tree algorithm where pruning occurs during construction rather than as a post-processing step. At each node, the algorithm immediately compares the cost-complexity of a leaf versus its sub-tree and prunes in real time if beneficial. This approach eliminates the need for separate pruning phases, reduces computational cost, simplifies hyper-parameter tuning, and remains optimally equivalent .
 3.  **Comprehensive R Package Implementation**\
-    The **svmodt** package provides a production-ready implementation with a well-documented API that includes type checking and input validation to ensure robust and user-friendly operation. It supports both binary and multi-class classification and leverages vectorized operations for computational efficiency. For interpret-ability and diagnostics, the package includes functions such as `print_svm_tree()` for hierarchical ASCII visualization, `trace_prediction_path()` for sample-level decision path tracing, and `visualize_svm_tree()` for automated 2D plotting of SVM hyper-planes. The package also comes with included data sets, such as the Wisconsin Diagnostic Breast Cancer (WDBC) data set. Comprehensive documentation is provided, including vignettes and Roxygen2-based function documentation, along with reproducible example code to facilitate practical application and comparison with alternative methods.
+    The **svmodt** package provides a production-ready implementation with a well-documented API that includes type checking and input validation to ensure robust and user-friendly operation. It supports both binary and multi-class classification and leverages vectorized operations for computational efficiency. For interpretability and diagnostics, the package includes functions such as `print_svm_tree()` for hierarchical ASCII visualization, `trace_prediction_path()` for sample-level decision path tracing, and `visualize_svm_tree()` for automated 2D plotting of SVM hyper-planes. The package also comes with included data sets, such as the Wisconsin Diagnostic Breast Cancer (WDBC) data set [@Street1993] . Comprehensive documentation is provided, including vignettes and Roxygen2-based function documentation, along with reproducible example code to facilitate practical application and comparison with alternative methods.
 
 # Methodology
 
@@ -313,7 +292,7 @@ At each node $v$ with samples $\mathcal{D}_v$ and labels $\mathcal{Y}_v$, the al
 
 1.  **Compute Node Statistics**: At each node of the decision tree, several key statistics are computed to guide the splitting process. The class probabilities are calculated as $p_c = \frac{n_c}{n},$ where $n_c$ is the count of samples belonging to class $c$ in the node, and $n = |D_v|$ is the total number of samples at the node. The predicted class is assigned as the class with the highest probability, $$\hat{y} = \arg\max_c p_c.$$
 
-2.  **Select Optimal Split**: The optimal split at each node is determined using one of three criteria:
+2.  **Select Optimal Split**: At each node, the algorithm evaluates all features and every possible split point $n-1$ for $n$ samplesl to identify the split that maximizes class separation according to the chosen criterion:
 
     -   **Gini Impurity** is defined as $$\text{Gini}(\mathcal{Y}) = 1 - \sum_{c=1}^{K} p_c^2,$$where $p_c$ is the proportion of samples belonging to class $c$ in node $\mathcal{Y}$ [@breiman1984].
 
@@ -321,7 +300,7 @@ At each node $v$ with samples $\mathcal{D}_v$ and labels $\mathcal{Y}_v$, the al
 
     -   **Gain Ratio** further adjusts Information Gain by penalizing splits that create many small partitions [@quinlan1993] and is defined as $$\text{GR}(f, s) = \frac{\text{IG}(f, s)}{\text{SI}(f, s)},$$where the split information is $$\text{SI}(f, s) = -\sum_{i \in \{L, R\}} \frac{n_i}{n} \log_2\left(\frac{n_i}{n}\right).$$
 
-3.  **Evaluates Pruning Criteria**: To ensure the tree remains interpret-able and avoids over-fitting, integrated pruning is performed using cost-complexity analysis. The cost of a sub-tree $T_v$ is given by $$R_\alpha(T_v) = R(T_v) + \alpha \|T_v\|,$$ where $R(T_v)$ is the miss-classification error, $|T_v|$ is the number of leaves in the sub-tree, and $\alpha \geq 0$ is a complexity parameter controlling the trade-off between accuracy and simplicity. For a single leaf node $t_v$, the cost is $$R_\alpha(t_v) = R(t_v) + \alpha.$$ A sub-tree $T_v$ is pruned, i.e., replaced by a single leaf node, if $$R_\alpha(t_v) \leq R_\alpha(T_v),$$ensuring that further splits are retained only when they yield sufficient reduction in classification error to justify the added complexity.
+3.  **Evaluates Pruning Criteria**: To ensure the tree remains interpretable and avoids over-fitting, integrated pruning is performed using cost-complexity analysis. The cost of a sub-tree $T_v$ is given by $$R_\alpha(T_v) = R(T_v) + \alpha \|T_v\|,$$ where $R(T_v)$ is the miss-classification error, $|T_v|$ is the number of leaves in the sub-tree, and $\alpha \geq 0$ is a complexity parameter controlling the trade-off between accuracy and simplicity. For a single leaf node $t_v$, the cost is $$R_\alpha(t_v) = R(t_v) + \alpha.$$ A sub-tree $T_v$ is pruned, i.e., replaced by a single leaf node, if $$R_\alpha(t_v) \leq R_\alpha(T_v),$$ensuring that further splits are retained only when they yield sufficient reduction in classification error to justify the added complexity.
 
 ```{=latex}
 \begin{algorithm}
@@ -368,19 +347,19 @@ At each node $v$ with samples $\mathcal{D}_v$ and labels $\mathcal{Y}_v$, the al
 \end{algorithm}
 ```
 
-The custom uni variate decision tree implementation in R combines axis-parallel splits with integrated cost-complexity pruning, offering several key differences from standard CART/\CRANpkg{rpart} trees. Numeric features are split only at midpoints where class labels change, while categorical features use binary splits at each level, reducing computational complexity. Splitting criteria include Gini impurity, information gain, and Gain Ratio—the latter penalizing splits with high split information to favor balanced partitions. Integrated pruning is applied during tree construction using a fixed $\alpha$ parameter, replacing sub-trees with leaves whenever the cost-complexity criterion is satisfied, unlike CART/\CRANpkg{rpart}, which performs post-pruning via cross-validation. This single-pass pruning approach reduces training time and space requirements, while still producing interpret-able trees. Predictions follow standard tree traversal, returning majority-class labels or probability estimates at leaves.
+Algorithm \@ref(alg:custom-tree) presents our Decision tree with Integrated Cost-Complexity Pruning. The custom univariate decision tree implementation in R combines axis-parallel splits with integrated cost-complexity pruning, offering several key differences from standard CART/\CRANpkg{rpart} trees. Numeric features are split only at midpoints where class labels change, while categorical features use binary splits at each level, reducing computational complexity. Splitting criteria include Gini impurity, information gain, and Gain Ratio. The latter penalizing splits with high split information to favor balanced partitions. Integrated pruning is applied during tree construction using a fixed $\alpha$ parameter, replacing sub-trees with leaves whenever the cost-complexity criterion is satisfied, unlike CART/\CRANpkg{rpart}, which performs post-pruning via cross-validation. This single-pass pruning approach reduces training time and space requirements, while still producing interpretable trees. Predictions follow standard tree traversal, returning majority-class labels or probability estimates at leaves.
 
 ## Support Vector Machine based Oblique Decision Trees
 
 ### Algorithm Description
 
-The SVM Oblique Decision Tree (SVMODT) constructs a binary classification decision tree where each internal node $v$ at depth $d$. The algorithm is implemented in R using the \CRANpkg{e1071} performs the following operations:
+The SVM Oblique Decision Tree (SVMODT) (see Algorithm \@ref(alg:svmodt) constructs a binary classification decision tree where each internal node $v$ at depth $d$. The algorithm is implemented in R using the \CRANpkg{e1071} performs the following operations:
 
 1.  **Feature Selection:** A subset of $m_d$ features is dynamically selected from the available feature set $\mathcal{F}$. This selection can be done using one of several strategies, including random selection, sampling, mutual information ranking (using the \CRANpkg{FSelectorRcpp} package), or correlation-based selection. This allows the tree to adaptive-ly focus on the most informative features at each node.
 
 2.  **Feature Scaling:** Once the features are selected, z-score normalization is applied to standardize them. For the selected feature matrix $\mathbf{X}_v \in \mathbb{R}^{n \times m_d}$, the scaled features are computed as $$\mathbf{X}_v^{\text{scaled}} = \frac{\mathbf{X}_v - \boldsymbol{\mu}_v}{\boldsymbol{\sigma}_v},$$ where $\boldsymbol{\mu}_v$ and $\boldsymbol{\sigma}_v$ denote the mean and standard deviation of the features in node $v$.
 
-3.  **SVM Training:** A linear SVM is then trained on the scaled features. Optional class weights $w_c$ can be applied to handle imbalanced data. The SVM optimization problem is formulated as $$\min_{\mathbf{w}, b} \frac{1}{2}\|\mathbf{w}\|^2 + C \sum_{i=1}^{n} w_{y_i} \xi_i,$$ where $C$ is the regularization parameter, $\xi_i$ are slack variables, and $w_{y_i}$ represents the class-specific weight for sample $i$.
+3.  **SVM Training:** A linear SVM is then trained on the scaled features. Optional class weights $w_c$ can be applied to handle imbalanced data. The SVM optimization problem at each node $v$ is formulated as $$\min_{\mathbf{w_v}, b_v} \frac{1}{2}\|\mathbf{w_v}\|^2 + C \sum_{i\in D_v}^{n} w_{y_i} \xi_i,$$ where $C$ is the regularization parameter, $\xi_i$ are slack variables, and $w_{y_i}$ represents the class-specific weight for sample $i$ in the set of training samples $D_v$ reaching node $v$.
 
 4.  **Node Splitting:** After training, the decision values for each sample are computed as $f(x_i) = \mathbf{w}^T x_i + b.$ Samples are then partitioned into left and right child nodes according to the sign of $f(x_i)$:
 
@@ -462,11 +441,11 @@ Here, $\alpha \in (0, 1]$ is the decrease rate for the "decrease strategy," $p$ 
 
 ### Interaction with SVM Training and Node Splitting
 
-The hyper-parameters described above directly influence the behavior of the SVM-based decision tree at each node. The feature selection strategy determines which subset of features $\mathcal{F}_d$ is used to fit the linear SVM at depth $d$, which affects the orientation and effectiveness of the decision hyper-plane. Feature penalties ensure that no single feature dominates multiple splits, promoting diversity in the learned splits and improving generalization. Once the SVM is trained on the selected and scaled features, the decision values are used to partition the samples into left and right child nodes. By controlling the number of features, penalizing repeated use, and adjusting class weights, the tree can achieve a balance between predictive accuracy, interpret-ability, and computational efficiency.
+The hyper-parameters described above directly influence the behavior of the SVM-based decision tree at each node. The feature selection strategy determines which subset of features $\mathcal{F}_d$ is used to fit the linear SVM at depth $d$, which affects the orientation and effectiveness of the decision hyper-plane. Feature penalties ensure that no single feature dominates multiple splits, promoting diversity in the learned splits and improving generalization. Once the SVM is trained on the selected and scaled features, the decision values are used to partition the samples into left and right child nodes. By controlling the number of features, penalizing repeated use, and adjusting class weights, the tree can achieve a balance between predictive accuracy, interpretability, and computational efficiency.
 
 # Data
 
-In this study, we evaluate the SVM-based oblique decision tree (SVMODT) on two widely used benchmark data sets: **Palmer Penguins** and **Wisconsin Diagnostic Breast Cancer (WDBC)**. These data sets provide a mix of multi-class and binary classification problems, as well as numeric and categorical features, making them suitable for testing the flexibility and interpret-ability of SVMODTs.
+In this study, we evaluate the SVM-based oblique decision tree (SVMODT) on two widely used benchmark data sets: **Palmer Penguins** and **Wisconsin Diagnostic Breast Cancer (WDBC)**. These data sets provide a mix of multi-class and binary classification problems, as well as numeric and categorical features, making them suitable for testing the flexibility and interpretability of SVMODTs.
 
 ## Palmer Penguins
 
@@ -481,7 +460,7 @@ The \CRANpkg{palmerpenguins} data set is a multi-class data set containing morph
 
 ## Wisconsin Diagnostic Breast Cancer (WDBC)
 
-The **WDBC** [@Street1993] data set is a binary classification data set derived from fine needle aspirates of breast tissue. It contains 569 observations with 30 numeric features computed from digitized images of cell nuclei. The features include measures such as **radius, texture, perimeter, area, smoothness, compactness, concavity, concave points, symmetry, fractal dimension** The target variable is **diagnosis** (Malignant (M) or benign (B) tumor). This data set is widely used for testing high-dimensional binary classification algorithms. Its numeric nature allows direct evaluation of SVM splits and the effect of class weighting strategies on imbalanced classes.
+The **WDBC** data set is a binary classification data set derived from fine needle aspirates of breast tissue. It contains 569 observations with 30 numeric features computed from digitized images of cell nuclei. The features include measures such as **radius, texture, perimeter, area, smoothness, compactness, concavity, concave points, symmetry, fractal dimension** The target variable is **diagnosis** (Malignant (M) or benign (B) tumor). This data set is widely used for testing high-dimensional binary classification algorithms. Its numeric nature allows direct evaluation of SVM splits and the effect of class weighting strategies on imbalanced classes.
 
 ## Data Preparation
 
@@ -491,7 +470,7 @@ For both data sets, the following pre-processing steps are applied before traini
 2.  **Class Filtering**: For Palmer Penguins, rows corresponding to the *Gentoo* species are removed using \CRANpkg{dplyr} to create a binary classification problem.
 3.  **Categorical Encoding**: Categorical variables are encoded as factor levels suitable for training.
 
-These pre-processing steps ensure that SVMODT can learn meaningful oblique splits across both data sets while maintaining interpret-ability.
+These pre-processing steps ensure that SVMODT can learn meaningful oblique splits across both data sets while maintaining interpretability.
 
 # Usage and Examples
 
@@ -517,7 +496,7 @@ The primary function `generate_tree()` constructs a decision tree using the foll
 
 ### Example 1: Palmer Penguins with Gini Impurity
 
-In this example, we construct an oblique decision tree using the function `generate_tree()`. The splitting criterion is set to **Gini impurity**, with a maximum tree depth of 4. We also specify a cost-complexity pruning parameter `$\alpha = 0.01$` to control sub-tree pruning during tree construction, ensuring a balance between model complexity and generalization performance.
+In this example, we construct an oblique decision tree using the function `generate_tree()`. The splitting criterion is set to **Gini impurity**, with a maximum tree depth of 4. We also specify a cost-complexity pruning parameter $\alpha = 0.01$ to control sub-tree pruning during tree construction, ensuring a balance between model complexity and generalization performance.
 
 ```{r}
 library(palmerpenguins)
@@ -551,22 +530,22 @@ tree_gini <- svmodt:::generate_tree(
 svmodt:::print_tree(tree_gini)
 ```
 
-The output shows a hierarchical structure where each internal node displays the splitting feature, threshold value, and sample count. For example, a node showing `bill_length_mm <= 44.65 (n = 175)` indicates that samples with bill length less than or equal to 44.65 mm go to the left child, while others go right. Leaf nodes display the predicted class and sample count.
+The output shows a hierarchical structure where each internal node displays the splitting feature, threshold value, and sample count. For example, a node showing `bill_length_mm <= 44.65 (n = 175)` indicates that **175 samples** reached this node, with those having bill lengths less than or equal to 44.65 mm directed to the left child and the remaining samples to the right.. Leaf nodes display the predicted class and sample count.
 
 ### Example 2: Comparing Splitting Criteria with Breast Cancer Data
 
-To compare different splitting criteria, we train three decision trees on the data set (predicting `diagnosis`). First, a tree using **Gini impurity** is trained with a maximum depth of 4 and a cost-complexity pruning parameter `$\alpha = 0.01$`. Next, an **Information Gain**-based tree is trained using the entropy metric to evaluate splits. Finally, a tree using **Gain Ratio** is constructed, also based on entropy, which normalizes information gain by split information to reduce bias toward features with many levels.
+To compare different splitting criteria, we train three decision trees on the data set (predicting `diagnosis`). First, a tree using **Gini impurity** is trained with a maximum depth of 4 and a cost-complexity pruning parameter $\alpha = 0.01$. Next, an **Information Gain**-based tree is trained using the entropy metric to evaluate splits. Finally, a tree using **Gain Ratio** is constructed, also based on entropy, which normalizes information gain by split information to reduce bias toward features with many levels.
 
 ```{r}
 # Split into training and test sets
-set.seed(234)
+set.seed(678)
 train_idx <- sample(nrow(wdbc), 0.8 * nrow(wdbc))
 train_data <- wdbc[train_idx, ]
 test_data <- wdbc[-train_idx, ]
 ```
 
 ```{r echo=TRUE}
-set.seed(123)
+set.seed(234)
 
 # Train with Information Gain (using entropy)
 tree_gini <- svmodt:::generate_tree(
@@ -626,7 +605,7 @@ knitr::kable(compare_trees, digits = 3,
   kable_styling(full_width = FALSE, position = "center")
 ```
 
-Table `r knitr::asis_output(ifelse(knitr::is_html_output(), '\\@ref(tab:compare-custom-tree-html)', '\\@ref(tab:compare-custom-tree-latex)'))` shows the impact of different splitting criteria on the classification of Palmer Penguins. Using the custom decision tree, we compared Gini impurity, information gain, and gain ratio as criteria for feature selection at each node. Both Gini impurity and information gain resulted in trees with six leaves, achieving a test accuracy of 93.9%. In contrast, gain ratio produced a smaller tree with only three leaves while achieving higher test accuracy of 96.5%, demonstrating its ability to favor balanced and informative splits, reduce overfitting, and improve generalization performance.
+Table `r knitr::asis_output(ifelse(knitr::is_html_output(), '\\@ref(tab:compare-custom-tree-html)', '\\@ref(tab:compare-custom-tree-latex)'))` shows the impact of different splitting criteria on the classification of Palmer Penguins. Using the custom decision tree, we compared Gini impurity, information gain, and gain ratio as criteria for feature selection at each node. Both Gini impurity and information gain resulted in trees with `r compare_trees[1,2]` leaves, achieving a test accuracy of `r round(compare_trees[1,3],4)*100`% and `r round(compare_trees[2,3],4)*100`%respectively. In contrast, gain ratio produced a smaller tree with only `r compare_trees[3,2]` leaves while achieving higher test accuracy of `r round(compare_trees[3,3],4)*100`%, demonstrating its ability to favor balanced and informative splits, reduce overfitting, and improve generalization performance.
 
 ## Support Vector Machine based Oblique Decision Trees
 
@@ -638,7 +617,7 @@ The primary function **`svm_split()`** constructs an oblique decision tree using
 
 -   **data**: A data frame containing predictors and response
 
--   response: Name of the response variable (as a string)
+-   **response**: Name of the response variable (as a string)
 
 -   **max_depth**: Maximum tree depth (controls model complexity)
 
@@ -672,7 +651,7 @@ test_data <- penguins_data[-train_idx, ]
 
 #### Model Training
 
-In this example, the model is trained on the `train_data` data set to predict the categorical response variable, *species*. The function `svm_split()` recursively partitions the data using **linear SVM hyper-planes** at each internal node rather than conventional univariate thresholds, thereby producing **oblique splits** capable of capturing multivariate relationships among predictors. The argument `max_depth = 3` constrains the tree to a maximum of three levels, providing control over model complexity and mitigating overfitting. Similarly, `max_features = 2` restricts each node to consider only two features when fitting the SVM, enhancing computational efficiency and interpret-ability. The parameter `feature_method = "mutual"` specifies that feature selection at each node is based on **mutual information**, ensuring that the most informative variables relative to the response are prioritized. Setting `verbose = FALSE` suppresses intermediate output for streamlined execution.
+In this example, the model is trained on the `train_data` data set to predict the categorical response variable, *species*. The function `svm_split()` recursively partitions the data using **linear SVM hyper-planes** at each internal node rather than conventional univariate thresholds, thereby producing **oblique splits** capable of capturing multivariate relationships among predictors. The argument `max_depth = 3` constrains the tree to a maximum of three levels, providing control over model complexity and mitigating overfitting. Similarly, `max_features = 2` restricts each node to consider only two features when fitting the SVM, enhancing computational efficiency and interpretability. The parameter `feature_method = "mutual"` specifies that feature selection at each node is based on **mutual information**, ensuring that the most informative variables relative to the response are prioritized. Setting `verbose = FALSE` suppresses intermediate output for streamlined execution.
 
 ```{r palmer-model-train, echo=TRUE, results='asis'}
 # Train SVMODT with mutual information feature selection
@@ -694,7 +673,7 @@ Each internal node represents a **binary linear decision boundary** obtained fro
 print_svm_tree(tree, show_penalties = FALSE)
 ```
 
-Terminal nodes (labeled as *Leaf*) correspond to final class predictions. In this case, most observations in the left sub-tree are classified as *Adelie*, while the right sub-tree primarily identifies *Chinstrap* penguins. The structure illustrates how **SVM-based oblique splits** allow the tree to capture complex linear interactions between multiple predictors—something that traditional axis-aligned decision trees cannot achieve.
+Terminal nodes (labeled as *Leaf*) correspond to final class predictions. In this case, most observations in the left sub-tree are classified as *Adelie*, while the right sub-tree primarily identifies *Chinstrap* penguins.
 
 #### Visualizing Decision Boundaries
 
@@ -712,7 +691,7 @@ viz <- visualize_svm_tree(
 viz$plots$depth_1_Root
 ```
 
-Fig \@ref(fig:penguins-depth-one) depicts the root node of the SVM-based oblique decision tree, where the first split is performed using the features `bill_length_mm` and `flipper_length_mm`. The figure illustrates how the linear SVM at the root node divides the dataset into two branches, guiding samples toward subsequent child nodes. **Note:** This visualization is only possible because the node considers exactly two features, a requirement for 2D plotting.
+Fig \@ref(fig:penguins-depth-one) depicts the root node of the SVM-based oblique decision tree, where the first split is performed using the features `bill_length_mm` and `flipper_length_mm`. The figure illustrates how the linear SVM at the root node divides the dataset into two branches, guiding samples toward subsequent child nodes.
 
 ```{r penguins-depth-two, results='asis', fig.align='center', fig.cap="Visualization of a node (depth = 2)."}
 gridExtra::grid.arrange(viz$plots$`depth_2_Root_→_L`, viz$plots$`depth_2_Root_→_R`, ncol = 1)
@@ -722,7 +701,7 @@ Similarly, Fig \@ref(fig:penguins-depth-two) shows a node at depth 2 of the tree
 
 #### Prediction Path Tracing
 
-The `svmodt` package allows tracing the prediction path of individual observations through the SVM-based oblique decision tree. For each sample, the relevant feature values are evaluated at each node using the linear SVM hyper-plane associated with that node. For instance, a sample with `bill_length_mm = 39.5`, `bill_depth_mm = 17.4`, `flipper_length_mm = 186`, and `body_mass_g = 3800` first reaches the root node, which considers `bill_length_mm` and `flipper_length_mm`. The SVM decision value at this node is `2.1098`, which directs the sample along the left branch. At depth 2, the node evaluates `bill_length_mm` and `bill_depth_mm` and produces a decision value of `1.6592`, again guiding the sample to the left branch. Finally, the sample reaches a leaf node that predicts the class `Adelie`, which contains 123 training samples. The complete traversal path is `LEFT -> LEFT`, resulting in the final prediction of `Adelie`. This tracing functionality provides interpret-able insights into how each decision is made within the oblique decision tree.
+The `svmodt` package allows tracing the prediction path of individual observations through the SVM-based oblique decision tree. For each sample, the relevant feature values are evaluated at each node using the linear SVM hyper-plane associated with that node. For instance, a sample with `bill_length_mm = 39.5`, `bill_depth_mm = 17.4`, `flipper_length_mm = 186`, and `body_mass_g = 3800` first reaches the root node, which considers `bill_length_mm` and `flipper_length_mm`. The SVM decision value at this node is `2.1098`, which directs the sample along the left branch. At depth 2, the node evaluates `bill_length_mm` and `bill_depth_mm` and produces a decision value of `1.6592`, again guiding the sample to the left branch. Finally, the sample reaches a leaf node that predicts the class `Adelie`, which contains 123 training samples. The complete traversal path is `LEFT -> LEFT`, resulting in the final prediction of `Adelie`. This tracing functionality provides interpretable insights into how each decision is made within the oblique decision tree.
 
 ```{r}
 trace_prediction_path(tree, test_data, sample_idx = 1)
@@ -740,7 +719,7 @@ train_wdbc <- wdbc[train_idx, ]
 test_wdbc <- wdbc[-train_idx, ]
 ```
 
-We now demonstrate the package on the Wisconsin Diagnostic Breast Cancer (WDBC) data set, highlighting advanced functionality such as handling class imbalance, feature sub-setting, and feature penalization. These features allow the SVM-based oblique decision tree to effectively manage real-world challenges, including unequal class distributions, high-dimensional feature spaces, and repeated feature usage, while maintaining interpret-ability and predictive performance.
+We now demonstrate the package on the Wisconsin Diagnostic Breast Cancer (WDBC) data set, highlighting advanced functionality such as handling class imbalance, feature sub-setting, and feature penalization. These features allow the SVM-based oblique decision tree to effectively manage real-world challenges, including unequal class distributions, high-dimensional feature spaces, and repeated feature usage, while maintaining interpretability and predictive performance.
 
 #### Handling Class Imbalance
 
@@ -805,7 +784,7 @@ print_svm_tree(tree_penalty, show_probabilities = FALSE,
                show_penalties = FALSE)
 ```
 
-Penalization is controlled via the `feature_penalty_weight` parameter, which scales down the selection probability of previously used features. For instance, setting `feature_penalty_weight = 0.6` reduces the weight of used features by 60%, promoting the consideration of alternative predictors at subsequent splits. This mechanism helps improve model robustness, reduces redundancy in feature usage, and enhances interpret-ability by encouraging the tree to explore diverse feature combinations.
+Penalization is controlled via the `feature_penalty_weight` parameter, which scales down the selection probability of previously used features. For instance, setting `feature_penalty_weight = 0.6` reduces the weight of used features by 60%, promoting the consideration of alternative predictors at subsequent splits. This mechanism helps improve model robustness, reduces redundancy in feature usage, and enhances interpretability by encouraging the tree to explore diverse feature combinations.
 
 #### Dynamic Feature Selection
 
@@ -852,17 +831,17 @@ Alternatively, the **random strategy** selects a feature count uniformly at rand
 
 To evaluate the performance of our proposed methods, we conduct a comprehensive comparison study using the Wisconsin Diagnostic Breast Cancer (WDBC) data set. We compare five classification approaches:
 
-1.  **Custom Decision Tree** - Our implementation with integrated cost-complexity pruning
+1.  **Custom Decision Tree** - Axis-aligned decision tree using Gini impurity to select splits, limited to depth 4, with cost-complexity pruning controlled by $\alpha = 0.01$ to prevent overfitting.
 
-2.  **SVMODT** - SVM-based oblique decision tree with dynamic feature selection
+2.  **SVMODT** - Oblique decision tree using linear SVMs at each node, selecting features via mutual information, limiting depth to 4, with decreasing feature count (rate 0.5) and penalization to reduce repeated feature usage.
 
-3.  **CART (rpart)** - Standard axis-aligned decision tree
+3.  **CART (rpart)** - Oblique decision tree using linear SVMs at each node, selecting features via mutual information, limiting depth to 4, with decreasing feature count (rate 0.5) and penalization to reduce repeated feature usage.
 
-4.  **Linear SVM** - Support Vector Machine with linear kernel
+4.  **Linear SVM** - Linear kernel SVM with default C=1 regularization controlling the margin–error trade-off.
 
-5.  **RBF SVM** - Support Vector Machine with radial basis function kernel
+5.  **RBF SVM** - Radial Basis Function kernel SVM with default C=1 regularization and sigma estimated from the data, controlling kernel smoothness.
 
-6.  **Logistic Regression** - Generalized linear model for binary classification
+6.  **Logistic Regression** - Linear model for binary classification with L2 regularization (ridge penalty) to prevent overfitting by shrinking coefficients.
 
 ## Experimental Setup
 
@@ -1033,11 +1012,26 @@ summary_table <- data.frame(
     max(results$Logistic)
   )
 )
+
+summary_table <- summary_table |>
+  mutate(
+    Mean = sprintf("%.4f", Mean),
+    SD   = sprintf("%.4f", SD),
+    Min  = sprintf("%.4f", Min),
+    Max  = sprintf("%.4f", Max)
+  ) |>
+  mutate(
+    Mean = cell_spec(Mean, bold = Mean == max(Mean)),
+    SD   = cell_spec(SD, bold = SD == min(SD)),
+    Min  = cell_spec(Min, bold = Min == max(Min)),
+    Max  = cell_spec(Max, bold = Max == max(Max))
+  )
 ```
 
 ```{r summary-stats-latex, eval = knitr::is_latex_output()}
 kable(summary_table, 
       digits = 4,
+      escape = FALSE,
       col.names = c("Model", "Mean", "SD", "Min", "Max"),
       format = "latex",
       caption = "Summary statistics of test accuracy across 50 iterations on WDBC dataset") |>
@@ -1055,57 +1049,13 @@ kable(summary_table,
 
 The **SVM-based Oblique Decision Tree (SVMODT)** achieved a mean test accuracy of 0.9737 with a standard deviation of 0.0146, demonstrating both high predictive performance and low variability. Traditional decision trees trained using **rpart** yielded a lower mean accuracy of 0.9289, reflecting limitations of axis-aligned splits. A **custom cost-complexity tree** achieved a mean accuracy of 0.9323, slightly higher than rpart but still below SVMODT. Among standard SVM classifiers, the **linear SVM** achieved 0.9730 and the **RBF kernel SVM** slightly outperformed with 0.9745 mean accuracy. **Logistic regression** provided competitive results (mean 0.9450) but lagged behind kernel-based methods.
 
-## Visualization of Results
-
-### Accuracy Distribution
-
-Fig \@ref(fig:boxplot-comparison) shows the distribution of test accuracy across all iterations for each model.
-
-```{r boxplot-comparison, results='asis', fig.cap="Model Accuracy Distribution (50 Resamples)"}
-# Reshape data for plotting
-results_long <- tidyr::pivot_longer(
-  results,
-  cols = everything(),
-  names_to = "Model",
-  values_to = "Accuracy"
-)
-
-# Rename models for better display
-results_long <- results_long %>%
-  mutate(Model = recode(Model,
-    "Custom_Tree" = "Custom Tree\n(Integrated Pruning)",
-    "SVMODT" = "SVMODT\n(Oblique Splits)",
-    "RPART" = "RPART\n(CART)",
-    "Linear_SVM" = "Linear SVM",
-    "RBF_SVM" = "RBF SVM",
-    "Logistic" = "Logistic\nRegression"
-  ))
-
-# Create boxplot
-ggplot(results_long, aes(x = Model, y = Accuracy, fill = Model)) +
-  geom_boxplot(alpha = 0.7, outlier.shape = 1) +
-  stat_summary(fun = mean, geom = "point", shape = 23, size = 3, fill = "white") +
-  theme_minimal() +
-  scale_fill_brewer(palette = "Set2") +
-  labs(
-    y = "Test Accuracy",
-    x = ""
-  ) +
-  theme(
-    legend.position = "none",
-    plot.title = element_text(hjust = 0.5, face = "bold"),
-    plot.subtitle = element_text(hjust = 0.5)
-  ) +
-  coord_cartesian(ylim = c(0.85, 1.0))
-```
-
 ### Pairwise Comparisons
 
 We perform pairwise comparisons between our custom tree implementation and RPART, as well as between SVMODT and standard SVMs.
 
 #### Custom Tree vs. RPART
 
-Fig \@ref(fig:custom-vs-rpart) presents Bland-Altman plots comparing the custom decision tree with RPART.
+Fig \@ref(fig:custom-vs-rpart) presents Bland-Altman plots comparing the custom decision tree with RPART. Bland-Altman comparisons between the Custom Tree and RPART indicate generally good agreement though with slightly higher variability. Prediction errors follow the diagonal trend but with more scatter, reaching up to 0.14. The mean difference of -0.0034 (limits of agreement: -0.0347 to 0.0279) suggests that the Custom Tree performs marginally better than RPART. Overall, the two methods are comparable, and the Custom Tree’s integrated pruning achieves performance similar to CART’s post-pruning.
 
 ```{r custom-vs-rpart, results='asis', fig.cap="Custom Tree vs. RPART Comparison"}
 # Prepare data for Bland-Altman plots
@@ -1159,7 +1109,7 @@ p1 + p2
 
 #### SVMODT vs. Standard SVMs
 
-Fig \@ref(fig:svmodt-vs-svm) compares SVMODT against Linear and RBF SVMs.
+Fig \@ref(fig:svmodt-vs-svm) compares SVMODT against Linear and RBF SVMs. SVMODT and Linear SVM exhibit near-identical performance, with prediction errors clustering tightly around the diagonal and a negligible mean difference of -0.0006 (limits of agreement ±0.0118). This demonstrates statistical equivalence, indicating that SVMODT achieves SVM-level accuracy while providing the added benefit of interpretable tree-based decision paths. Both methods show low overall prediction errors (\<0.06), validating the effectiveness of SVMODT in combining accuracy with transparency.
 
 ```{r svmodt-vs-svm, results='asis', fig.cap="SVMODT vs. Linear SVM Comparison"}
 # SVMODT vs Linear SVM
@@ -1241,27 +1191,29 @@ for (comp in comparisons) {
 }
 ```
 
-```{r t-test-results-latex, eval = knitr::is_latex_output()}
+```{r t-test-results-latex, eval=knitr::is_latex_output()}
 kable(t_test_results,
       digits = 4,
       caption = "Paired t-test results for model comparisons. Positive mean differences indicate the first model has higher accuracy.") |>
   kable_styling(full_width = FALSE, position = "center", , font_size = 7)
 ```
 
-```{r t-test-results-html, eval= knitr::is_html_output()}
+```{r t-test-results-html, eval=knitr::is_html_output()}
 kable(t_test_results,
       digits = 4,
       caption = "Paired t-test results for model comparisons. Positive mean differences indicate the first model has higher accuracy.") |>
   kable_styling(full_width = FALSE, position = "center")
 ```
 
-From Table `r knitr::asis_output(ifelse(knitr::is_html_output(), '\\@ref(tab:t-test-results-html)', '\\@ref(t-test-results-latex)'))` Positive mean differences indicate that the first model in each comparison outperformed the second. The **Custom Tree** achieved a slightly higher mean accuracy than \CRANpkg{rpart} (mean difference = 0.0034, *p* = 0.0362), suggesting a marginal but significant improvement. **SVMODT** showed comparable performance to **Linear SVM** (mean difference = 0.0006, *p* = 0.2880) and **RBF SVM** (mean difference = -0.0009, *p* = 0.4801), indicating no significant difference, while significantly outperforming the **Custom Tree** (mean difference = 0.0414, *p* \< 0.001) and **Logistic Regression** (mean difference = 0.0287, *p* \< 0.001). Conversely, the Custom Tree performed worse than logistic regression (mean difference = -0.0127, *p* \< 0.001).
+From Table `r knitr::asis_output(ifelse(knitr::is_html_output(), '\\@ref(tab:t-test-results-html)', '\\@ref(tab:t-test-results-latex)'))`, positive mean differences indicate that the first model in each comparison outperformed the second. Paired t-tests were used to assess whether differences in test accuracy across repeated train–test splits are statistically significant. This test assumes that the differences between paired observations are approximately normally distributed and that the pairs are independent.
+
+The **Custom Tree** slightly outperformed `rpart` (mean difference = 0.0034, p = 0.0362), indicating a marginal but significant improvement at $\alpha = 5\%$. **SVMODT** performed comparably to **Linear SVM** (mean difference = 0.0006, p = 0.2880) and **RBF SVM** (mean difference = -0.0009, p = 0.4801), but significantly outperformed the Custom Tree (mean difference = 0.0414, p \< 0.001) and **Logistic Regression** (mean difference = 0.0287, p \< 0.001). Conversely, the Custom Tree performed worse than Logistic Regression (mean difference = -0.0127, p \< 0.001).
 
 ## Discussion of Results
 
 1.  **Tree-based Methods Performance**: Both the custom decision tree and RPART achieve comparable accuracy, demonstrating that the integrated pruning approach performs competitively with the established CART algorithm. The Bland-Altman analysis in Fig \@ref(fig:custom-vs-rpart) shows that differences between the two methods are generally small and fall within acceptable limits of agreement.
 2.  **SVMODT Advantage**: The SVMODT consistently outperforms traditional axis-aligned decision trees, achieving mean accuracy of 0.9737. This improvement demonstrates the benefit of oblique splits in capturing complex decision boundaries that cannot be efficiently represented by axis-parallel partitions. The ability to combine features through linear SVM hyper-planes enables more compact and potentially more generalized tree structures.
-3.  **Comparison with Standard SVMs**: SVMODT achieves accuracy comparable to standard Linear SVM while maintaining the interpret ability advantages of tree structures. The RBF SVM shows slightly higher accuracy (mean = 0.9745), which is expected given its ability to model nonlinear decision boundaries. However, this comes at the cost of reduced interpret-ability—the SVMODT offers a transparent decision path that can be visualized and understood, while RBF SVM predictions are essentially black-box.
+3.  **Comparison with Standard SVMs**: SVMODT achieves accuracy comparable to standard Linear SVM while maintaining the interpret ability advantages of tree structures. The RBF SVM shows slightly higher accuracy (mean = 0.9745), which is expected given its ability to model nonlinear decision boundaries. However, this comes at the cost of reduced interpretability; the SVMODT offers a transparent decision path that can be visualized and understood, while RBF SVM predictions are essentially black-box.
 4.  **Logistic Regression Baseline**: Logistic regression achieves competitive performance (mean accuracy = 0.945), demonstrating that the WDBC data set is largely linearly separable. However, both SVMODT and standard SVMs outperform logistic regression, suggesting that margin-based optimization provides additional robustness.
 5.  **Variance in Performance**: All methods show relatively low variance across the 50 re-sampling iterations, indicating stable performance across different train-test splits. The RBF SVM exhibits the lowest variance, followed closely by Linear SVM and SVMODT.
 6.  **Integrated Pruning Effectiveness**: The custom tree's competitive performance validates the integrated cost-complexity pruning approach. By making pruning decisions during tree construction rather than as post-processing, the method achieves similar accuracy to CART while potentially offering computational advantages (though timing comparisons were not the focus of this experiment).
@@ -1270,16 +1222,16 @@ From Table `r knitr::asis_output(ifelse(knitr::is_html_output(), '\\@ref(tab:t-t
 
 The svmodt R package introduces two novel decision tree algorithms that address several limitations in existing tree-based learning methods. The first algorithm integrates cost-complexity pruning directly into the tree-building process, enabling real-time pruning decisions that reduce computational cost while maintaining theoretical optimal. The second algorithm implements SVM-based oblique decision trees with dynamic feature selection strategies that adapt across tree depth, promoting flexible, multivariate partitioning of the feature space. In addition, feature diversity is encouraged through a penalization mechanism that discourages repeated feature use along a tree path, while node-specific class weighting ensures adaptive handling of local class distributions.
 
-From a software engineering perspective, svmodt provides a production-ready R implementation with a well-documented API, robust input validation, and efficient vectorized operations. It includes visualization utilities—print_svm_tree(), trace_prediction_path(), and visualize_svm_tree()—for interpret-able inspection of tree structures and decision boundaries, and integrates seamlessly with established R packages such as \CRANpkg{e1071} and \CRANpkg{ggplot2}. The package further supports reproducible experimentation through included data sets (Palmer Penguins and WDBC) and comprehensive vignettes.
+From a software engineering perspective, svmodt provides a production-ready R implementation with a well-documented API, robust input validation, and efficient vectorized operations. It includes visualization utilities print_svm_tree(), trace_prediction_path(), and visualize_svm_tree() for interpretable inspection of tree structures and decision boundaries, and integrates seamlessly with established R packages such as \CRANpkg{e1071} and \CRANpkg{ggplot2}. The package further supports reproducible experimentation through included data sets (Palmer Penguins and WDBC) and comprehensive vignettes.
 
-Empirical validation across 50 random train–test splits on the WDBC data set demonstrated that SVMODT achieves a mean accuracy of 0.974, comparable to Linear (0.973) and RBF (0.975) SVMs, while maintaining interpret-ability advantages. The custom decision tree with integrated pruning achieved an average accuracy of 0.932, on par with \CRANpkg{rpart} (0.929). Statistical testing confirmed SVMODT’s significant performance gains over traditional axis-aligned trees. These results highlight the capability of oblique decision trees to match the predictive power of SVMs while retaining transparency and explain-ability.
+Empirical validation across 50 random train–test splits on the WDBC data set demonstrated that SVMODT achieves a mean accuracy of 0.974, comparable to Linear (0.973) and RBF (0.975) SVMs, while maintaining interpretability advantages. The custom decision tree with integrated pruning achieved an average accuracy of 0.932, on par with \CRANpkg{rpart} (0.929). Statistical testing confirmed SVMODT’s significant performance gains over traditional axis-aligned trees. These results highlight the capability of oblique decision trees to match the predictive power of SVMs while retaining transparency and explain-ability.
 
 Despite these contributions, several limitations persist. The current implementation is primarily optimized for binary classification, and while multi-class extensions are possible through \CRANpkg{e1071}’s one-vs-one or one-vs-rest decomposition, dedicated support for multi-class class weighting and pruning remains under-explored. Computational efficiency also poses challenges, as SVM fitting at each internal node can become expensive for deep trees or large data sets, particularly without caching or parallel-ization. Additionally, model performance can be sensitive to the SVM regularization parameter $C$, and automatic hyper-parameter tuning is not yet implemented. Stochastic feature selection strategies further introduce randomness that may hinder reproducibility unless random seeds are controlled, and visualization of oblique splits is currently limited to nodes involving exactly two features.
 
-Future extensions of svmodt will focus on several promising directions. Native multi-class support can be achieved through generalized weighting, multi-class SVM formulations such as Crammer–Singer [@crammer2001], and visualization tools for multi-class decision boundaries. Ensemble extensions, including Random Forests of Oblique Trees, would leverage bootstrap aggregation and feature penalization to improve generalization. Computational performance could be enhanced through \CRANpkg{Rcpp} integration, sub-tree parallelization with \CRANpkg{parallel}, and incremental SVM updates. Automated hyper-parameter tuning via cross-validation. Additionally, non-linear kernel SVMs, PCA- or LDA-based transformations represent potential extensions for more expressive yet interpret-able split boundaries.
+Future extensions of svmodt will focus on several promising directions. Native multi-class support can be achieved through generalized weighting, multi-class SVM formulations such as Crammer–Singer [@crammer2001], and visualization tools for multi-class decision boundaries. Ensemble extensions, including Random Forests of Oblique Trees, would leverage bootstrap aggregation and feature penalization to improve generalization. Computational performance could be enhanced through \CRANpkg{Rcpp} integration, sub-tree parallelization with \CRANpkg{parallel}, and incremental SVM updates. Automated hyper-parameter tuning via cross-validation. Additionally, non-linear kernel SVMs, PCA- or LDA-based transformations represent potential extensions for more expressive yet interpretable split boundaries.
 
-In conclusion, svmodt fills a crucial gap in the R machine learning ecosystem by providing an accessible, theoretically grounded, and practically robust framework for constructing oblique decision trees with modern algorithmic enhancements. The package demonstrates that SVM-based oblique trees can achieve state-of-the-art performance while preserving the interpret-ability and structural clarity that make decision trees indispensable for transparent and trustworthy modeling in domains such as healthcare, finance, and regulatory analytics.
+In conclusion, svmodt fills a crucial gap in the R machine learning ecosystem by providing an accessible, theoretically grounded, and practically robust framework for constructing oblique decision trees with modern algorithmic enhancements. The package demonstrates that SVM-based oblique trees can achieve state-of-the-art performance while preserving the interpretability and structural clarity that make decision trees indispensable for transparent and trustworthy modeling in domains such as healthcare, finance, and regulatory analytics.
 
 # Acknowledgements
 
-The author acknowledges the use of OpenAI’s GPT-5 model (ChatGPT) for editorial assistance and technical writing support during the preparation of this manuscript. All conceptual development, analysis, data processing, coding, and interpretation of results were performed independently by the author. The AI tool was used solely to refine language clarity, improve structure, and ensure stylistic consistency in the documentation.
+The authors would like to thank Professor **Natalia Da Silva** and Professor **Dianne Helen Cook** for their constructive discussions and valuable insights regarding oblique decision trees and their implementations in R. The authors also acknowledges the use of OpenAI’s GPT-5 model (ChatGPT) for editorial assistance and technical writing support during the preparation of this manuscript. All conceptual development, analysis, data processing, coding, and interpretation of results were performed independently by the author. The AI tool was used solely to refine language clarity, improve structure, and ensure stylistic consistency in the documentation.
