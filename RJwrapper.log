@@ -1,11 +1,11 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.28 (TeX Live 2025) (preloaded format=pdflatex 2025.11.2)  3 NOV 2025 22:24
+This is pdfTeX, Version 3.141592653-2.6-1.40.28 (TeX Live 2025) (preloaded format=pdflatex 2026.1.5)  18 JAN 2026 11:11
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
 **RJwrapper.tex
 (./RJwrapper.tex
 LaTeX2e <2025-11-01>
-L3 programming layer <2025-10-24>
+L3 programming layer <2025-12-29>
 (c:/Users/AneeshAG/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/base/report.cls
 Document Class: report 2025/01/22 v1.4n Standard LaTeX document class
 (c:/Users/AneeshAG/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/base/size10.clo
@@ -319,10 +319,11 @@ Package: inconsolata 2019/05/17 v1.12
 `inconsolata-zi4' v1.12, 2019/05/17 Text macros for Inconsolata (msharpe) (c:/Users/AneeshAG/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/base/textcomp.sty
 Package: textcomp 2024/04/24 v2.1b Standard LaTeX package
 ) (c:/Users/AneeshAG/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/xkeyval/xkeyval.sty
-Package: xkeyval 2022/06/16 v2.9 package option processing (HA)
+Package: xkeyval 2025/11/04 v2.10 package option processing (HA)
 (c:/Users/AneeshAG/AppData/Roaming/TinyTeX/texmf-dist/tex/generic/xkeyval/xkeyval.tex (c:/Users/AneeshAG/AppData/Roaming/TinyTeX/texmf-dist/tex/generic/xkeyval/xkvutils.tex
 \XKV@toks=\toks36
 \XKV@tempa@toks=\toks37
+\XKV@tempb@toks=\toks38
 )
 \XKV@depth=\count311
 File: xkeyval.tex 2014/12/03 v2.7a key=value parser (HA)
@@ -440,7 +441,7 @@ Package: titlesec 2025/01/04 v2.17 Sectioning titles
 \aftertitleunit=\skip68
 \ttl@plus=\dimen270
 \ttl@minus=\dimen271
-\ttl@toksa=\toks38
+\ttl@toksa=\toks39
 \titlewidth=\dimen272
 \titlewidthlast=\dimen273
 \titlewidthfirst=\dimen274
@@ -467,7 +468,7 @@ Package: fancyvrb 2025/07/28 4.6 verbatim text (tvz,hv)
 Package: alltt 2024/07/07 v2.0g defines alltt environment
 ) (c:/Users/AneeshAG/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/amsfonts/amsfonts.sty
 Package: amsfonts 2013/01/14 v3.01 Basic AMSFonts support
-\@emptytoks=\toks39
+\@emptytoks=\toks40
 \symAMSa=\mathgroup5
 \symAMSb=\mathgroup6
 LaTeX Font Info:    Redeclaring math symbol \hbar on input line 98.
@@ -495,7 +496,7 @@ Package: environ 2014/05/04 v0.3 A new way to define environments
 (c:/Users/AneeshAG/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/trimspaces/trimspaces.sty
 Package: trimspaces 2009/09/17 v1.1 Trim spaces around a token list
 )
-\@envbody=\toks40
+\@envbody=\toks41
 )) (c:/Users/AneeshAG/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/amsmath/amsmath.sty
 Package: amsmath 2025/07/09 v2.17z AMS math features
 \@mathmargin=\skip71
@@ -504,7 +505,7 @@ For additional information on amsmath, use the `?' option.
 Package: amstext 2024/11/17 v2.01 AMS text
 (c:/Users/AneeshAG/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/amsmath/amsgen.sty
 File: amsgen.sty 1999/11/30 v2.0 generic functions
-\@emptytoks=\toks41
+\@emptytoks=\toks42
 \ex@=\dimen284
 )) (c:/Users/AneeshAG/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/amsmath/amsbsy.sty
 Package: amsbsy 1999/11/29 v1.2d Bold Symbols
@@ -543,21 +544,21 @@ LaTeX Info: Redefining \Relbar on input line 970.
 \dotsspace@=\muskip18
 \c@parentequation=\count337
 \dspbrk@lvl=\count338
-\tag@help=\toks42
+\tag@help=\toks43
 \row@=\count339
 \column@=\count340
 \maxfields@=\count341
-\andhelp@=\toks43
+\andhelp@=\toks44
 \eqnshift@=\dimen287
 \alignsep@=\dimen288
 \tagshift@=\dimen289
 \tagwidth@=\dimen290
 \totwidth@=\dimen291
 \lineht@=\dimen292
-\@envbody=\toks44
+\@envbody=\toks45
 \multlinegap=\skip72
 \multlinetaggap=\skip73
-\mathdisplay@stack=\toks45
+\mathdisplay@stack=\toks46
 LaTeX Info: Redefining \[ on input line 2950.
 LaTeX Info: Redefining \] on input line 2951.
 ) (c:/Users/AneeshAG/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/amsfonts/amssymb.sty
@@ -567,7 +568,7 @@ Package: array 2025/09/25 v2.6n Tabular extension package (FMi)
 \col@sep=\dimen293
 \ar@mcellbox=\box69
 \extrarowheight=\dimen294
-\NC@list=\toks46
+\NC@list=\toks47
 \extratabsurround=\skip74
 \backup@length=\skip75
 \ar@cellbox=\box70
@@ -607,7 +608,7 @@ Package: longtable 2025-10-13 v4.24 Multi-page Table package (DPC)
 \LT@rows=\count348
 \c@LT@tables=\count349
 \c@LT@chunks=\count350
-\LT@p@ftn=\toks47
+\LT@p@ftn=\toks48
 )
 \cslhangindent=\skip80
 \csllabelwidth=\skip81
@@ -628,14 +629,14 @@ Package: algorithm 2009/08/24 v0.1 Document Style `algorithm' - floating environ
 (c:/Users/AneeshAG/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/float/float.sty
 Package: float 2001/11/08 v1.3d Float enhancements (AL)
 \c@float@type=\count354
-\float@exts=\toks48
+\float@exts=\toks49
 \float@box=\box76
-\@float@everytoks=\toks49
+\@float@everytoks=\toks50
 \@floatcapt=\box77
 ) (c:/Users/AneeshAG/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/base/ifthen.sty
 Package: ifthen 2024/03/16 v1.1e Standard LaTeX ifthen package (DPC)
 )
-\@float@every@algorithm=\toks50
+\@float@every@algorithm=\toks51
 \c@algorithm=\count355
 ) (c:/Users/AneeshAG/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/algorithms/algorithmic.sty
 Package: algorithmic 2009/08/24 v0.1 Document Style `algorithmic'
@@ -645,9 +646,24 @@ Package: algorithmic 2009/08/24 v0.1 Document Style `algorithmic'
 \c@ALC@depth=\count359
 \ALC@tlm=\skip85
 \algorithmicindent=\skip86
+) (c:/Users/AneeshAG/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/subfig/subfig.sty
+Package: subfig 2005/06/28 ver: 1.3 subfig package
+\c@KVtest=\count360
+\sf@farskip=\skip87
+\sf@captopadj=\dimen311
+\sf@capskip=\skip88
+\sf@nearskip=\skip89
+\c@subfigure=\count361
+\c@subfigure@save=\count362
+\c@lofdepth=\count363
+\c@subtable=\count364
+\c@subtable@save=\count365
+\c@lotdepth=\count366
+\sf@top=\skip90
+\sf@bottom=\skip91
 ) (c:/Users/AneeshAG/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/l3backend/l3backend-pdftex.def
 File: l3backend-pdftex.def 2025-10-09 L3 backend support: PDF output (pdfTeX)
-\l__color_backend_stack_int=\count360
+\l__color_backend_stack_int=\count367
 ) (./RJwrapper.aux)
 \openout1 = `RJwrapper.aux'.
 
@@ -742,6 +758,7 @@ Package hyperref Info: Link coloring ON on input line 55.
 \openout5 = `RJwrapper.out'.
 
 Package caption Info: Begin \AtBeginDocument code.
+Package caption Info: subfig package v1.3 is loaded.
 Package caption Info: float package is loaded.
 Package caption Info: longtable package is loaded.
 (c:/Users/AneeshAG/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/caption/ltcaption.sty
@@ -749,23 +766,23 @@ Package: ltcaption 2021/01/08 v1.4c longtable captions (AR)
 )
 Package caption Info: End \AtBeginDocument code.
 (./paper-svmodt.tex
-LaTeX Font Info:    Trying to load font information for OT1+ppl on input line 19.
+LaTeX Font Info:    Trying to load font information for OT1+ppl on input line 15.
 (c:/Users/AneeshAG/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/psnfss/ot1ppl.fd
 File: ot1ppl.fd 2001/06/04 font definitions for OT1/ppl.
 )
-LaTeX Font Info:    Trying to load font information for OML+zplm on input line 19.
+LaTeX Font Info:    Trying to load font information for OML+zplm on input line 15.
 (c:/Users/AneeshAG/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/psnfss/omlzplm.fd
 File: omlzplm.fd 2002/09/08 Fontinst v1.914 font definitions for OML/zplm.
 )
-LaTeX Font Info:    Trying to load font information for OMS+zplm on input line 19.
+LaTeX Font Info:    Trying to load font information for OMS+zplm on input line 15.
 (c:/Users/AneeshAG/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/psnfss/omszplm.fd
 File: omszplm.fd 2002/09/08 Fontinst v1.914 font definitions for OMS/zplm.
 )
-LaTeX Font Info:    Trying to load font information for OMX+zplm on input line 19.
+LaTeX Font Info:    Trying to load font information for OMX+zplm on input line 15.
 (c:/Users/AneeshAG/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/psnfss/omxzplm.fd
 File: omxzplm.fd 2002/09/08 Fontinst v1.914 font definitions for OMX/zplm.
 )
-LaTeX Font Info:    Trying to load font information for OT1+zplm on input line 19.
+LaTeX Font Info:    Trying to load font information for OT1+zplm on input line 15.
 (c:/Users/AneeshAG/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/psnfss/ot1zplm.fd
 File: ot1zplm.fd 2002/09/08 Fontinst v1.914 font definitions for OT1/zplm.
 )
@@ -774,293 +791,113 @@ Package microtype Info: Loading generic protrusion settings for font family
 (microtype)             For optimal results, create family-specific settings.
 (microtype)             See the microtype manual for details.
 LaTeX Font Info:    Font shape `U/msa/m/n' will be
-(Font)              scaled to size 9.37807pt on input line 19.
+(Font)              scaled to size 9.37807pt on input line 15.
 (c:/Users/AneeshAG/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/microtype/mt-msa.cfg
 File: mt-msa.cfg 2006/02/04 v1.1 microtype config. file: AMS symbols (a) (RS)
 )
 LaTeX Font Info:    Font shape `U/msa/m/n' will be
-(Font)              scaled to size 7.29405pt on input line 19.
+(Font)              scaled to size 7.29405pt on input line 15.
 LaTeX Font Info:    Font shape `U/msa/m/n' will be
-(Font)              scaled to size 5.21004pt on input line 19.
+(Font)              scaled to size 5.21004pt on input line 15.
 LaTeX Font Info:    Font shape `U/msb/m/n' will be
-(Font)              scaled to size 9.37807pt on input line 19.
+(Font)              scaled to size 9.37807pt on input line 15.
 (c:/Users/AneeshAG/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/microtype/mt-msb.cfg
 File: mt-msb.cfg 2005/06/01 v1.0 microtype config. file: AMS symbols (b) (RS)
 )
 LaTeX Font Info:    Font shape `U/msb/m/n' will be
-(Font)              scaled to size 7.29405pt on input line 19.
+(Font)              scaled to size 7.29405pt on input line 15.
 LaTeX Font Info:    Font shape `U/msb/m/n' will be
-(Font)              scaled to size 5.21004pt on input line 19.
+(Font)              scaled to size 5.21004pt on input line 15.
+<paper-svmodt_files/figure-latex/palmer-penguins-introduction-split-1.pdf, id=71, 324.21124pt x 316.18124pt>
+File: paper-svmodt_files/figure-latex/palmer-penguins-introduction-split-1.pdf Graphic file (type pdf)
+<use paper-svmodt_files/figure-latex/palmer-penguins-introduction-split-1.pdf>
+Package pdftex.def Info: paper-svmodt_files/figure-latex/palmer-penguins-introduction-split-1.pdf  used on input line 19.
+(pdftex.def)             Requested size: 199.16928pt x 194.24043pt.
+<paper-svmodt_files/figure-latex/palmer-penguins-introduction-split-2.pdf, id=72, 324.21124pt x 316.18124pt>
+File: paper-svmodt_files/figure-latex/palmer-penguins-introduction-split-2.pdf Graphic file (type pdf)
+<use paper-svmodt_files/figure-latex/palmer-penguins-introduction-split-2.pdf>
+Package pdftex.def Info: paper-svmodt_files/figure-latex/palmer-penguins-introduction-split-2.pdf  used on input line 19.
+(pdftex.def)             Requested size: 199.16928pt x 194.24043pt.
+
+Overfull \hbox (4.99998pt too wide) in paragraph at lines 19--20
+ [][][][] 
+ []
+
 [1{c:/Users/AneeshAG/AppData/Roaming/TinyTeX/texmf-var/fonts/map/pdftex/updmap/pdftex.map}{c:/Users/AneeshAG/AppData/Roaming/TinyTeX/texmf-dist/fonts/enc/dvips/base/8r.enc}
 
-] [2]
-LaTeX Font Info:    Trying to load font information for U+fplmbb on input line 75.
+]
+LaTeX Font Info:    Trying to load font information for U+fplmbb on input line 37.
 (c:/Users/AneeshAG/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/psnfss/ufplmbb.fd
 File: ufplmbb.fd 2003/10/30 Fontinst v1.914 font definitions for U/fplmbb.
-) [3] [4] [5]
-LaTeX Font Info:    Trying to load font information for TS1+ppl on input line 195.
+) [2 <./paper-svmodt_files/figure-latex/palmer-penguins-introduction-split-1.pdf> <./paper-svmodt_files/figure-latex/palmer-penguins-introduction-split-2.pdf>] [3] [4]
+LaTeX Font Info:    Font shape `U/msa/m/n' will be
+(Font)              scaled to size 10.42007pt on input line 125.
+LaTeX Font Info:    Font shape `U/msa/m/n' will be
+(Font)              scaled to size 7.91925pt on input line 125.
+LaTeX Font Info:    Font shape `U/msa/m/n' will be
+(Font)              scaled to size 6.25204pt on input line 125.
+LaTeX Font Info:    Font shape `U/msb/m/n' will be
+(Font)              scaled to size 10.42007pt on input line 125.
+LaTeX Font Info:    Font shape `U/msb/m/n' will be
+(Font)              scaled to size 7.91925pt on input line 125.
+LaTeX Font Info:    Font shape `U/msb/m/n' will be
+(Font)              scaled to size 6.25204pt on input line 125.
+LaTeX Font Info:    Trying to load font information for TS1+ppl on input line 129.
 (c:/Users/AneeshAG/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/psnfss/ts1ppl.fd
 File: ts1ppl.fd 2001/06/04 font definitions for TS1/ppl.
-) [6]
-LaTeX Font Info:    Trying to load font information for T1+zi4 on input line 235.
+) [5] (./RJwrapper.bbl (./RJwrapper.brf)
+\tf@brf=\write6
+\openout6 = `RJwrapper.brf'.
+
+LaTeX Font Info:    Trying to load font information for T1+zi4 on input line 24.
 (c:/Users/AneeshAG/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/inconsolata/t1zi4.fd
 File: t1zi4.fd 2018/01/14 T1/zi4 (Inconsolata)
 )
 LaTeX Font Info:    Font shape `T1/zi4/m/n' will be
-(Font)              scaled to size 9.18004pt on input line 235.
+(Font)              scaled to size 9.18004pt on input line 24.
 Package microtype Info: Loading generic protrusion settings for font family
 (microtype)             `zi4' (encoding: T1).
 (microtype)             For optimal results, create family-specific settings.
 (microtype)             See the microtype manual for details.
-[7{c:/Users/AneeshAG/AppData/Roaming/TinyTeX/texmf-dist/fonts/enc/dvips/inconsolata/i4-t1-0.enc}]
-Package hyperref Info: bookmark level for unknown algorithm defaults to 0 on input line 279.
-LaTeX Font Info:    Font shape `U/msa/m/n' will be
-(Font)              scaled to size 10.42007pt on input line 282.
-LaTeX Font Info:    Font shape `U/msa/m/n' will be
-(Font)              scaled to size 7.91925pt on input line 282.
-LaTeX Font Info:    Font shape `U/msa/m/n' will be
-(Font)              scaled to size 6.25204pt on input line 282.
-LaTeX Font Info:    Font shape `U/msb/m/n' will be
-(Font)              scaled to size 10.42007pt on input line 282.
-LaTeX Font Info:    Font shape `U/msb/m/n' will be
-(Font)              scaled to size 7.91925pt on input line 282.
-LaTeX Font Info:    Font shape `U/msb/m/n' will be
-(Font)              scaled to size 6.25204pt on input line 282.
-[8] [9] [10]
-Underfull \hbox (badness 10000) in paragraph at lines 446--448
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 448--450
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 450--452
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 452--454
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 454--456
-
- []
-
-[11] [12]
-LaTeX Font Info:    Font shape `T1/zi4/b/n' will be
-(Font)              scaled to size 9.18004pt on input line 593.
-[13]
-Overfull \hbox (2.46935pt too wide) in paragraph at lines 650--650
-[]\T1/zi4/m/n/9 #>  [Node] depth = 1 | n = 175 | features = [bill_length_mm,flipper_length_mm] | max_feat = 2[] 
- []
-
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family zi4 in TS1 encoding.
-            Default family used instead on input line 650.
-Package microtype Info: Loading generic protrusion settings for font family
-(microtype)             `cmtt' (encoding: T1).
-(microtype)             For optimal results, create family-specific settings.
-(microtype)             See the microtype manual for details.
-Package microtype Info: Loading generic protrusion settings for font family
-(microtype)             `cmtt' (encoding: TS1).
-(microtype)             For optimal results, create family-specific settings.
-(microtype)             See the microtype manual for details.
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family zi4 in TS1 encoding.
-            Default family used instead on input line 650.
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family zi4 in TS1 encoding.
-            Default family used instead on input line 650.
-<paper-svmodt_files/figure-latex/penguins-depth-one-1.pdf, id=448, 345.29pt x 287.0725pt>
-File: paper-svmodt_files/figure-latex/penguins-depth-one-1.pdf Graphic file (type pdf)
-<use paper-svmodt_files/figure-latex/penguins-depth-one-1.pdf>
-Package pdftex.def Info: paper-svmodt_files/figure-latex/penguins-depth-one-1.pdf  used on input line 660.
-(pdftex.def)             Requested size: 345.28914pt x 287.0718pt.
-<paper-svmodt_files/figure-latex/penguins-depth-two-1.pdf, id=450, 206.7725pt x 315.1775pt>
-File: paper-svmodt_files/figure-latex/penguins-depth-two-1.pdf Graphic file (type pdf)
-<use paper-svmodt_files/figure-latex/penguins-depth-two-1.pdf>
-Package pdftex.def Info: paper-svmodt_files/figure-latex/penguins-depth-two-1.pdf  used on input line 668.
-(pdftex.def)             Requested size: 206.77199pt x 315.17673pt.
-[14] [15 <./paper-svmodt_files/figure-latex/penguins-depth-one-1.pdf> <./paper-svmodt_files/figure-latex/penguins-depth-two-1.pdf>]
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family zi4 in TS1 encoding.
-            Default family used instead on input line 769.
-[16]
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family zi4 in TS1 encoding.
-            Default family used instead on input line 769.
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family zi4 in TS1 encoding.
-            Default family used instead on input line 769.
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family zi4 in TS1 encoding.
-            Default family used instead on input line 769.
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family zi4 in TS1 encoding.
-            Default family used instead on input line 769.
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family zi4 in TS1 encoding.
-            Default family used instead on input line 769.
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family zi4 in TS1 encoding.
-            Default family used instead on input line 769.
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family zi4 in TS1 encoding.
-            Default family used instead on input line 769.
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family zi4 in TS1 encoding.
-            Default family used instead on input line 769.
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family zi4 in TS1 encoding.
-            Default family used instead on input line 814.
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family zi4 in TS1 encoding.
-            Default family used instead on input line 814.
-[17]
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family zi4 in TS1 encoding.
-            Default family used instead on input line 814.
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family zi4 in TS1 encoding.
-            Default family used instead on input line 814.
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family zi4 in TS1 encoding.
-            Default family used instead on input line 814.
-
-Overfull \hbox (75.90953pt too wide) in paragraph at lines 851--851
-[]\T1/zi4/m/n/9 #>  [Node] depth = 1 | n = 455 | features = [smoothness_se,symmetry_se,area_se,perimeter_mean] | max_feat = 4[] 
- []
-
-
-Overfull \hbox (124.8759pt too wide) in paragraph at lines 851--851
-[]\T1/zi4/m/n/9 #> |   [Leaf] predict = M | n = 138 | features = [perimeter_mean,perimeter_se,fractal_dimension_worst,compactness_mean][] 
- []
-
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family zi4 in TS1 encoding.
-            Default family used instead on input line 851.
-
-Overfull \hbox (126.39029pt too wide) in paragraph at lines 851--851
-[]\T1/zi4/m/n/9 #>     [Node] depth = 2 | n = 317 | features = [concave.points_mean,radius_se,compactness_mean,area_worst] | max_feat = 4[] 
- []
-
-
-Overfull \hbox (92.73645pt too wide) in paragraph at lines 851--851
-[]\T1/zi4/m/n/9 #>    |   [Leaf] predict = B | n = 291 | features = [perimeter_worst,concave.points_se,concavity_se,texture_mean][] 
- []
-
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family zi4 in TS1 encoding.
-            Default family used instead on input line 851.
-
-Overfull \hbox (100.38335pt too wide) in paragraph at lines 851--851
-[]\T1/zi4/m/n/9 #>        [Node] depth = 3 | n = 26 | features = [concavity_worst,perimeter_mean,smoothness_mean,compactness_worst][] 
- []
-
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family zi4 in TS1 encoding.
-            Default family used instead on input line 851.
-[18]
-Overfull \hbox (172.29977pt too wide) in paragraph at lines 885--885
-[]\T1/zi4/m/n/9 #>  [Node] depth = 1 | n = 455 | features = [perimeter_worst,concave.points_mean,concave.points_worst,radius_worst] | max_feat = 4[] 
- []
-
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family zi4 in TS1 encoding.
-            Default family used instead on input line 885.
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family zi4 in TS1 encoding.
-            Default family used instead on input line 885.
-
-Overfull \hbox (172.29977pt too wide) in paragraph at lines 924--924
-[]\T1/zi4/m/n/9 #>  [Node] depth = 1 | n = 455 | features = [perimeter_worst,concave.points_mean,concave.points_worst,radius_worst] | max_feat = 4[] 
- []
-
-
-Overfull \hbox (167.70976pt too wide) in paragraph at lines 924--924
-[]\T1/zi4/m/n/9 #> |  |   [Node] depth = 3 | n = 152 | features = [concavity_worst,concavity_mean,concave.points_mean,concavity_se,texture_worst][] 
- []
-
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family zi4 in TS1 encoding.
-            Default family used instead on input line 924.
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family zi4 in TS1 encoding.
-            Default family used instead on input line 924.
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family zi4 in TS1 encoding.
-            Default family used instead on input line 924.
-
-Overfull \hbox (63.67262pt too wide) in paragraph at lines 924--924
-[]\T1/zi4/m/n/9 #>     [Node] depth = 2 | n = 300 | features = [radius_worst,perimeter_worst,area_worst,area_mean,area_se][] 
- []
-
-
-Overfull \hbox (46.83633pt too wide) in paragraph at lines 924--924
-[]\T1/zi4/m/n/9 #>    |   [Leaf] predict = B | n = 299 | features = [area_mean,radius_worst,perimeter_worst,area_worst][] 
- []
-
-LaTeX Info: Symbol \textasciigrave not provided by
-            font family zi4 in TS1 encoding.
-            Default family used instead on input line 924.
-[19] [20]
-<paper-svmodt_files/figure-latex/custom-vs-rpart-1.pdf, id=530, 343.2825pt x 172.645pt>
-File: paper-svmodt_files/figure-latex/custom-vs-rpart-1.pdf Graphic file (type pdf)
-<use paper-svmodt_files/figure-latex/custom-vs-rpart-1.pdf>
-Package pdftex.def Info: paper-svmodt_files/figure-latex/custom-vs-rpart-1.pdf  used on input line 1021.
-(pdftex.def)             Requested size: 343.28165pt x 172.64456pt.
-<paper-svmodt_files/figure-latex/svmodt-vs-svm-1.pdf, id=532, 343.2825pt x 179.67125pt>
-File: paper-svmodt_files/figure-latex/svmodt-vs-svm-1.pdf Graphic file (type pdf)
-<use paper-svmodt_files/figure-latex/svmodt-vs-svm-1.pdf>
-Package pdftex.def Info: paper-svmodt_files/figure-latex/svmodt-vs-svm-1.pdf  used on input line 1031.
-(pdftex.def)             Requested size: 343.28165pt x 179.67079pt.
-[21 <./paper-svmodt_files/figure-latex/custom-vs-rpart-1.pdf> <./paper-svmodt_files/figure-latex/svmodt-vs-svm-1.pdf>] [22] (./RJwrapper.bbl (./RJwrapper.brf)
-\tf@brf=\write6
-\openout6 = `RJwrapper.brf'.
-
-[23] [24])
+[6{c:/Users/AneeshAG/AppData/Roaming/TinyTeX/texmf-dist/fonts/enc/dvips/inconsolata/i4-t1-0.enc}])
 
 LaTeX Font Warning: Font shape `T1/zi4/m/it' undefined
-(Font)              using `T1/zi4/m/n' instead on input line 1114.
+(Font)              using `T1/zi4/m/n' instead on input line 170.
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1114--1115
+Underfull \hbox (badness 10000) in paragraph at lines 170--171
 
  []
 
+[7]
 LaTeX Font Info:    Font shape `T1/zi4/m/it' will be
-(Font)              scaled to size 9.18004pt on input line 1124.
-) [25] (./RJwrapper.aux)
+(Font)              scaled to size 9.18004pt on input line 180.
+) [8] (./RJwrapper.aux)
  ***********
 LaTeX2e <2025-11-01>
-L3 programming layer <2025-10-24>
+L3 programming layer <2025-12-29>
  ***********
 
 LaTeX Font Warning: Some font shapes were not available, defaults substituted.
 
 Package rerunfilecheck Info: File `RJwrapper.out' has not changed.
-(rerunfilecheck)             Checksum: 4D25632BA768CEB5654E21B8BEBE3C4A;6288.
+(rerunfilecheck)             Checksum: E4F18BA5446FEF1EB68724078B8A4A1F;1978.
 Package rerunfilecheck Info: File `RJwrapper.brf' has not changed.
-(rerunfilecheck)             Checksum: 2B1F09261FCB03281BFDEA5264BA399D;3036.
+(rerunfilecheck)             Checksum: D9B132B0DE200FEAFEF435959609D95B;2488.
  ) 
 Here is how much of TeX's memory you used:
- 28139 strings out of 469558
- 513931 string characters out of 5468973
- 935081 words of memory out of 5000000
- 55580 multiletter control sequences out of 15000+600000
- 708756 words of font info for 449 fonts, out of 8000000 for 9000
+ 27852 strings out of 469518
+ 510655 string characters out of 5467960
+ 930529 words of memory out of 5000000
+ 55613 multiletter control sequences out of 15000+600000
+ 685045 words of font info for 330 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
- 117i,12n,131p,1284b,1065s stack positions out of 10000i,1000n,20000p,200000b,200000s
- <c:/Users/AneeshAG/AppData/Roaming/TinyTeX/texmf-var/fonts/pk/ljfour/jknappen/ec/tctt0900.600pk><c:/Users/AneeshAG/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/inconsolata/Inconsolata-zi4b.pfb><c:/Users/AneeshAG/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/inconsolata/Inconsolata-zi4r.pfb><c:/Users/AneeshAG/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb><c:/Users/AneeshAG/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb><c:/Users/AneeshAG/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb><c:/Users/AneeshAG/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb><c:/Users/AneeshAG/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/mathpazo/fplmbb.pfb><c:/Users/AneeshAG/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/mathpazo/fplmbi.pfb><c:/Users/AneeshAG/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/mathpazo/fplmr.pfb><c:/Users/AneeshAG/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/mathpazo/fplmri.pfb><c:/Users/AneeshAG/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/urw/palatino/uplb8a.pfb><c:/Users/AneeshAG/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/urw/palatino/uplr8a.pfb><c:/Users/AneeshAG/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/urw/palatino/uplri8a.pfb>
-Output written on RJwrapper.pdf (25 pages, 345534 bytes).
+ 117i,12n,131p,2031b,840s stack positions out of 10000i,1000n,20000p,200000b,200000s
+<c:/Users/AneeshAG/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/inconsolata/Inconsolata-zi4r.pfb><c:/Users/AneeshAG/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb><c:/Users/AneeshAG/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb><c:/Users/AneeshAG/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb><c:/Users/AneeshAG/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/mathpazo/fplmbb.pfb><c:/Users/AneeshAG/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/mathpazo/fplmri.pfb><c:/Users/AneeshAG/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/urw/palatino/uplb8a.pfb><c:/Users/AneeshAG/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/urw/palatino/uplr8a.pfb><c:/Users/AneeshAG/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/urw/palatino/uplri8a.pfb>
+Output written on RJwrapper.pdf (8 pages, 441357 bytes).
 PDF statistics:
- 780 PDF objects out of 1000 (max. 8388607)
- 706 compressed objects within 8 object streams
- 197 named destinations out of 1000 (max. 500000)
- 92441 words of extra memory for PDF output out of 106986 (max. 10000000)
+ 405 PDF objects out of 1000 (max. 8388607)
+ 367 compressed objects within 4 object streams
+ 63 named destinations out of 1000 (max. 500000)
+ 80495 words of extra memory for PDF output out of 89155 (max. 10000000)
 
