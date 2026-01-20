@@ -33,6 +33,7 @@ header-includes:
   \usepackage{amsmath}
   \usepackage{amssymb}
   \usepackage{subfig}
+  \usepackage[ruled,vlined, algo2e]{algorithm2e}
   \providecommand{\pandocbounded}[1]{#1}
 bibliography: RJreferences.bib
 ---
@@ -266,7 +267,7 @@ STree [@stree2021] is an oblique multi-class decision tree algorithm that integr
 
 ## Methodology
 
-The algorithm generates a binary tree recursively. At each node:
+The algorithm generates a binary tree recursively (\@ref(alg:stree)) . At each node:
 
 1)  Stopping conditions are evaluated to check the depth of the tree and the class purity. If the stopping conditions are met, a leaf node is created, labelled with the most frequent class in the node.
 
@@ -274,7 +275,65 @@ The algorithm generates a binary tree recursively. At each node:
 
 When all instances at a node belong to more than two classes ($k'>2$), the approach generates multiple candidate binary splits: For each class label $y_i$, it constructs a one-vs-rest binary problem: Class $y_i$ vs. all other classes. It trains an SVM for each of these $k'$ problems, resulting in $k'$ hyperplanes $H_i$. Each hyperplane partitions the data into $T_i^+$ and $T_i^-$. The algorithm computes the impurity (using Shannon entropy) of the class distribution within each partition. When only two classes remain, STree trains a single SVM to obtain the maximum‑margin hyperplane. Instances are then routed left or right based on the sign of their distance to this hyperplane. Stree's performance depends heavily on hyperparameter tuning, including kernel choice (linear, polynomial or Gaussian), gamma, polynomial degree, regularization parameter C, and max iteration.
 
-The algorithm was refined in future works by the author to include framework enabling
+```{=latex}
+\begin{algorithm}[H]
+\caption{STree (Multi-class SVM-based oblique decision tree)}
+\label{alg:stree}
+\KwIn{$\mathcal{D}' = \{(\vec{x}_i, y_i)\}_{i=1}^{l'}$: Data}
+\KwOut{$tree$: the root node of an SVM-based oblique decision tree}
+
+\SetKwFunction{FMain}{STree}
+\SetKwProg{Fn}{function}{:}{end function}
+
+\Fn{\FMain{$\mathcal{D}'$}}{
+    \If{$stopping\_condition(\{y_i\}_{i=1}^{t})$}{
+        \Return $create\_leaf\_node(mode(\{y_i\}_{i=1}^{t}))$\hfill \tcp{Leaf node}
+    }
+    
+    $k' \leftarrow num\_different\_labels(\{y_i\}_{i=1}^{t})$\newline
+    $r \leftarrow \frac{k'(k'-1)}{2} $\newline
+    $\mathcal{Y}' \leftarrow \{y'_1, \ldots, y'_{k'}\}$\hfill \tcp{set of labels}
+    $I_{all} \leftarrow I(\{y_i\}_{i=1}^{t})$\hfill \tcp{$I(\cdot)$ is an information theory measure}
+    
+    \eIf{(\textup{OvO})}{
+        $n_{models} \leftarrow r$\newline
+    }{
+        $n_{models} \leftarrow k'$\hfill \tcp{OvR}
+    }
+    
+    \For{$j = 1$ \KwTo $n_{models}$}{
+        \If{$(j = k' = 2)$}{
+            \textbf{break}\hfill \tcp{Two labels, one SVM is enough}
+        }
+        
+        \eIf{(\textup{OvO})}{
+            Let $c_a$ and $c_b$ the pair of labels corresponding to index $j$\newline
+            $models[j] \leftarrow \text{SVM}\bigl( \mathcal{D}'^{\downarrow c_a} \cup \mathcal{D}'^{\downarrow c_b} \bigr)$\newline
+        }{
+            
+            $models[j] \leftarrow \text{SVM}\bigl({\mathcal{D}'}\bigr)$ using binary class $y'_j$ (+) vs rest (--)\hfill \tcp{OvR}
+        }
+    }
+    
+    $\mathcal{D}^{'+}, \mathcal{D}^{'-} \leftarrow models[j](\overrightarrow{x}_{j}) \quad \forall \bigl(\overrightarrow{x}\bigr) \in \mathcal{D}'$\newline
+    $I_j \leftarrow \frac{|\mathcal{D}^{'+}|}{|\mathcal{D}'|} I(\{y_i\}_{i=1}^{|\mathcal{D}^{'+}|}) + \frac{|\mathcal{D}^{'-}|}{|\mathcal{D}'|} I(\{y_i\}_{i=1}^{|\mathcal{D}^{'-}|})$\newline
+    $IG_j \leftarrow I_{all} - I_j$\newline
+    
+    $b^* = \arg\max_{j=1,\ldots,n_{models}} IG_j$\newline
+    
+    \eIf{$IG_{b^*} > 0$}{
+        $node \leftarrow create\_node(models[b^*])$\newline
+        $node.left \leftarrow STree(\mathcal{D}^{'+})$\newline
+        $node.right \leftarrow STree(\mathcal{D}^{'-})$\newline
+    }{
+        \Return $create\_leaf\_node(model(\{y_i\}_{i=1}^{t}))$\hfill \tcp{No split gain}
+    }
+    
+    \Return $node$\newline
+}
+\end{algorithm}
+```
+
 
 <!-- # STree -->
 

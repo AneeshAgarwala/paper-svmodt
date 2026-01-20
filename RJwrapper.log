@@ -1,11 +1,11 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.28 (TeX Live 2025) (preloaded format=pdflatex 2026.1.5)  18 JAN 2026 11:11
+This is pdfTeX, Version 3.141592653-2.6-1.40.28 (TeX Live 2025) (preloaded format=pdflatex 2026.1.20)  20 JAN 2026 17:38
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
 **RJwrapper.tex
 (./RJwrapper.tex
 LaTeX2e <2025-11-01>
-L3 programming layer <2025-12-29>
+L3 programming layer <2026-01-10>
 (c:/Users/AneeshAG/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/base/report.cls
 Document Class: report 2025/01/22 v1.4n Standard LaTeX document class
 (c:/Users/AneeshAG/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/base/size10.clo
@@ -661,9 +661,56 @@ Package: subfig 2005/06/28 ver: 1.3 subfig package
 \c@lotdepth=\count366
 \sf@top=\skip90
 \sf@bottom=\skip91
+) (c:/Users/AneeshAG/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/algorithm2e/algorithm2e.sty
+Package: algorithm2e 2017/07/18 v5.2 algorithms environments
+\c@AlgoLine=\count367
+\algocf@hangindent=\skip92
+(c:/Users/AneeshAG/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/ifoddpage/ifoddpage.sty
+Package: ifoddpage 2022/10/18 v1.2 Conditionals for odd/even page detection
+\c@checkoddpage=\count368
+) (c:/Users/AneeshAG/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/tools/xspace.sty
+Package: xspace 2014/10/28 v1.13 Space after command names (DPC,MH)
+) (c:/Users/AneeshAG/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/relsize/relsize.sty
+Package: relsize 2013/03/29 ver 4.1
+)
+\skiptotal=\skip93
+\skiplinenumber=\skip94
+\skiprule=\skip95
+\skiphlne=\skip96
+\skiptext=\skip97
+\skiplength=\skip98
+\algomargin=\skip99
+\skipalgocfslide=\skip100
+\algowidth=\dimen312
+\inoutsize=\dimen313
+\inoutindent=\dimen314
+\interspacetitleruled=\dimen315
+\interspacealgoruled=\dimen316
+\interspacetitleboxruled=\dimen317
+\algocf@ruledwidth=\skip101
+\algocf@inoutbox=\box78
+\algocf@inputbox=\box79
+\AlCapSkip=\skip102
+\AlCapHSkip=\skip103
+\algoskipindent=\skip104
+\algocf@nlbox=\box80
+\algocf@hangingbox=\box81
+\algocf@untilbox=\box82
+\algocf@skipuntil=\skip105
+\algocf@capbox=\box83
+\algocf@lcaptionbox=\skip106
+\algoheightruledefault=\skip107
+\algoheightrule=\skip108
+\algotitleheightruledefault=\skip109
+\algotitleheightrule=\skip110
+\c@algocfline=\count369
+\c@algocfproc=\count370
+\c@algocf=\count371
+\algocf@algoframe=\box84
+\algocf@algobox=\box85
 ) (c:/Users/AneeshAG/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/l3backend/l3backend-pdftex.def
 File: l3backend-pdftex.def 2025-10-09 L3 backend support: PDF output (pdfTeX)
-\l__color_backend_stack_int=\count367
+\l__color_backend_stack_int=\count372
 ) (./RJwrapper.aux)
 \openout1 = `RJwrapper.aux'.
 
@@ -830,52 +877,87 @@ LaTeX Font Info:    Trying to load font information for U+fplmbb on input line 3
 (c:/Users/AneeshAG/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/psnfss/ufplmbb.fd
 File: ufplmbb.fd 2003/10/30 Fontinst v1.914 font definitions for U/fplmbb.
 ) [2 <./paper-svmodt_files/figure-latex/palmer-penguins-introduction-split-1.pdf> <./paper-svmodt_files/figure-latex/palmer-penguins-introduction-split-2.pdf>] [3] [4]
+Package hyperref Info: bookmark level for unknown algorithm defaults to 0 on input line 120.
 LaTeX Font Info:    Font shape `U/msa/m/n' will be
-(Font)              scaled to size 10.42007pt on input line 125.
+(Font)              scaled to size 10.42007pt on input line 122.
 LaTeX Font Info:    Font shape `U/msa/m/n' will be
-(Font)              scaled to size 7.91925pt on input line 125.
+(Font)              scaled to size 7.91925pt on input line 122.
 LaTeX Font Info:    Font shape `U/msa/m/n' will be
-(Font)              scaled to size 6.25204pt on input line 125.
+(Font)              scaled to size 6.25204pt on input line 122.
 LaTeX Font Info:    Font shape `U/msb/m/n' will be
-(Font)              scaled to size 10.42007pt on input line 125.
+(Font)              scaled to size 10.42007pt on input line 122.
 LaTeX Font Info:    Font shape `U/msb/m/n' will be
-(Font)              scaled to size 7.91925pt on input line 125.
+(Font)              scaled to size 7.91925pt on input line 122.
 LaTeX Font Info:    Font shape `U/msb/m/n' will be
-(Font)              scaled to size 6.25204pt on input line 125.
-LaTeX Font Info:    Trying to load font information for TS1+ppl on input line 129.
-(c:/Users/AneeshAG/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/psnfss/ts1ppl.fd
-File: ts1ppl.fd 2001/06/04 font definitions for TS1/ppl.
-) [5] (./RJwrapper.bbl (./RJwrapper.brf)
-\tf@brf=\write6
-\openout6 = `RJwrapper.brf'.
-
-LaTeX Font Info:    Trying to load font information for T1+zi4 on input line 24.
+(Font)              scaled to size 6.25204pt on input line 122.
+LaTeX Font Info:    Trying to load font information for T1+zi4 on input line 174.
 (c:/Users/AneeshAG/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/inconsolata/t1zi4.fd
 File: t1zi4.fd 2018/01/14 T1/zi4 (Inconsolata)
 )
 LaTeX Font Info:    Font shape `T1/zi4/m/n' will be
-(Font)              scaled to size 9.18004pt on input line 24.
+(Font)              scaled to size 10.20004pt on input line 174.
 Package microtype Info: Loading generic protrusion settings for font family
 (microtype)             `zi4' (encoding: T1).
 (microtype)             For optimal results, create family-specific settings.
 (microtype)             See the microtype manual for details.
-[6{c:/Users/AneeshAG/AppData/Roaming/TinyTeX/texmf-dist/fonts/enc/dvips/inconsolata/i4-t1-0.enc}])
 
-LaTeX Font Warning: Font shape `T1/zi4/m/it' undefined
-(Font)              using `T1/zi4/m/n' instead on input line 170.
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 170--171
+Underfull \hbox (badness 10000) in paragraph at lines 174--174
 
  []
 
-[7]
+
+Underfull \hbox (badness 10000) in paragraph at lines 174--174
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 174--174
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 174--174
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 174--174
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 174--174
+
+ []
+
+[5]
+LaTeX Font Info:    Trying to load font information for TS1+ppl on input line 184.
+(c:/Users/AneeshAG/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/psnfss/ts1ppl.fd
+File: ts1ppl.fd 2001/06/04 font definitions for TS1/ppl.
+) (./RJwrapper.bbl (./RJwrapper.brf)
+\tf@brf=\write6
+\openout6 = `RJwrapper.brf'.
+
+[6{c:/Users/AneeshAG/AppData/Roaming/TinyTeX/texmf-dist/fonts/enc/dvips/inconsolata/i4-t1-0.enc}]
+LaTeX Font Info:    Font shape `T1/zi4/m/n' will be
+(Font)              scaled to size 9.18004pt on input line 24.
+[7])
+
+LaTeX Font Warning: Font shape `T1/zi4/m/it' undefined
+(Font)              using `T1/zi4/m/n' instead on input line 225.
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 225--226
+
+ []
+
+[8]
 LaTeX Font Info:    Font shape `T1/zi4/m/it' will be
-(Font)              scaled to size 9.18004pt on input line 180.
-) [8] (./RJwrapper.aux)
+(Font)              scaled to size 9.18004pt on input line 235.
+) [9] (./RJwrapper.aux)
  ***********
 LaTeX2e <2025-11-01>
-L3 programming layer <2025-12-29>
+L3 programming layer <2026-01-10>
  ***********
 
 LaTeX Font Warning: Some font shapes were not available, defaults substituted.
@@ -886,18 +968,18 @@ Package rerunfilecheck Info: File `RJwrapper.brf' has not changed.
 (rerunfilecheck)             Checksum: D9B132B0DE200FEAFEF435959609D95B;2488.
  ) 
 Here is how much of TeX's memory you used:
- 27852 strings out of 469518
- 510655 string characters out of 5467960
- 930529 words of memory out of 5000000
- 55613 multiletter control sequences out of 15000+600000
- 685045 words of font info for 330 fonts, out of 8000000 for 9000
+ 28914 strings out of 469512
+ 528535 string characters out of 5467883
+ 957912 words of memory out of 5000000
+ 56625 multiletter control sequences out of 15000+600000
+ 697196 words of font info for 366 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
- 117i,12n,131p,2031b,840s stack positions out of 10000i,1000n,20000p,200000b,200000s
-<c:/Users/AneeshAG/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/inconsolata/Inconsolata-zi4r.pfb><c:/Users/AneeshAG/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb><c:/Users/AneeshAG/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb><c:/Users/AneeshAG/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb><c:/Users/AneeshAG/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/mathpazo/fplmbb.pfb><c:/Users/AneeshAG/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/mathpazo/fplmri.pfb><c:/Users/AneeshAG/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/urw/palatino/uplb8a.pfb><c:/Users/AneeshAG/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/urw/palatino/uplr8a.pfb><c:/Users/AneeshAG/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/urw/palatino/uplri8a.pfb>
-Output written on RJwrapper.pdf (8 pages, 441357 bytes).
+ 117i,19n,131p,2031b,838s stack positions out of 10000i,1000n,20000p,200000b,200000s
+<c:/Users/AneeshAG/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/inconsolata/Inconsolata-zi4r.pfb><c:/Users/AneeshAG/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb><c:/Users/AneeshAG/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb><c:/Users/AneeshAG/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb><c:/Users/AneeshAG/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb><c:/Users/AneeshAG/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/mathpazo/fplmbb.pfb><c:/Users/AneeshAG/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/mathpazo/fplmri.pfb><c:/Users/AneeshAG/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/urw/palatino/uplb8a.pfb><c:/Users/AneeshAG/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/urw/palatino/uplr8a.pfb><c:/Users/AneeshAG/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/urw/palatino/uplri8a.pfb>
+Output written on RJwrapper.pdf (9 pages, 456594 bytes).
 PDF statistics:
- 405 PDF objects out of 1000 (max. 8388607)
- 367 compressed objects within 4 object streams
- 63 named destinations out of 1000 (max. 500000)
- 80495 words of extra memory for PDF output out of 89155 (max. 10000000)
+ 416 PDF objects out of 1000 (max. 8388607)
+ 375 compressed objects within 4 object streams
+ 65 named destinations out of 1000 (max. 500000)
+ 91247 words of extra memory for PDF output out of 106986 (max. 10000000)
 
