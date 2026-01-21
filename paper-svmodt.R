@@ -103,6 +103,62 @@ plots[[1]]
 plots[[2]]
 
 
+## ----table-benchmark-streer---------------------------------------------------
+r_stree <- readRDS("analysis/results/r_stree.rds")
+py_stree <- readRDS("analysis/results/py_stree.rds")
+#readRDS("analysis/results/optimised_r_stree.rds")
+
+data_names <- c("WDBC Diagnosis", "Iris", "Echocardiogram", "Fertility", "Wine", "Cardiotography-3", "Cardiotography-10", "Ionosphere", "Dermatology", "Statlog Australian Credit")
+data_num_observations <- c(569, 150, 131, 100, 178, 2126, 2126, 351, 366, 690)
+data_num_features <- c(30, 4, 10, 9, 12, 21, 21, 33, 34, 14) 
+data_num_classes <- c(2, 3, 2, 2, 3, 3, 10, 2, 6, 2)
+
+mean_sd <- function(x, digits = 3) {
+  x <- as.numeric(x)
+  m <- mean(x, na.rm = TRUE)
+  s <- sd(x, na.rm = TRUE)
+  sprintf(paste0("%.", digits, "f \u00B1 %.", digits, "f"), m, s)
+}
+
+tbl <- data.frame(
+  data_names,
+  data_num_observations,
+  data_num_features,
+  data_num_classes,
+  apply(as.matrix(r_stree), 2, mean_sd),
+  apply(as.matrix(py_stree), 2, mean_sd),
+  stringsAsFactors = FALSE
+)
+
+
+tbl_bold <- tbl
+model_cols <- 5:ncol(tbl_bold)
+
+tbl_bold[model_cols] <- t(apply(tbl[model_cols], 1, function(row) {
+  
+  # extract means from "mean ± sd"
+  means <- as.numeric(sub(" \u00B1.*", "", row))
+  max_idx <- which(means == max(means, na.rm = TRUE))
+  
+  out <- row
+  out[max_idx] <- cell_spec(out[max_idx], bold = TRUE)
+  out
+}))
+
+tbl_bold |>
+  kable(
+    row.names = FALSE,
+    col.names = c("Dataset", "N", "X", "L", "StreeR", "STree"),
+    align = "lccccc",
+    escape = FALSE, 
+    caption = "Comparing Mean Prediction Accuracy with default arguments - STreeR, STree"
+  ) |>
+  kable_styling(
+    full_width = FALSE,
+    position = "center"
+  )
+
+
 ## ----stree-svmodt-benchmark-table, cache=TRUE---------------------------------
 # source(file = "analysis/5-fold-cv-benchmark.R", local = TRUE)
 # 
@@ -156,7 +212,7 @@ model_cols <- 2:ncol(tbl_bold)
 tbl_bold[model_cols] <- t(apply(tbl[model_cols], 1, function(row) {
   
   # extract means from "mean ± sd"
-  means <- as.numeric(sub(" ±.*", "", row))
+  means <- as.numeric(sub(" \u00B1.*", "", row))
   max_idx <- which(means == max(means, na.rm = TRUE))
   
   out <- row

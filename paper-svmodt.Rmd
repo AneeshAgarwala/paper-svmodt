@@ -79,7 +79,7 @@ library(gridExtra)
 
 <!--   2) propose SVM-ODT which contains several extensions to the STree algorithm to improve performance (hopefully) -->
 
-Decision trees remain widely used in machine learning because they are interpretable, straightforward to apply, and can accommodate both categorical and numerical predictors with minimal preprocessing. Classical algorithms such as CART [@breiman1984] and C4.5 [@quinlan1993] employ axis-aligned (univariate) splits that partition the feature space along coordinate axes, thereby preserving transparency in the resulting decision rules. In R, traditional decision trees are readily implemented via packages such as \CRANpkg{rpart}, \CRANpkg{tree}, and \CRANpkg{party}. Although axis-parallel decision trees offer high interpretability, they suffer representational limitations: they frequently grow unnecessarily large as they approximate complex relationships via multiple axis-aligned partitions, which can lead to replicated subtrees and repeated testing of the same feature along different paths, reducing efficiency and impairing generalization [@pagallo1990]. Oblique decision trees mitigate these limitations by permitting splits on linear combinations of features; for example, a single oblique test of the form $w_1x_1 + w_2x_2 < \theta$ can often replace multiple axis-aligned tests, producing more compact and geometrically simpler partitions of the feature space. Oblique trees are available in R through packages such as \CRANpkg{ODRF}, \CRANpkg{aorsf}, and \CRANpkg{oblique.tree}. Empirical comparisons across diverse data sets indicate that oblique decision trees typically attain higher accuracy and smaller tree sizes than their axis-parallel counterparts, albeit at the expense of some interpretability. Importantly, oblique decision trees preserve key advantages of standard trees—sequential split evaluation and transparent decision procedures—while providing greater modeling flexibility for complex data sets [@kozial2009; @friedl1997; @huan1998; @canete].
+Decision trees remain widely used in machine learning because they are interpretable, straightforward to apply, and can accommodate both categorical and numerical predictors with minimal preprocessing. Classical algorithms such as CART [@breiman1984] and C4.5 [@quinlan1993] employ axis-aligned (univariate) splits that partition the feature space along coordinate axes, thereby preserving transparency in the resulting decision rules. In R, traditional decision trees are readily implemented via packages such as \CRANpkg{rpart}, \CRANpkg{tree}, and \CRANpkg{party}. However, limited split structure of axis-parallel decision trees can promote overfitting, producing duplicated subtrees and repeated evaluations of the same predictor, which reduces efficiency and weakens generalization [@pagallo1990]. Oblique decision trees mitigate these limitations by permitting splits on linear combinations of features; for example, a single oblique test of the form $w_1x_1 + w_2x_2 < \theta$ can often replace multiple axis-aligned tests, producing more compact and geometrically simpler partitions of the feature space. Oblique trees are available in R through packages such as \CRANpkg{ODRF}, \CRANpkg{aorsf}, and \CRANpkg{oblique.tree}. Empirical studies across diverse data sets show that oblique decision trees often achieve higher accuracy and yield more compact models than axis‑parallel trees, though with a modest reduction in interpretability. [@canete]. 
 
 ```{r palmer-penguins-introduction-split, fig.align='center', results='asis', fig.cap="Comparison of Axis-parallel and Axis-oblique splits on Palmerpenguins dataset.", fig.subcap=c('axis-parallel split', 'axis-oblique split'), out.width = '50%', cache=TRUE}
 penguins_orsf <- penguins |> drop_na()
@@ -166,14 +166,9 @@ plots[[2]]
 
 Figure \@ref(fig:palmer-penguins-introduction-split) contrasts an axis-parallel decision tree with an axis-oblique decision tree. The axis-parallel tree displays (left panel) clear overfitting and a high rate of training misclassification, reflecting its inability to capture interactions among predictors that determine class membership. In contrast, the oblique tree (right panel) yields geometrically simpler decision boundaries and substantially fewer misclassifications on the training set, indicating a better fit to the underlying multivariate relationships. Together, these panels illustrate how oblique splits can more effectively represent linear combinations of features and thereby reduce spurious complexity and error in tree-based classifiers.
 
-Support Vector Machines (SVMs), introduced by @cortes1995, provide a principled way to obtain oblique splits by finding margin‑maximizing hyperplanes. <!-- Despite their appeal, SVMs introduce practical challenges—sensitive hyperparameter tuning, quadratic scaling with sample size due to the $n \times n$ kernel matrix, binary‑only formulation requiring decomposition for multiclass tasks, and sensitivity to class imbalance—which complicate their direct, large‑scale use [@nanda2018; @dong2005; @hsu2002; @cervantes2020]. --> The idea of fitting SVMs at tree nodes was formalized by @bennet1998 and extended to multiclass settings and other refinements in subsequent work [@takahashi2002; @bala2011; @ganaie2022].
+Support Vector Machines (SVMs), introduced by @cortes1995, provide a principled way to obtain oblique splits by finding margin‑maximizing hyperplanes. This margin-based approach enhances the generalization ability of the model, making SVMs robust and effective for many real-world problems [@cristianini2000].<!-- Despite their appeal, SVMs introduce practical challenges—sensitive hyperparameter tuning, quadratic scaling with sample size due to the $n \times n$ kernel matrix, binary‑only formulation requiring decomposition for multiclass tasks, and sensitivity to class imbalance—which complicate their direct, large‑scale use [@nanda2018; @dong2005; @hsu2002; @cervantes2020]. --> The idea of fitting SVMs at tree nodes was formalized by @bennet1998 and extended to multiclass settings and other refinements in subsequent work [@takahashi2002; @bala2011; @ganaie2022]. Python’s STree implements SVM‑node oblique trees using scikit‑learn’s SVC [@Montanana2021; @scikit2011], while Java tools such as Weka offer components that can be adapted for hierarchical SVM trees [@menkovski2008]; however, fully featured, native R implementations remain limited. 
 
-Python’s STree implements SVM‑node oblique trees using scikit‑learn’s SVC [@Montanana2021; @scikit2011], while Java tools such as Weka offer components that can be adapted for hierarchical SVM trees [@menkovski2008]; however, fully featured, native R implementations remain limited. To address this gap we make two contributions. First, we provide an R implementation of an STree‑style oblique tree that does not call Python, delivering a production‑ready API and efficient, vectorized operations for R users. Second, we propose SVM‑ODT, an enhanced SVM‑based oblique decision tree that extends the STree algorithm with practical improvements which include feature sub-setting, feature selection, feature penalization, node-specific class weighting to improve performance and robustness in both binary and multiclass settings. Together these contributions aim to bring the representational advantages of SVM‑based oblique splits to R practitioners while addressing key computational and methodological limitations of existing approaches. We are exclusively going to focus on building a supervised learning algorithm capable of predicitng $y$ from d-dimensional predictors $x$.
-
-To address this methodological gap, we advance two primary contributions.\
-First, we introduce a fully native R implementation of an STree‑style oblique decision tree that operates independently of Python. This implementation provides a production‑ready API and leverages vectorized computation to ensure efficiency and seamless integration within the R ecosystem.
-
-Second, we develop **SVM‑ODT**, an enhanced SVM‑based oblique decision tree that extends the original STree framework through several practical innovations. These include feature sub‑setting, embedded feature selection, feature penalization, and node‑specific class weighting. Collectively, these enhancements are designed to improve predictive performance, interpretability, and robustness across both binary and multiclass classification settings.
+To address this gap, we advance two primary contributions. First, we introduce a fully native R implementation of an STree‑style oblique decision tree that operates independently of Python. This implementation provides a production‑ready API and leverages vectorized computation to ensure efficiency and seamless integration within the R ecosystem. Second, we develop **SVM‑ODT**, an enhanced SVM‑based oblique decision tree that extends the original STree framework through several practical innovations. These include feature sub‑setting, embedded feature selection, feature penalization, and node‑specific class weighting. Collectively, these enhancements are designed to improve predictive performance, interpretability, and robustness across both binary and multiclass classification settings.
 
 Together, these contributions aim to make the representational strengths of SVM‑driven oblique splits accessible to R programmers while simultaneously addressing key computational and methodological limitations present in existing approaches. Throughout this work, we focus exclusively on the supervised learning problem of predicting $y$ from $d$-dimensional predictors $x$, where the goal is to learn a decision function that maps $x \in \mathbb{R}^d \quad \longrightarrow \quad y$.
 
@@ -199,7 +194,7 @@ Axis-Parallel Decision trees represent hyper-planes dividing the instance space 
 
 In contrast, **C4.5**, an extension of the earlier **ID3** algorithm [@quinlan1986], utilizing information theory measures such as **information gain** and **gain ratio** to select the most informative attribute for each split [@quinlan1993]. C4.5 also includes mechanisms to handle missing attribute values by weighting instances according to the proportion of known data and employs an **error-based pruning** method to reduce overfitting. Although these techniques are effective across diverse data sets, studies have shown that the choice of pruning strategy and stopping criteria can significantly affect model performance across different domains [@mingers1989; @schaffer1992].
 
-While axis-parallel decision tree are highly interpretability, they have several representational limitations. Such trees often grow unnecessarily large, as they must approximate complex relationship between features through multiple axis-aligned partitions. This can result in the replication of sub-trees and repeated testing of the same feature along different paths, both of which reduce efficiency and hinder generalization performance [@pagallo1990].
+Axis‑parallel decision trees offer strong interpretability but face inherent representational limits. Their constrained split structure often induces overfitting, leading to duplicated subtrees and repeated tests of the same predictor, ultimately reducing efficiency and weakening generalization [@pagallo1990].
 
 ### Axis-Oblique Decision Trees
 
@@ -207,37 +202,44 @@ Axis-oblique decision trees extends axis-parallel decision trees by allowing eac
 
 The construction of Axis-oblique decision trees introduces several design considerations, including how to represent multivariate tests, determine their coefficients, select features to include, handle symbolic and missing data, and prune to avoid over-fitting [@brodley1995]. Various optimization algorithms such as recursive least squares [@young1984], the pocket algorithm [@gallant1986], or thermal training [@frean1990] may be used to estimate the weights. However, Axis-oblique decision trees trade interpretability for representational power and often require additional mechanisms for **local feature selection**, such as *sequential forward selection* (SFS) or *sequential backward elimination* (SBE) [@kittler1986].
 
-Empirical comparisons across multiple data sets demonstrate that multivariate trees generally achieve higher accuracy and smaller tree sizes than their univariate counterparts, though this comes at the cost of reduced interpretability. Moreover, MDTs retain key advantages of standard decision trees such as sequential split criteria evaluation and transparent decision procedures while offering improved modeling flexibility for complex data sets [@kozial2009; @friedl1997; @huan1998; @canete].
+Although oblique splits introduce additional complexity and reduce interpretability, oblique decision trees retain key advantages of standard decision trees such as sequential split criteria evaluation and transparent decision procedures while offering improved modeling flexibility for complex data sets [@kozial2009; @friedl1997; @huan1998].
 
-## Support Vector Machines (SVMs)
+## Alternate Approaches to Oblique Decision Boundaries
 
-Support Vector Machines (SVMs) are powerful supervised learning models used for classification and regression tasks. They aim to determine an optimal separating hyperplane that maximizes the margin between binary classes in the data. This margin-based approach enhances the generalization ability of the model, making SVMs robust and effective for many real-world problems [@cristianini2000]. A simplest **linear SVMs** construct a separating hyperplane in an $p$-dimensional space such that the margin between the classes is maximized. Given a training dataset $\{(\mathbf{x}_i, y_i)\}_{i=1}^{N}$, where $\mathbf{x}_i \in \mathbb{R}^p$ and $y_i \in \{-1, +1\}$, the decision function is defined as $f(\mathbf{x}) = \text{sign}(\mathbf{w}^\top \mathbf{x} + b)$. The optimal hyperplane is the one that maximizes the distance between the closest points of each class (the **support vectors**) and the hyperplane itself [@cortes1995]. While linear classifiers provide useful insights, they are often inadequate for real-world data sets, where classes are not linearly separable. In such cases, SVMs can be extended to create **nonlinear decision boundaries** by mapping the input vectors into a higher-dimensional **feature space** using a nonlinear transformation $\phi: \mathbb{R}^n \rightarrow \mathcal{F}$. The linear transformation is then achieved in the transformed space using $f(\mathbf{x}) = \text{sign}(\mathbf{w}^\top \phi(\mathbf{x}) + b)$.
+### PCA
 
-Although SVMs exhibit strong theoretical foundations and robust generalization capabilities, they present several practical limitations. Model performance is highly dependent on the appropriate selection of hyperparameters such as the regularization term ($C$) and kernel parameters (e.g., $\gamma$), which govern the trade-off between margin maximization and misclassification tolerance [@nanda2018]. Training an SVM requires solving a quadratic programming (QP) optimization problem involving an $n \times n$ kernel matrix, where $n$ denotes the number of training samples, leading to quadratic growth in both computational time and memory usage [@dong2005]. This makes SVMs computationally expensive for large-scale data sets. Moreover, SVMs are inherently designed for binary classification, necessitating decomposition strategies such as One-vs-One and One-vs-All for multi-class problems [@hsu2002]. Their performance also tends to degrade in imbalanced data settings, where the decision boundary becomes biased toward the majority class [@cervantes2020].
+### LDA
 
-## Projection Pursuit Trees
+### CART-LC
+
+### Logistic Regression
+
+### Projection Pursuit Trees
 
 Projection pursuit methods [@friedman2006; @kruskal1969] have been used to uncover low-dimensional projections that reveal structure in high-dimensional data; the \CRANpkg{PPtree} extends this idea into a recursive partitioning framework by optimizing a class-sensitive projection index at each node and then applying conventional split criteria on the resulting one-dimensional projection. This hybrid design allows the model to exploit multivariate correlations that axis-aligned trees often miss, while preserving the interpretability and hierarchical structure of tree models. In addition to improved separation in many settings, the PPtree produces node-specific projection coefficients that serve as transparent indicators of which variables drive each split, making it useful both for classification and for feature selection in multivariate problems.
 
-## Hybrid Decision Trees with Support Vector Machines
+### Support Vector Machines (SVMs)
 
-Support Vector Machine–based decision trees (DTSVMs) were first formalized by @bennet1998, who adapted Statistical Learning Theory and Structural Risk Minimization to construct binary decision trees in which each internal node is an SVM that partitions the data by an optimal hyperplane. This formulation enabled multivariate, margin-based decisions at every split. @takahashi2002 extended the idea to multiclass settings by using a recursive partitioning strategy: the root node isolates the most separable class or classes from the remainder, and the procedure recurses until each leaf contains a single class, thereby covering the entire feature space.
+Support Vector Machines (SVMs) are powerful supervised learning models used for classification and regression tasks. They aim to determine an optimal separating hyperplane that maximizes the margin between binary classes in the data. This margin-based approach enhances the generalization ability of the model, making SVMs robust and effective for many real-world problems [@cristianini2000]. 
 
-### Scalability and optimization advances
+A simplest **linear SVMs** construct a separating hyperplane in an $p$-dimensional space such that the margin between the classes is maximized. Given a training dataset $\{(\mathbf{x}_i, y_i)\}_{i=1}^{N}$, where $\mathbf{x}_i \in \mathbb{R}^p$ and $y_i \in \{-1, +1\}$, the decision function is defined as $f(\mathbf{x}) = \text{sign}(\mathbf{w}^\top \mathbf{x} + b)$. The optimal hyperplane is the one that maximizes the distance between the closest points of each class (the **support vectors**) and the hyperplane itself [@cortes1995]. Training an SVM entails solving a convex quadratic programming (QP) problem defined over an $(n \times n)$ kernel matrix, where $(n)$ is the number of training samples. Owing to the convexity of the objective, the QP admits a unique global optimum and can be solved reliably using standard optimization techniques. While linear classifiers provide useful insights, they are often inadequate for real-world data sets, where classes are not linearly separable. In such cases, SVMs can be extended to create **nonlinear decision boundaries** by mapping the input vectors into a higher-dimensional **feature space** using a nonlinear transformation $\phi: \mathbb{R}^n \rightarrow \mathcal{F}$. The linear transformation is then achieved in the transformed space using $f(\mathbf{x}) = \text{sign}(\mathbf{w}^\top \phi(\mathbf{x}) + b)$.
 
-Subsequent studies have built upon this foundation to address scalability, optimization, and generalization issues. Optimal Decision Tree SVM (ODT-SVM) [@bala2011] introduced split-selection criteria based on Gini index, information gain, and scatter matrix separability to balance tree interpretability and margin-based precision.
+Although SVMs exhibit strong theoretical foundations and robust generalization capabilities, they present several practical limitations. Model performance is highly dependent on the appropriate selection of hyperparameters such as the regularization term ($C$) and kernel parameters (e.g., $\gamma$), which govern the trade-off between margin maximization and misclassification tolerance [@nanda2018]. For large‑scale data sets, training an SVM can become computationally expensive, with both runtime and memory consumption growing quadratically in the number of training samples [@dong2005]. Moreover, SVMs are inherently designed for binary classification, necessitating decomposition strategies such as One-vs-One and One-vs-All for multi-class problems [@hsu2002]. Their performance also tends to degrade in imbalanced data settings, where the decision boundary becomes biased toward the majority class [@cervantes2020].
 
-### Oblique and Rotation-Based Extensions
+### Hybrid Decision Trees with Support Vector Machines
+
+Support Vector Machine–based decision trees (DTSVMs) were first formalized by @bennet1998, who adapted Statistical Learning Theory and Structural Risk Minimization to construct binary decision trees in which each internal node is an SVM that partitions the data by an optimal hyperplane. This formulation enabled multivariate, margin-based decisions at every split. @takahashi2002 extended the idea to multiclass settings by using a recursive partitioning strategy: the root node isolates the most separable class or classes from the remainder, and the procedure recurses until each leaf contains a single class, thereby covering the entire feature space. Subsequent studies have built upon this foundation to address scalability, optimization, and generalization issues. Optimal Decision Tree SVM (ODT-SVM) [@bala2011] introduced split-selection criteria based on Gini index, information gain, and scatter matrix separability to balance tree interpretability and margin-based precision. 
+
+
+<!--
+#### Oblique and Rotation-Based Extensions
 
 Recent research generalizes DTSVMs through oblique splits and rotation-based ensemble strategies. Oblique Double Random Forests with MPSVM (MPDRaF) [@ganaie2022] implement multivariate (oblique) node splits using Multi-Plane SVM (MPSVM) formulations [@Mangasarian2006], increasing the geometric flexibility of decision boundaries. These methods incorporate regularization variants (Tikhonov, axis-parallel, null-space) to mitigate small-sample issues at deeper nodes and improve generalization. Rotation-based Double Random Forests (DRaF) [@ganaie2022] apply PCA and LDA transforms at non-terminal nodes to generate diverse subspaces, enhancing ensemble diversity and stabilizing classification performance.
+--->
 
-### Modern multi-class integration
+#### Modern Multi-class Integration: STree Algorithm
 
-More recent approaches embed multiple SVM classifiers directly within each split to handle multi-class problems more efficiently. The Oblique Decision Tree Ensemble (ODTE) [@montanana2025] places one-vs-one or one-vs-rest SVMs at splits and dynamically selects the classifier that minimizes class impurity, enabling n-ary decisions within a single tree and addressing scalability and class-imbalance limitations inherent to binary SVM tree extensions.
-
-### Synthesis and implications for future work
-
-Across these developments, two recurring themes emerge: (1) leveraging multivariate, oblique decision boundaries to capture complex class geometry, and (2) combining transformation or ensemble strategies (rotations, multiple SVMs) to improve diversity and robustness. These trends point toward hybrid architectures that balance interpretability, margin-based generalization, and computational tractability—an agenda that motivates continued exploration of regularization schemes, split-selection heuristics, and efficient multi-class integration in SVM-based tree models.
+More recent approaches embed multiple SVM classifiers directly within each split to handle multi-class problems more efficiently. <!--- The Oblique Decision Tree Ensemble (ODTE) [@montanana2025] places one-vs-one or one-vs-rest SVMs at splits and dynamically selects the classifier that minimizes class impurity, enabling n-ary decisions within a single tree and addressing scalability and class-imbalance limitations inherent to binary SVM tree extensions. ---> STree [@stree2021] is an oblique multi-class decision tree algorithm that integrates support vector machines (SVMs) to construct single margin‑based splits capable of handling multiclass problems. Unlike traditional multi-class tree methods that rely on clustering or ensembles of binary models, STree builds a single decision tree. Its central innovation lies in using SVM‑derived hyperplanes at each internal node, enabling more expressive splits than axis‑aligned trees while also being interpretable and computationally simple.
 
 <!-- # Background -->
 
@@ -261,13 +263,11 @@ Across these developments, two recurring themes emerge: (1) leveraging multivari
 
 <!-- + end by saying this paper will focus on the use of SVM to establish optimal oblique splitting criteria  -->
 
-# STree Alogrithm
 
-STree [@stree2021] is an oblique multi-class decision tree algorithm that integrates support vector machines (SVMs) to construct single margin‑based splits capable of handling multiclass problems. Unlike traditional multi-class tree methods that rely on clustering or ensembles of binary models, STree builds a single decision tree. Its central innovation lies in using SVM‑derived hyperplanes at each internal node, enabling more expressive splits than axis‑aligned trees while also being interpretable and computationally simple.
 
-## Methodology
+##### Methodology
 
-The algorithm generates a binary tree recursively (\@ref(alg:stree)) . At each node:
+The algorithm generates a binary tree recursively (see Algorithm \@ref(alg:stree)) . At each node:
 
 1)  Stopping conditions are evaluated to check the depth of the tree and the class purity. If the stopping conditions are met, a leaf node is created, labelled with the most frequent class in the node.
 
@@ -334,6 +334,221 @@ When all instances at a node belong to more than two classes ($k'>2$), the appro
 \end{algorithm}
 ```
 
+### Synthesis and implications for future work
+
+Across these developments, two recurring themes emerge: (1) leveraging multivariate, oblique decision boundaries to capture complex class geometry, and (2) combining transformation or ensemble strategies (rotations, multiple SVMs) to improve diversity and robustness. These trends point toward hybrid architectures that balance interpretability, margin-based generalization, and computational tractability—an agenda that motivates continued exploration of regularization schemes, split-selection heuristics, and efficient multi-class integration in SVM-based tree models.
+
+# Contributed Methods
+
+## STreeR
+```{=latex}
+\begin{algorithm}[H]
+\caption{STreeR: Multi-class OVR SVM-based oblique decision tree}
+\label{alg:streer}
+\KwIn{$\mathcal{D}' = \{(\vec{x}_i, y_i)\}_{i=1}^{l'}$: Data}
+\KwOut{$tree$: the root node of an SVM-based oblique decision tree}
+
+\SetKwFunction{FMain}{STree}
+\SetKwProg{Fn}{function}{:}{end function}
+
+\Fn{\FMain{$\mathcal{D}'$}}{
+    \If{$stopping\_condition(\{y_i\}_{i=1}^{t})$}{
+        \Return $create\_leaf\_node(mode(\{y_i\}_{i=1}^{t}))$\hfill \tcp{Leaf node}
+    }
+    
+    $k' \leftarrow num\_different\_labels(\{y_i\}_{i=1}^{t})$\newline
+    $\mathcal{Y}' \leftarrow \{y'_1, \ldots, y'_{k'}\}$\hfill \tcp{set of labels}
+    $I_{all} \leftarrow I(\{y_i\}_{i=1}^{t})$\hfill \tcp{$I(\cdot)$ is an information theory measure}
+    $n_{models} \leftarrow k'$\hfill \tcp{OvR}
+    \For{$j = 1$ \KwTo $n_{models}$}{
+        \If{$(j = k' = 2)$}{
+            \textbf{break}\hfill \tcp{Two labels, one SVM is enough}
+        }
+        $models[j] \leftarrow \text{SVM}\bigl({\mathcal{D}'}\bigr)$ using binary class $y'_j$ (+) vs rest (--)\hfill \tcp{OvR}
+        }
+    $\mathcal{D}^{'+}, \mathcal{D}^{'-} \leftarrow models[j](\overrightarrow{x}_{j}) \quad \forall \bigl(\overrightarrow{x}\bigr) \in \mathcal{D}'$\newline
+    $I_j \leftarrow \frac{|\mathcal{D}^{'+}|}{|\mathcal{D}'|} I(\{y_i\}_{i=1}^{|\mathcal{D}^{'+}|}) + \frac{|\mathcal{D}^{'-}|}{|\mathcal{D}'|} I(\{y_i\}_{i=1}^{|\mathcal{D}^{'-}|})$\newline
+    $IG_j \leftarrow I_{all} - I_j$\newline
+    
+    $b^* = \arg\max_{j=1,\ldots,n_{models}} IG_j$\newline
+    
+    \eIf{$IG_{b^*} > 0$}{
+        $node \leftarrow create\_node(models[b^*])$\newline
+        $node.left \leftarrow STree(\mathcal{D}^{'+})$\newline
+        $node.right \leftarrow STree(\mathcal{D}^{'-})$\newline
+    }{
+        \Return $create\_leaf\_node(model(\{y_i\}_{i=1}^{t}))$\hfill \tcp{No split gain}
+    }
+    
+    \Return $node$\newline
+}
+\end{algorithm}
+```
+
+To support our investigation into potential improvements to the Stree algorithm, we first reconstructed the algorithm in R using \CRANpkg{e1071}, which interfaces with the LIBSVM C++ implementation. This reconstruction provided clarity on the algorithm’s internal workflow and ensured fair benchmarking against competing approaches. Algorithm \@ref(alg:streer) provides a concise summary of our R‑based re‑implementation of the Stree algorithm. We assessed the performance of our StreeR re‑implementation using a 10 × 5‑fold cross‑validation scheme applied to 10 benchmark datasets from the UCI Machine Learning Repository. For comparability, both algorithms were run with the same default hyperparameters: cost‑complexity $C=1$, a linear kernel, a maximum of 10,000,000 training iterations, and a maximum depth of 10. Prediction accuracies were averaged across all folds for each dataset. 
+
+Table \@ref(tab:table-benchmark-streer) compares the average mean accuracy of both the algorithms. Across most datasets, StreeR exhibits slightly stronger performance than its Python counterpart. Although both implementations rely on the same underlying `LIBSVM C++` library; Python via the `SVC` classifier and R via the `e1071::svm` interface—there are subtle but meaningful differences in how each framework calls the underlying LIBSVM code that fits the underlying SVM decision boundary and applies scaling parameters during prediction. These implementation‑level discrepancies likely contribute to the observed performance variation  [@skmohammadi2015; @mirko2019].
+
+
+
+```{r table-benchmark-streer}
+r_stree <- readRDS("analysis/results/r_stree.rds")
+py_stree <- readRDS("analysis/results/py_stree.rds")
+#readRDS("analysis/results/optimised_r_stree.rds")
+
+data_names <- c("WDBC Diagnosis", "Iris", "Echocardiogram", "Fertility", "Wine", "Cardiotography-3", "Cardiotography-10", "Ionosphere", "Dermatology", "Statlog Australian Credit")
+data_num_observations <- c(569, 150, 131, 100, 178, 2126, 2126, 351, 366, 690)
+data_num_features <- c(30, 4, 10, 9, 12, 21, 21, 33, 34, 14) 
+data_num_classes <- c(2, 3, 2, 2, 3, 3, 10, 2, 6, 2)
+
+mean_sd <- function(x, digits = 3) {
+  x <- as.numeric(x)
+  m <- mean(x, na.rm = TRUE)
+  s <- sd(x, na.rm = TRUE)
+  sprintf(paste0("%.", digits, "f \u00B1 %.", digits, "f"), m, s)
+}
+
+tbl <- data.frame(
+  data_names,
+  data_num_observations,
+  data_num_features,
+  data_num_classes,
+  apply(as.matrix(r_stree), 2, mean_sd),
+  apply(as.matrix(py_stree), 2, mean_sd),
+  stringsAsFactors = FALSE
+)
+
+
+tbl_bold <- tbl
+model_cols <- 5:ncol(tbl_bold)
+
+tbl_bold[model_cols] <- t(apply(tbl[model_cols], 1, function(row) {
+  
+  # extract means from "mean ± sd"
+  means <- as.numeric(sub(" \u00B1.*", "", row))
+  max_idx <- which(means == max(means, na.rm = TRUE))
+  
+  out <- row
+  out[max_idx] <- cell_spec(out[max_idx], bold = TRUE)
+  out
+}))
+
+tbl_bold |>
+  kable(
+    row.names = FALSE,
+    col.names = c("Dataset", "N", "X", "L", "StreeR", "STree"),
+    align = "lccccc",
+    escape = FALSE, 
+    caption = "Comparing Mean Prediction Accuracy with default arguments - STreeR, STree"
+  ) |>
+  kable_styling(
+    full_width = FALSE,
+    position = "center"
+  )
+```
+Given computational and scope constraints, our re‑implementation covers only the portions of the Stree algorithm directly pertinent to our research objectives. We restrict our analysis to the one‑vs‑rest splitting strategy. At present, the implementation does not include hyperparameters for feature subsetting, although users can replicate this functionality by manually providing a reduced feature set. 
+
+## Support Vector Machine based Oblique Decision Trees: SVMODT
+
+```{=latex}
+\begin{algorithm}
+\caption{SVM Oblique Decision Tree Construction}
+\label{alg:svmodt}
+
+\KwIn{$\mathcal{D}' = \{(\vec{x}_i, y_i)\}_{i=1}^{t}$: Data}
+\KwOut{$tree$: the root node of an SVM-based oblique decision tree}
+
+\SetKwProg{Fn}{Procedure}{:}{end}
+\Fn{SVMSplit($\mathcal{D}, d, d_{\max}, n_{\min}$)}{
+
+    $n \gets |\mathcal{D}|$ \newline
+    $\mathcal{Y} \gets \text{labels}(\mathcal{D})$
+
+    \If{$d > d_{\max}$ \textbf{or} $|\text{unique}(\mathcal{Y})| = 1$ \textbf{or} $n < n_{\min}$}{
+        \Return $\text{LeafNode}(\mathcal{Y})$ \tcp*{Stopping criteria}
+    }
+
+    $m_d \gets \text{DynamicMaxFeatures}(d, m_{\text{base}}, \text{strategy})$
+
+    $\mathcal{F}_d \gets \text{SelectFeatures}(\mathcal{D}, m_d, \text{method})$
+
+    $\mathbf{X}_{\text{scaled}}, \text{scaler} \gets \text{Scale}(\mathcal{D}[\mathcal{F}_d])$
+
+    \If{$|\mathcal{F}_d| = 0$}{
+        \Return $\text{LeafNode}(\mathcal{Y})$ \tcp*{No valid features}
+    }
+
+    $w_c \gets \text{CalculateClassWeights}(\mathcal{Y}, \text{strategy})$
+
+    $\text{SVM} \gets \text{FitLinearSVM}(\mathbf{X}_{\text{scaled}}, \mathcal{Y}, w_c)$
+
+    \If{$\text{SVM} = \text{null}$}{
+        \Return $\text{LeafNode}(\mathcal{Y})$ \tcp*{SVM fitting failed}
+    }
+
+    $\mathbf{f} \gets \text{SVM.DecisionValues}(\mathbf{X}_{\text{scaled}})$
+
+    $\mathcal{I}_L \gets \{i : f_i > 0\}$, \quad $\mathcal{I}_R \gets \{i : f_i \le 0\}$
+
+    \If{$|\mathcal{I}_L| = 0$ \textbf{or} $|\mathcal{I}_R| = 0$}{
+        \Return $\text{LeafNode}(\mathcal{Y})$ \tcp*{Ineffective split}
+    }
+
+    $\text{left} \gets \textsc{SVMSplit}(\mathcal{D}[\mathcal{I}_L], d+1, d_{\max}, n_{\min})$
+
+    $\text{right} \gets \textsc{SVMSplit}(\mathcal{D}[\mathcal{I}_R], d+1, d_{\max}, n_{\min})$
+
+    \Return $\text{InternalNode}(\text{SVM}, \mathcal{F}_d, \text{scaler}, \text{left}, \text{right})$
+}
+\end{algorithm}
+```
+
+The Support Vector Machine based Oblique Decision Tree (SVMODT) constructs a binary classification decision tree where each internal node $v$ at depth $d$. The algorithm (see Algorithm \@ref(alg:svmodt)) is implemented in R using the \CRANpkg{e1071} performs the following operations:
+
+1.  **Feature Selection:** A subset of $m_d$ features is dynamically selected from the available feature set $\mathcal{F}$. This selection can be done using one of several strategies, including random selection, sampling, mutual information ranking (using the \CRANpkg{FSelectorRcpp} package), or correlation-based selection. This allows the tree to adaptive-ly focus on the most informative features at each node.
+
+2.  **Feature Scaling:** Once the features are selected, z-score normalization is applied to standardize them. For the selected feature matrix $\mathbf{X}_v \in \mathbb{R}^{n \times m_d}$, the scaled features are computed as $$\mathbf{X}_v^{\text{scaled}} = \frac{\mathbf{X}_v - \boldsymbol{\mu}_v}{\boldsymbol{\sigma}_v},$$ where $\boldsymbol{\mu}_v$ and $\boldsymbol{\sigma}_v$ denote the mean and standard deviation of the features in node $v$.
+
+3.  **SVM Training:** A linear SVM is then trained on the scaled features. Optional class weights $w_c$ can be applied to handle imbalanced data. The SVM optimization problem at each node $v$ is formulated as $$\min_{\mathbf{w_v}, b_v} \frac{1}{2}\|\mathbf{w_v}\|^2 + C \sum_{i\in D_v}^{n} w_{y_i} \xi_i,$$ where $C$ is the regularization parameter, $\xi_i$ are slack variables, and $w_{y_i}$ represents the class-specific weight for sample $i$ in the set of training samples $D_v$ reaching node $v$.
+
+4.  **Node Splitting:** After training, the decision values for each sample are computed as $f(x_i) = \mathbf{w}^T x_i + b.$ Samples are then partitioned into left and right child nodes according to the sign of $f(x_i)$:
+
+    -   Left child: $\{i : f(x_i) > 0\}$
+
+    -   Right child: $\{i : f(x_i) \leq 0\}$
+
+This process recursively continues for each child node until stopping criteria are met.
+
+### Key Hyper-parameters
+
+1.  **Feature Selection:** The algorithm supports three strategies for selecting features at each node. The maximum number of features considered at depth $d$ is defined as:
+
+$$
+m_d =
+\begin{cases}
+m_{\text{base}} & \text{constant strategy} \\
+\lfloor m_{\text{base}} \cdot \alpha^{d-1} \rfloor & \text{decrease strategy} \\
+\text{Uniform}(\lfloor p \cdot \ell_{\min} \rfloor, \lfloor p \cdot \ell_{\max} \rfloor) & \text{random strategy}
+\end{cases}
+$$
+
+Here, $\alpha \in (0, 1]$ is the decrease rate for the "decrease strategy," $p$ is the total number of features, $\ell_{\min}$ and $\ell_{\max}$ define the fractional bounds for the random strategy, and $m_{\text{base}}$ is the base number of features at the first depth.
+
+2.  **Feature Penalty:** To encourage diversity in feature usage across the tree, previously used features have their selection weight reduced by a factor of $(1 - \lambda)$, where $\lambda \in [0, 1)$.
+
+3.  **Class Weight Handling:** To address class imbalance, the algorithm allows four weighting schemes:
+
+    -   **None:** $w_c = 1$ for all classes.
+
+    -   **Balanced:** $w_c = \frac{n}{K \cdot n_c}$, where $K$ is the total number of classes and $n_c$ is the number of samples in class $c$.
+
+    -   **Balanced sub-sample:** $w_c = \frac{1}{n_c} \cdot \frac{K}{\sum_{c'} 1/n_{c'}}$, which adjusts weights for sub-sampled data.
+
+    -   **Custom:** Users can define their own class weights.
+
+### Interaction with SVM Training and Node Splitting
+
+The hyper-parameters described above directly influence the behavior of the SVM-based decision tree at each node. The feature selection strategy determines which subset of features $\mathcal{F}_d$ is used to fit the linear SVM at depth $d$, which affects the orientation and effectiveness of the decision hyper-plane. Feature penalties ensure that no single feature dominates multiple splits, promoting diversity in the learned splits and improving generalization. Once the SVM is trained on the selected and scaled features, the decision values are used to partition the samples into left and right child nodes. By controlling the number of features, penalizing repeated use, and adjusting class weights, the tree can achieve a balance between predictive accuracy, interpretability, and computational efficiency.
 
 <!-- # STree -->
 
@@ -432,7 +647,7 @@ model_cols <- 2:ncol(tbl_bold)
 tbl_bold[model_cols] <- t(apply(tbl[model_cols], 1, function(row) {
   
   # extract means from "mean ± sd"
-  means <- as.numeric(sub(" ±.*", "", row))
+  means <- as.numeric(sub(" \u00B1.*", "", row))
   max_idx <- which(means == max(means, na.rm = TRUE))
   
   out <- row

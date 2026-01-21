@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.28 (TeX Live 2025) (preloaded format=pdflatex 2026.1.20)  20 JAN 2026 17:38
+This is pdfTeX, Version 3.141592653-2.6-1.40.28 (TeX Live 2025) (preloaded format=pdflatex 2026.1.20)  21 JAN 2026 08:49
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -855,12 +855,12 @@ LaTeX Font Info:    Font shape `U/msb/m/n' will be
 (Font)              scaled to size 7.29405pt on input line 15.
 LaTeX Font Info:    Font shape `U/msb/m/n' will be
 (Font)              scaled to size 5.21004pt on input line 15.
-<paper-svmodt_files/figure-latex/palmer-penguins-introduction-split-1.pdf, id=71, 324.21124pt x 316.18124pt>
+<paper-svmodt_files/figure-latex/palmer-penguins-introduction-split-1.pdf, id=61, 324.21124pt x 316.18124pt>
 File: paper-svmodt_files/figure-latex/palmer-penguins-introduction-split-1.pdf Graphic file (type pdf)
 <use paper-svmodt_files/figure-latex/palmer-penguins-introduction-split-1.pdf>
 Package pdftex.def Info: paper-svmodt_files/figure-latex/palmer-penguins-introduction-split-1.pdf  used on input line 19.
 (pdftex.def)             Requested size: 199.16928pt x 194.24043pt.
-<paper-svmodt_files/figure-latex/palmer-penguins-introduction-split-2.pdf, id=72, 324.21124pt x 316.18124pt>
+<paper-svmodt_files/figure-latex/palmer-penguins-introduction-split-2.pdf, id=62, 324.21124pt x 316.18124pt>
 File: paper-svmodt_files/figure-latex/palmer-penguins-introduction-split-2.pdf Graphic file (type pdf)
 <use paper-svmodt_files/figure-latex/palmer-penguins-introduction-split-2.pdf>
 Package pdftex.def Info: paper-svmodt_files/figure-latex/palmer-penguins-introduction-split-2.pdf  used on input line 19.
@@ -870,91 +870,119 @@ Overfull \hbox (4.99998pt too wide) in paragraph at lines 19--20
  [][][][] 
  []
 
-[1{c:/Users/AneeshAG/AppData/Roaming/TinyTeX/texmf-var/fonts/map/pdftex/updmap/pdftex.map}{c:/Users/AneeshAG/AppData/Roaming/TinyTeX/texmf-dist/fonts/enc/dvips/base/8r.enc}
-
-]
-LaTeX Font Info:    Trying to load font information for U+fplmbb on input line 37.
+LaTeX Font Info:    Trying to load font information for U+fplmbb on input line 32.
 (c:/Users/AneeshAG/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/psnfss/ufplmbb.fd
 File: ufplmbb.fd 2003/10/30 Fontinst v1.914 font definitions for U/fplmbb.
-) [2 <./paper-svmodt_files/figure-latex/palmer-penguins-introduction-split-1.pdf> <./paper-svmodt_files/figure-latex/palmer-penguins-introduction-split-2.pdf>] [3] [4]
-Package hyperref Info: bookmark level for unknown algorithm defaults to 0 on input line 120.
+) [1{c:/Users/AneeshAG/AppData/Roaming/TinyTeX/texmf-var/fonts/map/pdftex/updmap/pdftex.map}{c:/Users/AneeshAG/AppData/Roaming/TinyTeX/texmf-dist/fonts/enc/dvips/base/8r.enc}
+
+] [2 <./paper-svmodt_files/figure-latex/palmer-penguins-introduction-split-1.pdf> <./paper-svmodt_files/figure-latex/palmer-penguins-introduction-split-2.pdf>] [3]
+Package hyperref Info: bookmark level for unknown algorithm defaults to 0 on input line 111.
 LaTeX Font Info:    Font shape `U/msa/m/n' will be
-(Font)              scaled to size 10.42007pt on input line 122.
+(Font)              scaled to size 10.42007pt on input line 113.
 LaTeX Font Info:    Font shape `U/msa/m/n' will be
-(Font)              scaled to size 7.91925pt on input line 122.
+(Font)              scaled to size 7.91925pt on input line 113.
 LaTeX Font Info:    Font shape `U/msa/m/n' will be
-(Font)              scaled to size 6.25204pt on input line 122.
+(Font)              scaled to size 6.25204pt on input line 113.
 LaTeX Font Info:    Font shape `U/msb/m/n' will be
-(Font)              scaled to size 10.42007pt on input line 122.
+(Font)              scaled to size 10.42007pt on input line 113.
 LaTeX Font Info:    Font shape `U/msb/m/n' will be
-(Font)              scaled to size 7.91925pt on input line 122.
+(Font)              scaled to size 7.91925pt on input line 113.
 LaTeX Font Info:    Font shape `U/msb/m/n' will be
-(Font)              scaled to size 6.25204pt on input line 122.
-LaTeX Font Info:    Trying to load font information for T1+zi4 on input line 174.
+(Font)              scaled to size 6.25204pt on input line 113.
+LaTeX Font Info:    Trying to load font information for T1+zi4 on input line 165.
 (c:/Users/AneeshAG/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/inconsolata/t1zi4.fd
 File: t1zi4.fd 2018/01/14 T1/zi4 (Inconsolata)
 )
 LaTeX Font Info:    Font shape `T1/zi4/m/n' will be
-(Font)              scaled to size 10.20004pt on input line 174.
+(Font)              scaled to size 10.20004pt on input line 165.
 Package microtype Info: Loading generic protrusion settings for font family
 (microtype)             `zi4' (encoding: T1).
 (microtype)             For optimal results, create family-specific settings.
 (microtype)             See the microtype manual for details.
 
-Underfull \hbox (badness 10000) in paragraph at lines 174--174
+Underfull \hbox (badness 10000) in paragraph at lines 165--165
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 174--174
+Underfull \hbox (badness 10000) in paragraph at lines 165--165
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 174--174
+Underfull \hbox (badness 10000) in paragraph at lines 165--165
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 174--174
+Underfull \hbox (badness 10000) in paragraph at lines 165--165
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 174--174
+Underfull \hbox (badness 10000) in paragraph at lines 165--165
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 174--174
+Underfull \hbox (badness 10000) in paragraph at lines 165--165
 
  []
 
-[5]
-LaTeX Font Info:    Trying to load font information for TS1+ppl on input line 184.
+[4]
+Underfull \hbox (badness 10000) in paragraph at lines 215--215
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 215--215
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 215--215
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 215--215
+
+ []
+
+[5{c:/Users/AneeshAG/AppData/Roaming/TinyTeX/texmf-dist/fonts/enc/dvips/inconsolata/i4-t1-0.enc}]
+LaTeX Font Info:    Trying to load font information for TS1+ppl on input line 217.
 (c:/Users/AneeshAG/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/psnfss/ts1ppl.fd
 File: ts1ppl.fd 2001/06/04 font definitions for TS1/ppl.
-) (./RJwrapper.bbl (./RJwrapper.brf)
+)
+LaTeX Font Info:    Font shape `T1/zi4/m/n' will be
+(Font)              scaled to size 9.18004pt on input line 219.
+[6] [7] [8] (./RJwrapper.bbl (./RJwrapper.brf)
 \tf@brf=\write6
 \openout6 = `RJwrapper.brf'.
 
-[6{c:/Users/AneeshAG/AppData/Roaming/TinyTeX/texmf-dist/fonts/enc/dvips/inconsolata/i4-t1-0.enc}]
-LaTeX Font Info:    Font shape `T1/zi4/m/n' will be
-(Font)              scaled to size 9.18004pt on input line 24.
-[7])
+[9]
+Underfull \hbox (badness 10000) in paragraph at lines 144--144
+\T1/zi4/m/n/9 / / stackoverflow . com / questions / 58237248 / what -[] is -[] the -[] maximal -[] number -[] of -[] iterations -[]
+ []
+
+[10]
+Underfull \hbox (badness 10000) in paragraph at lines 200--200
+\T1/zi4/m/n/9 com / questions / 33743791 / different -[] accuracy -[] for -[] python -[] scikit -[] learn -[] and -[] r -[] e1071$[][]\T1/ppl/m/n/9 (+20) , Nov.
+ []
+
+)
 
 LaTeX Font Warning: Font shape `T1/zi4/m/it' undefined
-(Font)              using `T1/zi4/m/n' instead on input line 225.
+(Font)              using `T1/zi4/m/n' instead on input line 423.
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 225--226
+Underfull \hbox (badness 10000) in paragraph at lines 423--424
 
  []
 
-[8]
 LaTeX Font Info:    Font shape `T1/zi4/m/it' will be
-(Font)              scaled to size 9.18004pt on input line 235.
-) [9] (./RJwrapper.aux)
+(Font)              scaled to size 9.18004pt on input line 433.
+) [11] (./RJwrapper.aux)
  ***********
 LaTeX2e <2025-11-01>
 L3 programming layer <2026-01-10>
@@ -963,23 +991,23 @@ L3 programming layer <2026-01-10>
 LaTeX Font Warning: Some font shapes were not available, defaults substituted.
 
 Package rerunfilecheck Info: File `RJwrapper.out' has not changed.
-(rerunfilecheck)             Checksum: E4F18BA5446FEF1EB68724078B8A4A1F;1978.
+(rerunfilecheck)             Checksum: 47837A60FC5E6548A843A3F5AC78D4F6;1938.
 Package rerunfilecheck Info: File `RJwrapper.brf' has not changed.
-(rerunfilecheck)             Checksum: D9B132B0DE200FEAFEF435959609D95B;2488.
+(rerunfilecheck)             Checksum: 35E9E3C85C476950FE5DB62B6977756D;2246.
  ) 
 Here is how much of TeX's memory you used:
- 28914 strings out of 469512
- 528535 string characters out of 5467883
- 957912 words of memory out of 5000000
- 56625 multiletter control sequences out of 15000+600000
- 697196 words of font info for 366 fonts, out of 8000000 for 9000
+ 29063 strings out of 469512
+ 530243 string characters out of 5467883
+ 961484 words of memory out of 5000000
+ 56670 multiletter control sequences out of 15000+600000
+ 715951 words of font info for 441 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
- 117i,19n,131p,2031b,838s stack positions out of 10000i,1000n,20000p,200000b,200000s
-<c:/Users/AneeshAG/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/inconsolata/Inconsolata-zi4r.pfb><c:/Users/AneeshAG/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb><c:/Users/AneeshAG/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb><c:/Users/AneeshAG/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb><c:/Users/AneeshAG/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb><c:/Users/AneeshAG/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/mathpazo/fplmbb.pfb><c:/Users/AneeshAG/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/mathpazo/fplmri.pfb><c:/Users/AneeshAG/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/urw/palatino/uplb8a.pfb><c:/Users/AneeshAG/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/urw/palatino/uplr8a.pfb><c:/Users/AneeshAG/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/urw/palatino/uplri8a.pfb>
-Output written on RJwrapper.pdf (9 pages, 456594 bytes).
+ 117i,19n,131p,1612b,886s stack positions out of 10000i,1000n,20000p,200000b,200000s
+<c:/Users/AneeshAG/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/inconsolata/Inconsolata-zi4r.pfb><c:/Users/AneeshAG/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb><c:/Users/AneeshAG/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb><c:/Users/AneeshAG/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb><c:/Users/AneeshAG/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb><c:/Users/AneeshAG/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/mathpazo/fplmbb.pfb><c:/Users/AneeshAG/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/mathpazo/fplmbi.pfb><c:/Users/AneeshAG/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/mathpazo/fplmr.pfb><c:/Users/AneeshAG/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/mathpazo/fplmri.pfb><c:/Users/AneeshAG/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/urw/palatino/uplb8a.pfb><c:/Users/AneeshAG/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/urw/palatino/uplbi8a.pfb><c:/Users/AneeshAG/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/urw/palatino/uplr8a.pfb><c:/Users/AneeshAG/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/urw/palatino/uplri8a.pfb>
+Output written on RJwrapper.pdf (11 pages, 489738 bytes).
 PDF statistics:
- 416 PDF objects out of 1000 (max. 8388607)
- 375 compressed objects within 4 object streams
- 65 named destinations out of 1000 (max. 500000)
- 91247 words of extra memory for PDF output out of 106986 (max. 10000000)
+ 445 PDF objects out of 1000 (max. 8388607)
+ 396 compressed objects within 4 object streams
+ 76 named destinations out of 1000 (max. 500000)
+ 109671 words of extra memory for PDF output out of 128383 (max. 10000000)
 
