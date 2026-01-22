@@ -106,6 +106,7 @@ plots[[2]]
 ## ----table-benchmark-streer---------------------------------------------------
 r_stree <- readRDS("analysis/results/r_stree.rds")
 py_stree <- readRDS("analysis/results/py_stree.rds")
+time_bench <- readRDS("analysis/results/time-benchmark.rds")
 #readRDS("analysis/results/optimised_r_stree.rds")
 
 data_names <- c("WDBC Diagnosis", "Iris", "Echocardiogram", "Fertility", "Wine", "Cardiotography-3", "Cardiotography-10", "Ionosphere", "Dermatology", "Statlog Australian Credit")
@@ -120,6 +121,11 @@ mean_sd <- function(x, digits = 3) {
   sprintf(paste0("%.", digits, "f \u00B1 %.", digits, "f"), m, s)
 }
 
+time_suffix <- function(x, digits = 3){
+  x = as.numeric(x)
+  paste0(round(x, digits),"ms")
+}
+
 tbl <- data.frame(
   data_names,
   data_num_observations,
@@ -127,12 +133,13 @@ tbl <- data.frame(
   data_num_classes,
   apply(as.matrix(r_stree), 2, mean_sd),
   apply(as.matrix(py_stree), 2, mean_sd),
+  apply(time_bench, 2, time_suffix),
   stringsAsFactors = FALSE
 )
 
 
 tbl_bold <- tbl
-model_cols <- 5:ncol(tbl_bold)
+model_cols <- 5:6
 
 tbl_bold[model_cols] <- t(apply(tbl[model_cols], 1, function(row) {
   
@@ -148,88 +155,93 @@ tbl_bold[model_cols] <- t(apply(tbl[model_cols], 1, function(row) {
 tbl_bold |>
   kable(
     row.names = FALSE,
-    col.names = c("Dataset", "N", "X", "L", "StreeR", "STree"),
-    align = "lccccc",
+    col.names = c("Dataset", "N", "X", "L", "StreeR", "STree", "StreeR(Med)", "Stree(Med)"),
+    align = "lccccccc",
     escape = FALSE, 
-    caption = "Comparing Mean Prediction Accuracy with default arguments - STreeR, STree"
+    caption = "Comparison of Mean Prediction Accuracy and Median Training Time for STreeR and STree"
   ) |>
   kable_styling(
     full_width = FALSE,
-    position = "center"
-  )
+    position = "center",
+    font_size = 8
+  ) 
 
 
-## ----stree-svmodt-benchmark-table, cache=TRUE---------------------------------
-# source(file = "analysis/5-fold-cv-benchmark.R", local = TRUE)
+## ----eval=FALSE, echo=FALSE---------------------------------------------------
+# svmodt::svm_split(data = ,depth = ,max_depth = ,min_samples = , feature_method = , max_features = , max_features_strategy = , penalize_used_features = )
+
+
+## ----stree-svmodt-benchmark-table, cache=TRUE, echo=FALSE, eval=FALSE---------
+# # source(file = "analysis/5-fold-cv-benchmark.R", local = TRUE)
+# #
+# # # Default R Stree
+# # r_stree_results <- cbind(stat_wdbc, stat_iris, stat_echocardiogram, stat_fertility, stat_wine, stat_ctg3, stat_ctg10, stat_ionosphere, stat_dermatology, stat_aus_credit)
+# #
+# # r_stree_results |> saveRDS(file = "analysis/results/r_stree.rds")
+# #
+# #
+# # # Default R Svmodt
+# # r_svmodt_results <- cbind(stat_svmodt_wdbc, stat_svmodt_iris, stat_svmodt_echocardiogram, stat_svmodt_fertility, stat_svmodt_wine, stat_svmodt_ctg3, stat_svmodt_ctg10, stat_svmodt_ionosphere, stat_svmodt_dermatology, stat_svmodt_aus_credit)
+# #
+# # r_svmodt_results |> saveRDS(file = "analysis/results/r_svmodt.rds")
+# #
+# # # Optimised R Stree
+# # opt_stree_results <- cbind(opt_stat_wdbc, opt_stat_iris, opt_stat_echocardiogram, opt_stat_fertility, opt_stat_wine, opt_stat_ctg3, opt_stat_ctg10, opt_stat_ionosphere, opt_stat_dermatology, opt_stat_aus_credit)
+# #
+# # opt_stree_results |> saveRDS(file = "analysis/results/optimised_r_stree.rds")
+# #
+# # # Default Python Stree
+# # py_stree_results <- cbind(py_stree_wdbc, py_stree_iris, py_stree_echocardiogram, py_stree_fertility, py_stree_wine, py_stree_ctg3, py_stree_ctg10, py_stree_ionosphere, py_stree_dermatology, py_stree_aus_credit)
+# # #
+# # py_stree_results |> saveRDS(file = "analysis/results/py_stree.rds")
 # 
-# # Default R Stree
-# r_stree_results <- cbind(stat_wdbc, stat_iris, stat_echocardiogram, stat_fertility, stat_wine, stat_ctg3, stat_ctg10, stat_ionosphere, stat_dermatology, stat_aus_credit)
+# r_svmodt <- readRDS("analysis/results/r_svmodt.rds")
+# r_stree <- readRDS("analysis/results/r_stree.rds")
+# py_stree <- readRDS("analysis/results/py_stree.rds")
+# #readRDS("analysis/results/optimised_r_stree.rds")
 # 
-# r_stree_results |> saveRDS(file = "analysis/results/r_stree.rds")
+# data_names <- c("WDBC Diagnosis", "Iris", "Echocardiogram", "Fertility", "Wine", "Cardiotography-3", "Cardiotography-10", "Ionosphere", "Dermatology", "Statlog Australian Credit")
+# 
+# mean_sd <- function(x, digits = 3) {
+#   x <- as.numeric(x)
+#   m <- mean(x, na.rm = TRUE)
+#   s <- sd(x, na.rm = TRUE)
+#   sprintf(paste0("%.", digits, "f \u00B1 %.", digits, "f"), m, s)
+# }
+# 
+# tbl <- data.frame(
+#   data_names,
+#   apply(as.matrix(r_stree), 2, mean_sd),
+#   apply(as.matrix(py_stree), 2, mean_sd),
+#   apply(as.matrix(r_svmodt), 2, mean_sd),
+#   stringsAsFactors = FALSE
+# )
 # 
 # 
-# # Default R Svmodt
-# r_svmodt_results <- cbind(stat_svmodt_wdbc, stat_svmodt_iris, stat_svmodt_echocardiogram, stat_svmodt_fertility, stat_svmodt_wine, stat_svmodt_ctg3, stat_svmodt_ctg10, stat_svmodt_ionosphere, stat_svmodt_dermatology, stat_svmodt_aus_credit)
+# tbl_bold <- tbl
+# model_cols <- 2:ncol(tbl_bold)
 # 
-# r_svmodt_results |> saveRDS(file = "analysis/results/r_svmodt.rds")
+# tbl_bold[model_cols] <- t(apply(tbl[model_cols], 1, function(row) {
 # 
-# # Optimised R Stree
-# opt_stree_results <- cbind(opt_stat_wdbc, opt_stat_iris, opt_stat_echocardiogram, opt_stat_fertility, opt_stat_wine, opt_stat_ctg3, opt_stat_ctg10, opt_stat_ionosphere, opt_stat_dermatology, opt_stat_aus_credit)
+#   # extract means from "mean ± sd"
+#   means <- as.numeric(sub(" \u00B1.*", "", row))
+#   max_idx <- which(means == max(means, na.rm = TRUE))
 # 
-# opt_stree_results |> saveRDS(file = "analysis/results/optimised_r_stree.rds")
+#   out <- row
+#   out[max_idx] <- cell_spec(out[max_idx], bold = TRUE)
+#   out
+# }))
 # 
-# # Default Python Stree
-# py_stree_results <- cbind(py_stree_wdbc, py_stree_iris, py_stree_echocardiogram, py_stree_fertility, py_stree_wine, py_stree_ctg3, py_stree_ctg10, py_stree_ionosphere, py_stree_dermatology, py_stree_aus_credit)
-# # 
-# py_stree_results |> saveRDS(file = "analysis/results/py_stree.rds")
-
-r_svmodt <- readRDS("analysis/results/r_svmodt.rds")
-r_stree <- readRDS("analysis/results/r_stree.rds")
-py_stree <- readRDS("analysis/results/py_stree.rds")
-#readRDS("analysis/results/optimised_r_stree.rds")
-
-data_names <- c("WDBC Diagnosis", "Iris", "Echocardiogram", "Fertility", "Wine", "Cardiotography-3", "Cardiotography-10", "Ionosphere", "Dermatology", "Statlog Australian Credit")
-
-mean_sd <- function(x, digits = 3) {
-  x <- as.numeric(x)
-  m <- mean(x, na.rm = TRUE)
-  s <- sd(x, na.rm = TRUE)
-  sprintf(paste0("%.", digits, "f \u00B1 %.", digits, "f"), m, s)
-}
-
-tbl <- data.frame(
-  data_names,
-  apply(as.matrix(r_stree), 2, mean_sd),
-  apply(as.matrix(py_stree), 2, mean_sd),
-  apply(as.matrix(r_svmodt), 2, mean_sd),
-  stringsAsFactors = FALSE
-)
-
-
-tbl_bold <- tbl
-model_cols <- 2:ncol(tbl_bold)
-
-tbl_bold[model_cols] <- t(apply(tbl[model_cols], 1, function(row) {
-  
-  # extract means from "mean ± sd"
-  means <- as.numeric(sub(" \u00B1.*", "", row))
-  max_idx <- which(means == max(means, na.rm = TRUE))
-  
-  out <- row
-  out[max_idx] <- cell_spec(out[max_idx], bold = TRUE)
-  out
-}))
-
-tbl_bold |>
-  kable(
-    row.names = FALSE,
-    col.names = c("Dataset", "Stree(R)", "STree(Python)", "SVMODT"),
-    align = "lccc",
-    escape = FALSE, 
-    caption = "Comparing Mean Prediction Accuracy with default arguments - STree(R), STree(Python), SVMODT"
-  ) |>
-  kable_styling(
-    full_width = FALSE,
-    position = "center"
-  )
+# tbl_bold |>
+#   kable(
+#     row.names = FALSE,
+#     col.names = c("Dataset", "Stree(R)", "STree(Python)", "SVMODT"),
+#     align = "lccc",
+#     escape = FALSE,
+#     caption = "Comparing Mean Prediction Accuracy with default arguments - STree(R), STree(Python), SVMODT"
+#   ) |>
+#   kable_styling(
+#     full_width = FALSE,
+#     position = "center"
+#   )
 
