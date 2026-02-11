@@ -73,6 +73,14 @@ train_stree_default <- function(data, response) {
   )
 }
 
+train_svmodt_default <- function(data, response) {
+  svm_split(data = data, 
+            response = response, 
+            max_depth = 10, 
+            verbose = FALSE,
+            cost = 1)
+}
+
 train_python_stree <- function(data, response) {
   
   y <- data[[response]]
@@ -88,54 +96,64 @@ train_python_stree <- function(data, response) {
 
 bench::mark(
     train_stree_default(wdbc, "clase"),
+    train_svmodt_default(wdbc, "clase"),
     train_python_stree(wdbc, "clase"), check = FALSE
   )$median -> wdbc_run
 
 bench::mark(
   train_stree_default(ctg3, "clase"),
+  train_svmodt_default(ctg3, "clase"),
   train_python_stree(ctg3, "clase"), check = FALSE
 )$median -> ctg3_run
 
 bench::mark(
   train_stree_default(ctg10, "clase"),
+  train_svmodt_default(ctg10, "clase"),
   train_python_stree(ctg10, "clase"), check = FALSE
 )$median -> ctg10_run
 
 bench::mark(
   train_stree_default(iris, "clase"),
+  train_svmodt_default(iris, "clase"),
   train_python_stree(iris, "clase"), check = FALSE
 )$median -> iris_run
 
 bench::mark(
   train_stree_default(dermatology, "clase"),
+  train_svmodt_default(dermatology, "clase"),
   train_python_stree(dermatology, "clase"), check = FALSE
 )$median -> dermatology_run
 
 bench::mark(
   train_stree_default(echocardiogram, "clase"),
+  train_svmodt_default(echocardiogram, "clase"),
   train_python_stree(echocardiogram, "clase"), check = FALSE
 )$median -> echocardiogram_run
 
 bench::mark(
   train_stree_default(fertility, "clase"),
+  train_svmodt_default(fertility, "clase"),
   train_python_stree(fertility, "clase"), check = FALSE
 )$median -> fertility_run
 
 bench::mark(
   train_stree_default(ionosphere, "clase"),
+  train_svmodt_default(ionosphere, "clase"),
   train_python_stree(ionosphere, "clase"), check = FALSE
 )$median -> ionosphere_run
 
 bench::mark(
   train_stree_default(australian_credit, "clase"),
+  train_svmodt_default(australian_credit, "clase"),
   train_python_stree(australian_credit, "clase"), check = FALSE
 )$median -> australian_credit_run
 
 bench::mark(
   train_stree_default(wine, "clase"),
+  train_svmodt_default(wine, "clase"),
   train_python_stree(wine, "clase"), check = FALSE
 )$median -> wine_run
 
 time_bench <- rbind(wdbc_run, iris_run, echocardiogram_run, fertility_run, wine_run, ctg3_run, ctg10_run, ionosphere_run, dermatology_run, australian_credit_run)
-colnames(time_bench) <- c("StreeR", "Stree")
+colnames(time_bench) <- c("StreeR", "SVMODT", "Stree")
 time_bench |> saveRDS(file = "analysis/results/time-benchmark.rds")

@@ -107,6 +107,7 @@ plots[[2]]
 r_stree <- readRDS("analysis/results/r_stree.rds")
 py_stree <- readRDS("analysis/results/py_stree.rds")
 time_bench <- readRDS("analysis/results/time-benchmark.rds")
+time_bench <- time_bench[,-2]
 #readRDS("analysis/results/optimised_r_stree.rds")
 
 data_names <- c("WDBC Diagnosis", "Iris", "Echocardiogram", "Fertility", "Wine", "Cardiotography-3", "Cardiotography-10", "Ionosphere", "Dermatology", "Statlog Australian Credit")
@@ -158,7 +159,7 @@ tbl_bold |>
     col.names = c("Dataset", "N", "X", "L", "StreeR", "STree", "StreeR(Med)", "Stree(Med)"),
     align = "lccccccc",
     escape = FALSE, 
-    caption = "Comparison of Mean Prediction Accuracy and Median Training Time for STreeR and STree"
+    caption = "Comparison of Mean Prediction Accuracy and Median Training Time for STreeR and STree. N denotes the number of observations, X the number of features, and L the number of classes."
   ) |>
   kable_styling(
     full_width = FALSE,
@@ -167,81 +168,325 @@ tbl_bold |>
   ) 
 
 
-## ----eval=FALSE, echo=FALSE---------------------------------------------------
-# svmodt::svm_split(data = ,depth = ,max_depth = ,min_samples = , feature_method = , max_features = , max_features_strategy = , penalize_used_features = )
+## -----------------------------------------------------------------------------
+plot_svmodt_surface <- function(tree, data, response, resolution = 200) {
+  
+  # Get the features used in the tree
+  all_features <- get_tree_features(tree)
+  
+  if (length(all_features) < 2) {
+    stop("Tree must use at least 2 features for surface plotting")
+  }
+  
+  # Use first two features for the grid axes
+  plot_features <- all_features[1:2]
+  
+  # Create grid for the two plotting dimensions
+  grid <- expand.grid(
+    x = seq(min(data[[plot_features[1]]], na.rm = TRUE),
+            max(data[[plot_features[1]]], na.rm = TRUE),
+            length.out = resolution),
+    y = seq(min(data[[plot_features[2]]], na.rm = TRUE),
+            max(data[[plot_features[2]]], na.rm = TRUE),
+            length.out = resolution)
+  )
+  
+  names(grid) <- plot_features
+  
+  # CRITICAL FIX: Add ALL other features that might be used anywhere in the tree
+  # Set them to their median values
+  other_features <- setdiff(names(data), c(response, plot_features))
+  for (feat in other_features) {
+    if (is.numeric(data[[feat]])) {
+      grid[[feat]] <- median(data[[feat]], na.rm = TRUE)
+    } else if (is.factor(data[[feat]]) || is.character(data[[feat]])) {
+      # For categorical features, use the mode (most common value)
+      grid[[feat]] <- names(sort(table(data[[feat]]), decreasing = TRUE))[1]
+    }
+  }
+  
+  # IMPORTANT: Reorder columns to match original data structure
+  # This ensures the scaler receives columns in the expected order
+  grid <- grid[, intersect(names(data), names(grid)), drop = FALSE]
+  
+  # Get predictions with probabilities
+  pred_result <- svm_predict_tree(tree, grid, return_probs = TRUE, 
+                                   calibrate_probs = TRUE)
+  
+  # Create plot data - only keep the two plotting dimensions
+  plot_data <- data.frame(
+    x = grid[[plot_features[1]]],
+    y = grid[[plot_features[2]]],
+    prediction = pred_result$predictions
+  )
+  names(plot_data)[1:2] <- plot_features
+  
+  # Get class levels from original data
+  class_levels <- levels(factor(data[[response]]))
+  
+  # # Create color palette
+  # n_classes <- length(class_levels)
+  # cols <- if (n_classes == 3) {
+  #   c("darkorange", "purple", "cyan4")
+  # } else {
+  #   scales::hue_pal()(n_classes)
+  # }
+  
+  # Create the plot
+  p <- ggplot(plot_data, aes(x = .data[[plot_features[1]]], 
+                              y = .data[[plot_features[2]]])) +
+    geom_tile(aes(fill = prediction), alpha = 0.25) +
+    geom_point(data = data,
+               aes(x = .data[[plot_features[1]]], 
+                   y = .data[[plot_features[2]]],
+                   color = .data[[response]], 
+                   shape = .data[[response]]),
+               alpha = 0.5) +
+    scale_color_brewer(palette = "Dark2") +
+    scale_fill_brewer(palette = "Dark2") +
+    labs(x = plot_features[1],
+         y = plot_features[2]) +
+    theme_minimal() +
+    scale_x_continuous(expand = c(0, 0)) +
+    scale_y_continuous(expand = c(0, 0)) +
+    theme(panel.grid = element_blank(),
+          panel.border = element_rect(fill = NA),
+          legend.position = '',
+          aspect.ratio = 1)
+  
+  return(p)
+}
+
+get_tree_features <- function(tree) {
+  if (tree$is_leaf) {
+    return(tree$features)
+  }
+  
+  features <- tree$features
+  
+  if (!is.null(tree$left)) {
+    features <- c(features, get_tree_features(tree$left))
+  }
+  
+  if (!is.null(tree$right)) {
+    features <- c(features, get_tree_features(tree$right))
+  }
+  
+  return(unique(features))
+}
 
 
-## ----stree-svmodt-benchmark-table, cache=TRUE, echo=FALSE, eval=FALSE---------
-# # source(file = "analysis/5-fold-cv-benchmark.R", local = TRUE)
-# #
-# # # Default R Stree
-# # r_stree_results <- cbind(stat_wdbc, stat_iris, stat_echocardiogram, stat_fertility, stat_wine, stat_ctg3, stat_ctg10, stat_ionosphere, stat_dermatology, stat_aus_credit)
-# #
-# # r_stree_results |> saveRDS(file = "analysis/results/r_stree.rds")
-# #
-# #
-# # # Default R Svmodt
-# # r_svmodt_results <- cbind(stat_svmodt_wdbc, stat_svmodt_iris, stat_svmodt_echocardiogram, stat_svmodt_fertility, stat_svmodt_wine, stat_svmodt_ctg3, stat_svmodt_ctg10, stat_svmodt_ionosphere, stat_svmodt_dermatology, stat_svmodt_aus_credit)
-# #
-# # r_svmodt_results |> saveRDS(file = "analysis/results/r_svmodt.rds")
-# #
-# # # Optimised R Stree
-# # opt_stree_results <- cbind(opt_stat_wdbc, opt_stat_iris, opt_stat_echocardiogram, opt_stat_fertility, opt_stat_wine, opt_stat_ctg3, opt_stat_ctg10, opt_stat_ionosphere, opt_stat_dermatology, opt_stat_aus_credit)
-# #
-# # opt_stree_results |> saveRDS(file = "analysis/results/optimised_r_stree.rds")
-# #
-# # # Default Python Stree
-# # py_stree_results <- cbind(py_stree_wdbc, py_stree_iris, py_stree_echocardiogram, py_stree_fertility, py_stree_wine, py_stree_ctg3, py_stree_ctg10, py_stree_ionosphere, py_stree_dermatology, py_stree_aus_credit)
-# # #
-# # py_stree_results |> saveRDS(file = "analysis/results/py_stree.rds")
+
+## ----palmer-penguins-feature-selection-split, fig.align='center', results='asis', fig.cap="Comparison of Random, Mutual and Correlated Feature Selection by SVMODT on Palmerpenguins dataset.", fig.subcap=c('random', 'mutual', 'correlated'), out.width = '30%', cache=TRUE----
+penguins_orsf <- penguins |> 
+  select(-island, -sex, -year) |>
+  drop_na()
+
+penguins_orsf$flipper_length_mm <- as.numeric(penguins_orsf$flipper_length_mm)
+#penguins_orsf$island <- as.numeric(penguins_orsf$island)
+#penguins_orsf$sex <- as.numeric(penguins_orsf$sex)
+
+# Train different SVMODT models
+set.seed(235)
+fit_random <- svm_split(
+  data = penguins_orsf,
+  response = "species",
+  max_depth = 4,
+  min_samples = 5,
+  feature_method = "random", n_subsets = 10,
+  max_features = 3)
+
+fit_mutual <- svm_split(
+  data = penguins_orsf,
+  response = "species",
+  max_depth = 4,
+  min_samples = 5,
+  max_features = 3,
+  feature_method = "mutual"
+)
+
+fit_cor <- svm_split(
+  data = penguins_orsf,
+  response = "species",
+  max_depth = 3,
+  min_samples = 5,
+  max_features = 3,
+  feature_method = "cor"
+)
+
+
+# Create plots
+plot1 <- plot_svmodt_surface(fit_random, penguins_orsf, "species")
+plot2 <- plot_svmodt_surface(fit_mutual, penguins_orsf, "species")
+plot3 <- plot_svmodt_surface(fit_cor, penguins_orsf, "species")
+
+# Display plots
+plot1
+plot2
+plot3
+
+
+
+## ----wdbc-feature-selection-split, fig.align='center', results='asis', fig.cap="Comparison of Random, Mutual and Correlated Feature Selection by SVMODT on Wisconsin Breast Cancer Diagnosis dataset.", fig.subcap=c('random', 'mutual', 'correlated'), out.width = '30%', cache=TRUE----
+set.seed(235)
+fit_random <- svm_split(
+  data = wdbc,
+  response = "diagnosis",
+  max_depth = 1,
+  min_samples = 5,
+  feature_method = "random", n_subsets = 10,
+  max_features = 2)
+
+fit_mutual <- svm_split(
+  data = wdbc,
+  response = "diagnosis",
+  max_depth = 1,
+  min_samples = 5,
+  max_features = 2,
+  feature_method = "mutual"
+)
+
+fit_cor <- svm_split(
+  data = wdbc,
+  response = "diagnosis",
+  max_depth = 1,
+  min_samples = 5,
+  max_features = 2,
+  feature_method = "cor"
+)
+
+
+# Create plots
+plot1 <- plot_svmodt_surface(fit_random, wdbc, "diagnosis")
+plot2 <- plot_svmodt_surface(fit_mutual, wdbc, "diagnosis")
+plot3 <- plot_svmodt_surface(fit_cor, wdbc, "diagnosis")
+
+# Display plots
+plot1
+plot2
+plot3
+
+
+## ----palmer-penguins-weighted-split, fig.align='center', results='asis', fig.cap="Comparison of No, Balanced, Balanced-Subsample and Custom Weights by SVMODT on Palmerpenguins dataset.", fig.subcap=c('none', 'balanced', 'balanced subsample', 'custom'), out.width = '25%', cache=TRUE----
+fit_none <- svm_split(
+  data = penguins_orsf,
+  response = "species",
+  max_depth = 4,
+  min_samples = 5,
+  feature_method = "mutual",
+  max_features = 3, class_weights = "none")
+
+fit_balanced <- svm_split(
+  data = penguins_orsf,
+  response = "species",
+  max_depth = 4,
+  min_samples = 5,
+  feature_method = "mutual",
+  max_features = 3, class_weights = "balanced")
+
+fit_balanced_sub <- svm_split(
+  data = penguins_orsf,
+  response = "species",
+  max_depth = 4,
+  min_samples = 5,
+  feature_method = "mutual",
+  max_features = 3, class_weights = "balanced_subsample")
+
+
+custom_weights <- c("Adelie" = 2, "Gentoo" = 1, "Chinstrap" = 5)
+
+fit_custom <- svm_split(
+  data = penguins_orsf,
+  response = "species",
+  max_depth = 4,
+  min_samples = 5,
+  feature_method = "mutual",
+  max_features = 3, class_weights = "custom", custom_class_weights = custom_weights)
+
+
+plot1 <- plot_svmodt_surface(fit_none, penguins_orsf, "species")
+plot2 <- plot_svmodt_surface(fit_balanced, penguins_orsf, "species")
+plot3 <- plot_svmodt_surface(fit_balanced_sub, penguins_orsf, "species")
+plot4 <- plot_svmodt_surface(fit_custom, penguins_orsf, "species")
+
+
+plot1
+plot2
+plot3
+plot4
+
+
+## ----stree-svmodt-benchmark-table, cache=FALSE--------------------------------
+# source(file = "analysis/5-fold-cv-benchmark.R", local = TRUE)
 # 
-# r_svmodt <- readRDS("analysis/results/r_svmodt.rds")
-# r_stree <- readRDS("analysis/results/r_stree.rds")
-# py_stree <- readRDS("analysis/results/py_stree.rds")
-# #readRDS("analysis/results/optimised_r_stree.rds")
+# # Default R Stree
+# r_stree_results <- cbind(stat_wdbc, stat_iris, stat_echocardiogram, stat_fertility, stat_wine, stat_ctg3, stat_ctg10, stat_ionosphere, stat_dermatology, stat_aus_credit)
 # 
-# data_names <- c("WDBC Diagnosis", "Iris", "Echocardiogram", "Fertility", "Wine", "Cardiotography-3", "Cardiotography-10", "Ionosphere", "Dermatology", "Statlog Australian Credit")
-# 
-# mean_sd <- function(x, digits = 3) {
-#   x <- as.numeric(x)
-#   m <- mean(x, na.rm = TRUE)
-#   s <- sd(x, na.rm = TRUE)
-#   sprintf(paste0("%.", digits, "f \u00B1 %.", digits, "f"), m, s)
-# }
-# 
-# tbl <- data.frame(
-#   data_names,
-#   apply(as.matrix(r_stree), 2, mean_sd),
-#   apply(as.matrix(py_stree), 2, mean_sd),
-#   apply(as.matrix(r_svmodt), 2, mean_sd),
-#   stringsAsFactors = FALSE
-# )
+# r_stree_results |> saveRDS(file = "analysis/results/r_stree.rds")
 # 
 # 
-# tbl_bold <- tbl
-# model_cols <- 2:ncol(tbl_bold)
+# # Default R Svmodt
+# r_svmodt_results <- cbind(stat_svmodt_wdbc, stat_svmodt_iris, stat_svmodt_echocardiogram, stat_svmodt_fertility, stat_svmodt_wine, stat_svmodt_ctg3, stat_svmodt_ctg10, stat_svmodt_ionosphere, stat_svmodt_dermatology, stat_svmodt_aus_credit)
 # 
-# tbl_bold[model_cols] <- t(apply(tbl[model_cols], 1, function(row) {
+# r_svmodt_results |> saveRDS(file = "analysis/results/r_svmodt.rds")
 # 
-#   # extract means from "mean ± sd"
-#   means <- as.numeric(sub(" \u00B1.*", "", row))
-#   max_idx <- which(means == max(means, na.rm = TRUE))
+# # Optimised R Stree
+# opt_stree_results <- cbind(opt_stat_wdbc, opt_stat_iris, opt_stat_echocardiogram, opt_stat_fertility, opt_stat_wine, opt_stat_ctg3, opt_stat_ctg10, opt_stat_ionosphere, opt_stat_dermatology, opt_stat_aus_credit)
 # 
-#   out <- row
-#   out[max_idx] <- cell_spec(out[max_idx], bold = TRUE)
-#   out
-# }))
+# opt_stree_results |> saveRDS(file = "analysis/results/optimised_r_stree.rds")
 # 
-# tbl_bold |>
-#   kable(
-#     row.names = FALSE,
-#     col.names = c("Dataset", "Stree(R)", "STree(Python)", "SVMODT"),
-#     align = "lccc",
-#     escape = FALSE,
-#     caption = "Comparing Mean Prediction Accuracy with default arguments - STree(R), STree(Python), SVMODT"
-#   ) |>
-#   kable_styling(
-#     full_width = FALSE,
-#     position = "center"
-#   )
+# # Default Python Stree
+# py_stree_results <- cbind(py_stree_wdbc, py_stree_iris, py_stree_echocardiogram, py_stree_fertility, py_stree_wine, py_stree_ctg3, py_stree_ctg10, py_stree_ionosphere, py_stree_dermatology, py_stree_aus_credit)
+# # 
+# py_stree_results |> saveRDS(file = "analysis/results/py_stree.rds")
+
+r_svmodt <- readRDS("analysis/results/r_svmodt.rds")
+r_stree <- readRDS("analysis/results/r_stree.rds")
+py_stree <- readRDS("analysis/results/py_stree.rds")
+#readRDS("analysis/results/optimised_r_stree.rds")
+
+data_names <- c("WDBC Diagnosis", "Iris", "Echocardiogram", "Fertility", "Wine", "Cardiotography-3", "Cardiotography-10", "Ionosphere", "Dermatology", "Statlog Australian Credit")
+
+mean_sd <- function(x, digits = 3) {
+  x <- as.numeric(x)
+  m <- mean(x, na.rm = TRUE)
+  s <- sd(x, na.rm = TRUE)
+  sprintf(paste0("%.", digits, "f \u00B1 %.", digits, "f"), m, s)
+}
+
+tbl <- data.frame(
+  data_names,
+  apply(as.matrix(r_stree), 2, mean_sd),
+  apply(as.matrix(py_stree), 2, mean_sd),
+  apply(as.matrix(r_svmodt), 2, mean_sd),
+  stringsAsFactors = FALSE
+)
+
+
+tbl_bold <- tbl
+model_cols <- 2:ncol(tbl_bold)
+
+tbl_bold[model_cols] <- t(apply(tbl[model_cols], 1, function(row) {
+  
+  # extract means from "mean ± sd"
+  means <- as.numeric(sub(" \u00B1.*", "", row))
+  max_idx <- which(means == max(means, na.rm = TRUE))
+  
+  out <- row
+  out[max_idx] <- cell_spec(out[max_idx], bold = TRUE)
+  out
+}))
+
+tbl_bold |>
+  kable(
+    row.names = FALSE,
+    col.names = c("Dataset", "Stree(R)", "STree(Python)", "SVMODT"),
+    align = "lccc",
+    escape = FALSE, 
+    caption = "Comparing Mean Prediction Accuracy with default arguments - STree(R), STree(Python), SVMODT"
+  ) |>
+  kable_styling(
+    full_width = FALSE,
+    position = "center"
+  )
 
