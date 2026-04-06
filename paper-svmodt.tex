@@ -95,7 +95,7 @@ When all instances at a node belong to more than two classes (\(k'>2\)), the app
 
 \subsubsection{Synthesis and implications for future work}\label{synthesis-and-implications-for-future-work}
 
-Across these developments, two recurring themes emerge: (1) leveraging multivariate, oblique decision boundaries to capture complex class geometry, and (2) combining transformation or ensemble strategies (rotations, multiple SVMs) to improve diversity and robustness. These trends point toward hybrid architectures that balance interpretability, margin-based generalization, and computational tractability---an agenda that motivates continued exploration of regularization schemes, split-selection heuristics, and efficient multi-class integration in SVM-based tree models.
+Across these developments, two recurring themes emerge: (1) leveraging multivariate, oblique decision boundaries to capture complex class geometry, and (2) combining transformation or ensemble strategies (rotations, multiple SVMs) to improve diversity and robustness. These trends point toward hybrid architectures that balance interpretability, margin-based generalization, and computational tractability-an agenda that motivates continued exploration of regularization schemes, split-selection heuristics, and efficient multi-class integration in SVM-based tree models.
 
 \section{Contributed Methods}\label{contributed-methods}
 
@@ -145,13 +145,15 @@ Across these developments, two recurring themes emerge: (1) leveraging multivari
 
 A key contribution of this work is the first native R implementation of the Stree algorithm. Because no such implementation currently exists, we reconstructed the method in R using \CRANpkg{e1071}, which interfaces with the LIBSVM C++ backend. This reconstruction provided clarity on the algorithm's internal workflow and ensured fair benchmarking against competing approaches. Algorithm \ref{alg:streer} provides a concise summary of our R‑based re‑implementation of the Stree algorithm.
 
-To verify the correctness of our R implementation of STree, we conducted a benchmarking comparison against the original Python version using a 10 × 5‑fold cross‑validation scheme applied to 10 benchmark datasets from the UCI Machine Learning Repository. For comparability, both algorithms were run with the same default hyperparameters: cost‑complexity \(C=1\), a linear kernel, a maximum of 1 x 10\textsuperscript{7} training iterations, and a maximum depth of 10. Prediction accuracies were averaged across all folds for each dataset.
+To verify the accuracy of our R implementation of STree, we conducted a benchmarking comparison against the original Python version using a 10 × 5‑fold cross‑validation scheme applied to 9 benchmark datasets from the UCI Machine Learning Repository. For comparability, both algorithms were run with the same default hyperparameters: cost‑complexity \(C=1\), a linear kernel, a maximum of 1 x 10\textsuperscript{7} training iterations, and a maximum depth of 10. Prediction accuracies were averaged across all folds for each dataset.
 
-Table \ref{tab:table-benchmark-streer} compares the average mean accuracy of both the algorithms. Across most datasets, StreeR exhibits slightly stronger performance than its Python counterpart. Although both implementations rely on the same underlying \texttt{LIBSVM\ C++} library; Python via the \texttt{SVC} classifier and R via the \texttt{e1071::svm} interface, there are subtle but meaningful differences in how each framework calls the underlying LIBSVM code that fits the underlying SVM decision boundary and applies scaling parameters during prediction. These implementation‑level discrepancies likely contribute to the observed performance variation.
+Across most datasets, StreeR exhibits performance that is effectively identical to its Python counterpart (see Table \ref{tab:ptable-benchmark-streer-latex}). Although both implementations rely on the same underlying \texttt{LIBSVM} C++ library, Python through the \texttt{SVC} classifier and R through the \texttt{e1071::svm} interface, there exist subtle yet meaningful differences in how each framework invokes the underlying routines responsible for fitting the support vector machine decision boundary and applying scaling transformations during prediction. These implementation-level discrepancies are likely to contribute to the observed variation in performance.
+
+To mitigate differences attributable to feature scaling, each dataset has been pre-processed in R using an implementation that replicates the behaviour of Python's standard scaling procedure.
 
 \begin{table}
 \centering
-\caption{\label{tab:table-benchmark-streer}Comparison of Mean Prediction Accuracy and Median Training Time for STreeR and STree. N denotes the number of observations, X the number of features, and L the number of classes.}
+\caption{\label{tab:table-benchmark-streer-latex}Comparison of mean prediction accuracy and median training time for StreeR and STree. Here, \(N\) denotes the number of observations, \(X\) the number of features, and \(L\) the number of classes.}
 \centering
 \fontsize{8}{10}\selectfont
 \begin{tabular}[t]{l|c|c|c|c|c|c|c}
@@ -166,7 +168,7 @@ Echocardiogram & 131 & 10 & 2 & \textbf{0.846 ± 0.004} & 0.845 ± 0.008 & 0.007
 \hline
 Fertility & 100 & 9 & 2 & \textbf{0.876 ± 0.011} & 0.874 ± 0.010 & 0.003ms & 0.005ms\\
 \hline
-Wine & 178 & 12 & 3 & \textbf{0.978 ± 0.008} & 0.959 ± 0.008 & 0.023ms & 0.007ms\\
+Wine & 178 & 13 & 3 & \textbf{0.978 ± 0.008} & 0.959 ± 0.008 & 0.023ms & 0.007ms\\
 \hline
 Cardiotography-3 & 2126 & 21 & 3 & 0.901 ± 0.003 & \textbf{0.903 ± 0.003} & 0.97ms & 0.242ms\\
 \hline
@@ -175,8 +177,6 @@ Cardiotography-10 & 2126 & 21 & 10 & 0.792 ± 0.004 & \textbf{0.795 ± 0.018} & 
 Ionosphere & 351 & 33 & 2 & \textbf{0.896 ± 0.009} & 0.892 ± 0.015 & 0.049ms & 0.021ms\\
 \hline
 Dermatology & 366 & 34 & 6 & \textbf{0.972 ± 0.006} & 0.959 ± 0.004 & 0.126ms & 0.019ms\\
-\hline
-Statlog Australian Credit & 690 & 14 & 2 & \textbf{0.678 ± 0.000} & \textbf{0.678 ± 0.000} & 0.033ms & 0.018ms\\
 \hline
 \end{tabular}
 \end{table}
@@ -226,8 +226,10 @@ Given computational and scope constraints, our re‑implementation focuses only 
     \tcp{Binary vs Multiclass handling}
     \eIf{$k = 2$}{
         $(\text{best\_model}, \mathcal{I}_L, \mathcal{I}_R, c_{\text{split}}) \gets$ \FBinary{$\mathbf{X}_{\text{scaled}}, \mathcal{Y}, \text{strat}_w$}
+        \tcp{Refer to Algorithm 3}   
     }{
         $(\text{best\_model}, \mathcal{I}_L, \mathcal{I}_R, c_{\text{split}}) \gets$ \FMulti{$\mathbf{X}_{\text{scaled}}, \mathcal{Y}, \text{strat}_w, I_{\text{parent}}, \text{measure}_I, \tau_I, n$}
+        \tcp{Refer to Algorithm 4}
     }
     
     \If{$\text{best\_model} = \text{null}$ \textbf{or} $|\mathcal{I}_L| = 0$ \textbf{or} $|\mathcal{I}_R| = 0$}{
@@ -266,74 +268,13 @@ The Support Vector Machine based Oblique Decision Tree (SVMODT) constructs a bin
 
 \subsubsection{Key Features}\label{key-features}
 
-\paragraph{Feature Selection}\label{feature-selection}
+\paragraph{Binary \& Multiclass SVM Training}\label{binary-multiclass-svm-training}
 
-At each node, a subset of \(m_d\) features is dynamically drawn from the full feature set \(\mathcal{F}\). Several selection strategies are supported, including random sampling, mutual‑information ranking (via the \CRANpkg{FSelectorRcpp} package), and correlation‑based filtering. This mechanism enables the tree to concentrate on the most informative predictors at each stage of the recursion. For random‑feature strategies, multiple candidate feature subsets are generated; an SVM is fitted on each subset, and the subset yielding the highest information gain is selected for the node.
+At each internal node of the tree, a Support Vector Machine (SVM) is trained to construct an oblique decision boundary that partitions the data into two child nodes. The training procedure differs depending on whether the node contains samples from two classes or more than two classes.
 
-\begin{figure}
+\subparagraph{Binary Classification}\label{binary-classification}
 
-{\centering \subfloat[random\label{fig:palmer-penguins-feature-selection-split-1}]{\includegraphics[width=0.3\linewidth]{paper-svmodt_files/figure-latex/palmer-penguins-feature-selection-split-1} }\subfloat[mutual\label{fig:palmer-penguins-feature-selection-split-2}]{\includegraphics[width=0.3\linewidth]{paper-svmodt_files/figure-latex/palmer-penguins-feature-selection-split-2} }\subfloat[correlated\label{fig:palmer-penguins-feature-selection-split-3}]{\includegraphics[width=0.3\linewidth]{paper-svmodt_files/figure-latex/palmer-penguins-feature-selection-split-3} }
-
-}
-
-\caption{Comparison of Random, Mutual and Correlated Feature Selection by SVMODT on Palmerpenguins dataset.}\label{fig:palmer-penguins-feature-selection-split}
-\end{figure}
-
-The algorithm also supports three different strategies for selecting features at each node. The maximum number of features considered at depth \(d\) is defined as:
-
-\[
-m_d =
-\begin{cases}
-m_{\text{base}} & \text{constant strategy} \\
-\lfloor m_{\text{base}} \cdot \alpha^{d-1} \rfloor & \text{decrease strategy} \\
-\text{Uniform}(\lfloor p \cdot \ell_{\min} \rfloor, \lfloor p \cdot \ell_{\max} \rfloor) & \text{random strategy}
-\end{cases}
-\]
-
-Here, \(\alpha \in (0, 1]\) is the decrease rate for the ``decrease strategy,'' \(p\) is the total number of features, \(\ell_{\min}\) and \(\ell_{\max}\) define the fractional bounds for the random strategy, and \(m_{\text{base}}\) is the base number of features at the first depth.
-
-\begin{figure}
-
-{\centering \subfloat[random\label{fig:wdbc-feature-selection-split-1}]{\includegraphics[width=0.3\linewidth]{paper-svmodt_files/figure-latex/wdbc-feature-selection-split-1} }\subfloat[mutual\label{fig:wdbc-feature-selection-split-2}]{\includegraphics[width=0.3\linewidth]{paper-svmodt_files/figure-latex/wdbc-feature-selection-split-2} }\subfloat[correlated\label{fig:wdbc-feature-selection-split-3}]{\includegraphics[width=0.3\linewidth]{paper-svmodt_files/figure-latex/wdbc-feature-selection-split-3} }
-
-}
-
-\caption{Comparison of Random, Mutual and Correlated Feature Selection by SVMODT on Wisconsin Breast Cancer Diagnosis dataset.}\label{fig:wdbc-feature-selection-split}
-\end{figure}
-
-\paragraph{Class Weight Handling}\label{class-weight-handling}
-
-To address class imbalance, the algorithm allows four weighting schemes: - \textbf{None:} \(w_c = 1\) for all classes.
-
-\begin{itemize}
-\item
-  \textbf{Balanced:} \(w_c = \frac{n}{K \cdot n_c}\), where \(K\) is the total number of classes and \(n_c\) is the number of samples in class \(c\).
-\item
-  \textbf{Balanced sub-sample:} \(w_c = \frac{1}{n_c} \cdot \frac{K}{\sum_{c'} 1/n_{c'}}\), which adjusts weights for sub-sampled data.
-\item
-  \textbf{Custom:} Users can define their own class weights.
-\end{itemize}
-
-\begin{figure}
-
-{\centering \subfloat[none\label{fig:palmer-penguins-weighted-split-1}]{\includegraphics[width=0.25\linewidth]{paper-svmodt_files/figure-latex/palmer-penguins-weighted-split-1} }\subfloat[balanced\label{fig:palmer-penguins-weighted-split-2}]{\includegraphics[width=0.25\linewidth]{paper-svmodt_files/figure-latex/palmer-penguins-weighted-split-2} }\subfloat[balanced subsample\label{fig:palmer-penguins-weighted-split-3}]{\includegraphics[width=0.25\linewidth]{paper-svmodt_files/figure-latex/palmer-penguins-weighted-split-3} }\subfloat[custom\label{fig:palmer-penguins-weighted-split-4}]{\includegraphics[width=0.25\linewidth]{paper-svmodt_files/figure-latex/palmer-penguins-weighted-split-4} }
-
-}
-
-\caption{Comparison of No, Balanced, Balanced-Subsample and Custom Weights by SVMODT on Palmerpenguins dataset.}\label{fig:palmer-penguins-weighted-split}
-\end{figure}
-
-\paragraph{Feature Scaling}\label{feature-scaling}
-
-Once the features are selected, z-score normalization is applied to standardize them. For the selected feature matrix \(\mathbf{X}_v \in \mathbb{R}^{n \times m_d}\), the scaled features are computed as \[\mathbf{X}_v^{\text{scaled}} = \frac{\mathbf{X}_v - \boldsymbol{\mu}_v}{\boldsymbol{\sigma}_v},\] where \(\boldsymbol{\mu}_v\) and \(\boldsymbol{\sigma}_v\) denote the mean and standard deviation of the features in node \(v\).
-
-\paragraph{Feature Penalty}\label{feature-penalty}
-
-To encourage diversity in feature usage across the tree, previously used features have their selection weight reduced by a factor of \((1 - \lambda)\), where \(\lambda \in [0, 1)\).
-
-\paragraph{SVM Training}\label{svm-training}
-
-A linear SVM is then trained on the scaled features. Optional class weights \(w_c\) can be applied to handle imbalanced data. The SVM optimization problem at each node \(v\) is formulated as \[\min_{\mathbf{w_v}, b_v} \frac{1}{2}\|\mathbf{w_v}\|^2 + C \sum_{i\in D_v}^{n} w_{y_i} \xi_i,\] where \(C\) is the regularization parameter, \(\xi_i\) are slack variables, and \(w_{y_i}\) represents the class-specific weight for sample \(i\) in the set of training samples \(D_v\) reaching node \(v\).
+When the node contains exactly two classes (\(k = 2\)), a binary SVM classifier is trained (see \ref{alg:binary-split}) using the selected feature subset \(\mathcal{F}_d\). Let \(\mathbf{X}_{\text{scaled}}\) denote the standardized feature matrix at the node and \(\mathcal{Y}\) the corresponding class labels.
 
 \begin{algorithm}[H]
 \caption{Binary Classification Split}
@@ -360,6 +301,20 @@ A linear SVM is then trained on the scaled features. Optional class weights \(w_
     \Return $(\text{model}, \mathcal{I}_L, \mathcal{I}_R, \text{null})$
 }
 \end{algorithm}
+
+The SVM learns a separating hyperplane of the form
+
+\[
+f(\mathbf{x}) = \mathbf{w}^\top \mathbf{x} + b,
+\]
+
+where \(\mathbf{w}\) represents the weight vector and \(b\) the bias term. The hyperplane partitions the data into two subsets according to the value of the decision function. Samples satisfying \(f(\mathbf{x}) \leq c_{\text{split}}\) are assigned to the left child node, while those with \(f(\mathbf{x}) > c_{\text{split}}\) are assigned to the right child node.
+
+Class weights may optionally be applied during SVM training to address class imbalance. The resulting partition indices \(\mathcal{I}_L\) and \(\mathcal{I}_R\) are then used to recursively construct the left and right subtrees.
+
+\subparagraph{Multiclass Classification}\label{multiclass-classification}
+
+When more than two classes are present at the node (\(k > 2\)), a multiclass SVM strategy is employed (see \ref{alg:multiclass-split}) to generate a binary split. The algorithm evaluates candidate partitions of the class set in order to determine a split that maximizes impurity reduction.
 
 \begin{algorithm}[H]
 \caption{Multiclass One-vs-Rest Split}
@@ -422,50 +377,315 @@ A linear SVM is then trained on the scaled features. Optional class weights \(w_
 }
 \end{algorithm}
 
-\paragraph{Node Splitting}\label{node-splitting}
+For each candidate split, the classes are divided into two groups, and a binary SVM is trained to separate the corresponding subsets of samples. The quality of the resulting partition is evaluated using an impurity reduction criterion such as information gain. Let \(I(\mathcal{Y})\) denote the impurity of the parent node and \(I(\mathcal{Y}_L)\) and \(I(\mathcal{Y}_R)\) denote the impurities of the resulting child nodes. The information gain is computed as
 
-After training, the decision values for each sample are computed as \(f(x_i) = \mathbf{w}^T x_i + b.\) Samples are then partitioned into left and right child nodes according to the sign of \(f(x_i)\):
+\[
+\Delta I = I(\mathcal{Y}) -
+\left(
+\frac{|\mathcal{I}_L|}{n} I(\mathcal{Y}_L) +
+\frac{|\mathcal{I}_R|}{n} I(\mathcal{Y}_R)
+\right),
+\]
 
-\begin{verbatim}
--   Left child: $\{i : f(x_i) > 0\}$
+where \(n\) is the number of samples at the node. The candidate split that yields the highest impurity reduction above a predefined threshold \(\tau_I\) is selected as the optimal split.
 
--   Right child: $\{i : f(x_i) \leq 0\}$
-\end{verbatim}
+If no candidate partition produces a valid improvement or if one of the resulting child nodes is empty, the node is converted into a leaf node.
 
-This process recursively continues for each child node until stopping criteria are met.
+\paragraph{Oblique Decision Boundary}\label{oblique-decision-boundary}
+
+Unlike axis-aligned decision trees, which split data based on a single feature, the SVM-based approach constructs oblique decision boundaries that depend on a linear combination of multiple features. This enables the model to capture more complex decision surfaces while preserving the hierarchical structure and interpretability of the decision tree.
+
+\paragraph{Feature Selection Method}\label{feature-selection-method}
+
+At each node of the tree, a subset of candidate features is selected from the full feature set \(\mathcal{F}\) to construct the SVM-based oblique split. This process enables the algorithm to focus on informative predictors while maintaining diversity across nodes in the tree. Let \(p = |\mathcal{F}|\) denote the total number of available features. At depth \(d\), the algorithm first determines the maximum number of features \(m_d\) that may be considered for splitting. This value is computed according to the selected maximum-feature strategy. A subset of up to \(m_d\) features is then chosen using a specified feature selection method.
+
+\begin{figure}
+
+{\centering \subfloat[random\label{fig:palmer-penguins-feature-selection-split-latex-1}]{\includegraphics[width=0.3\linewidth]{paper-svmodt_files/figure-latex/palmer-penguins-feature-selection-split-latex-1} }\subfloat[mutual\label{fig:palmer-penguins-feature-selection-split-latex-2}]{\includegraphics[width=0.3\linewidth]{paper-svmodt_files/figure-latex/palmer-penguins-feature-selection-split-latex-2} }\subfloat[correlated\label{fig:palmer-penguins-feature-selection-split-latex-3}]{\includegraphics[width=0.3\linewidth]{paper-svmodt_files/figure-latex/palmer-penguins-feature-selection-split-latex-3} }
+
+}
+
+\caption{Comparison of random, mutual, and correlated feature selection methods using SVMODT on the Palmer Penguins dataset.}\label{fig:palmer-penguins-feature-selection-split-latex}
+\end{figure}
+
+The algorithm supports multiple feature selection approaches:
+
+\begin{itemize}
+\item
+  \textbf{Random Selection:} A subset of features is sampled uniformly at random from the available feature set. This strategy introduces stochasticity into the tree construction process and helps reduce overfitting.
+\item
+  \textbf{Mutual Information Ranking:} Features are ranked based on their mutual information with the target variable. Mutual information measures the statistical dependency between a feature and the class labels. The top-ranked features are selected for model training. This ranking is implemented using the \texttt{FSelectorRcpp} package.
+\item
+  \textbf{Correlation-Based Filtering:} Features are selected based on their correlation with the response variable while reducing redundancy among predictors. This approach aims to retain informative variables while discarding highly correlated or redundant features.
+\end{itemize}
+
+To further encourage diversity across tree nodes, the algorithm incorporates a feature reuse penalty mechanism. Previously selected features are tracked in the set \(\mathcal{F}_{\text{used}}\), and a penalty parameter \(\lambda_{\text{pen}}\) reduces the probability that these features are repeatedly chosen at deeper levels of the tree. After the candidate feature subset \(\mathcal{F}_d\) is selected, the corresponding predictors are standardized at the node level. Features that become constant after preprocessing are removed. If no valid features remain, the node is converted into a leaf node. The selected feature subset is then used to train the SVM model responsible for generating the oblique decision boundary at the node.
+
+For strategies involving random feature subsets, multiple candidate subsets may be evaluated. For each candidate subset, a Support Vector Machine is fitted and the resulting split is assessed using an impurity based criterion such as information gain. The subset that produces the highest impurity reduction is selected for the node. This approach (see Figure \ref{fig:palmer-penguins-feature-selection-split-latex}) enables the tree to identify informative oblique decision boundaries while maintaining computational tractability.
 
 \begin{table}
 \centering
-\caption{\label{tab:stree-svmodt-benchmark-table}Comparing Mean Prediction Accuracy with default arguments - STree(R), STree(Python), SVMODT}
+\caption{\label{tab:svmodt-feature-selection-table-latex}Comparison of mean prediction accuracy across feature selection strategies against the Python STree benchmark. All SVMODT models are trained with \texttt{max\_depth = 15}. \textit{Random}: \texttt{feature\_method = "random"}, \texttt{n\_subsets = 10}; \textit{Mutual Information}: \texttt{feature\_method = "mutual"}; \textit{Correlation}: \texttt{feature\_method = "cor"}.}
 \centering
-\begin{tabular}[t]{l|c|c|c}
+\fontsize{8}{10}\selectfont
+\begin{tabular}[t]{l|c|c|c|c|c|c|c}
 \hline
-Dataset & Stree(R) & STree(Python) & SVMODT\\
+Dataset & N & X & L & STree (Benchmark) & Random & Mutual Info & Correlation\\
 \hline
-WDBC Diagnosis & \textbf{0.970 ± 0.004} & \textbf{0.970 ± 0.003} & 0.969 ± 0.003\\
+WDBC Diagnosis & 569 & 30 & 2 & \textbf{0.970 ± 0.003} & 0.967 ± 0.003 & 0.968 ± 0.006 & \textbf{0.970 ± 0.004}\\
 \hline
-Iris & \textbf{0.966 ± 0.006} & 0.965 ± 0.010 & \textbf{0.966 ± 0.006}\\
+Iris & 150 & 4 & 3 & \textbf{0.965 ± 0.010} & 0.955 ± 0.010 & 0.960 ± 0.009 & 0.961 ± 0.008\\
 \hline
-Echocardiogram & \textbf{0.846 ± 0.004} & 0.845 ± 0.008 & \textbf{0.846 ± 0.006}\\
+Echocardiogram & 131 & 10 & 2 & 0.845 ± 0.008 & 0.848 ± 0.005 & \textbf{0.851 ± 0.007} & 0.847 ± 0.007\\
 \hline
-Fertility & \textbf{0.876 ± 0.011} & 0.874 ± 0.010 & 0.874 ± 0.010\\
+Fertility & 100 & 9 & 2 & 0.874 ± 0.010 & \textbf{0.880 ± 0.003} & 0.878 ± 0.009 & 0.878 ± 0.009\\
 \hline
-Wine & \textbf{0.978 ± 0.008} & 0.959 ± 0.008 & \textbf{0.978 ± 0.008}\\
+Wine & 178 & 13 & 3 & 0.959 ± 0.008 & \textbf{0.962 ± 0.016} & \textbf{0.962 ± 0.016} & 0.961 ± 0.012\\
 \hline
-Cardiotography-3 & 0.901 ± 0.003 & \textbf{0.903 ± 0.003} & 0.902 ± 0.004\\
+Cardiotography-3 & 2126 & 21 & 3 & \textbf{0.903 ± 0.003} & 0.900 ± 0.007 & \textbf{0.903 ± 0.002} & 0.899 ± 0.005\\
 \hline
-Cardiotography-10 & 0.792 ± 0.004 & \textbf{0.795 ± 0.018} & 0.792 ± 0.004\\
+Cardiotography-10 & 2126 & 21 & 10 & 0.795 ± 0.018 & 0.790 ± 0.008 & \textbf{0.798 ± 0.006} & 0.793 ± 0.007\\
 \hline
-Ionosphere & \textbf{0.896 ± 0.009} & 0.892 ± 0.015 & \textbf{0.896 ± 0.011}\\
+Ionosphere & 351 & 33 & 2 & \textbf{0.892 ± 0.015} & 0.889 ± 0.020 & 0.888 ± 0.010 & 0.881 ± 0.012\\
 \hline
-Dermatology & \textbf{0.972 ± 0.006} & 0.959 ± 0.004 & \textbf{0.972 ± 0.006}\\
-\hline
-Statlog Australian Credit & \textbf{0.678 ± 0.000} & \textbf{0.678 ± 0.000} & \textbf{0.678 ± 0.000}\\
+Dermatology & 366 & 34 & 6 & 0.959 ± 0.004 & 0.958 ± 0.011 & \textbf{0.969 ± 0.007} & 0.966 ± 0.003\\
 \hline
 \end{tabular}
 \end{table}
 
-\section{Experiment}\label{experiment}
+Table \ref{tab:svmodt-feature-selection-table-latex} compares classification performance of different feature selection strategies evaluated across ten benchmark datasets. Across the datasets, the results indicate that all feature selection strategies achieve competitive performance, with relatively small differences in accuracy. This suggests that the SVM based oblique splitting mechanism remains robust to the specific feature selection approach used at each node. Random feature selection performs consistently well and achieves accuracy values that are comparable to, and occasionally exceed, the benchmark model. Mutual Information and Correlation based methods provide slightly more stable performance on certain datasets where informative predictors might exhibit stronger statistical relationships with the target variable.
+
+\paragraph{Class Weight Handling}\label{class-weight-handling}
+
+To address class imbalance, the algorithm allows four weighting schemes (see Figure \ref{fig:palmer-penguins-weighted-split-latex}) :
+
+\begin{itemize}
+\item
+  \textbf{None:} All classes are assigned equal weight, such that \(w_c = 1 \ \forall c \in C\)
+\item
+  \textbf{Balanced:} Class weights are inversely proportional to the class frequencies in the training data. The weight assigned to class \(c\) is given by \(w_c = \frac{n}{K \cdot n_c}\), where \(n\) denotes the total number of training samples, \(K\) is the number of classes, and \(n_c\) is the number of samples belonging to class \(c\).
+\item
+  \textbf{Custom:} Users may specify their own class weights \(w_c\) for each class \(c \in C\), allowing domain-specific adjustments based on prior knowledge or application requirements.
+\end{itemize}
+
+\begin{figure}
+
+{\centering \subfloat[equal\label{fig:palmer-penguins-weighted-split-latex-1}]{\includegraphics[width=0.3\linewidth]{paper-svmodt_files/figure-latex/palmer-penguins-weighted-split-latex-1} }\subfloat[balanced\label{fig:palmer-penguins-weighted-split-latex-2}]{\includegraphics[width=0.3\linewidth]{paper-svmodt_files/figure-latex/palmer-penguins-weighted-split-latex-2} }\subfloat[custom\label{fig:palmer-penguins-weighted-split-latex-3}]{\includegraphics[width=0.3\linewidth]{paper-svmodt_files/figure-latex/palmer-penguins-weighted-split-latex-3} }
+
+}
+
+\caption{Comparison of equal, balanced, and custom weighting schemes using SVMODT on the Palmer Penguins dataset.}\label{fig:palmer-penguins-weighted-split-latex}
+\end{figure}
+
+\begin{table}
+\centering
+\caption{\label{tab:svmodt-class-weight-f1-score-table-latex}Comparison of macro-averaged F1 score (mean \(\pm\) sd) across class weighting strategies. All SVMODT models are trained with \texttt{max\_depth = 15}, \texttt{feature\_method = "mutual"}, and adaptive \texttt{max\_features}. \textit{None}: \texttt{class\_weights = "none"}; \textit{Balanced}: \texttt{class\_weights = "balanced"}. Bold values denote the highest F1 score for each dataset.}
+\centering
+\fontsize{8}{10}\selectfont
+\begin{tabular}[t]{l|c|c|c|c|c|c|c}
+\hline
+Dataset & N & X & L & Class Imbalance Ratio & STree & None & Balanced\\
+\hline
+WDBC Diagnosis & 569 & 30 & 2 & 0.5938375 & \textbf{0.968 ± 0.004} & 0.943 ± 0.008 & 0.948 ± 0.008\\
+\hline
+Iris & 150 & 4 & 3 & 1.0000000 & \textbf{0.965 ± 0.010} & 0.963 ± 0.006 & 0.945 ± 0.015\\
+\hline
+Echocardiogram & 131 & 10 & 2 & 0.4886364 & 0.792 ± 0.009 & \textbf{0.800 ± 0.006} & 0.752 ± 0.040\\
+\hline
+Fertility & 100 & 9 & 2 & 0.1363636 & 0.466 ± 0.003 & 0.468 ± 0.001 & \textbf{0.560 ± 0.041}\\
+\hline
+Wine & 178 & 13 & 3 & 0.6760563 & \textbf{0.959 ± 0.008} & 0.954 ± 0.010 & 0.952 ± 0.017\\
+\hline
+Cardiotography-3 & 2126 & 21 & 3 & 0.1063444 & 0.812 ± 0.007 & 0.766 ± 0.017 & \textbf{0.827 ± 0.009}\\
+\hline
+Cardiotography-10 & 2126 & 21 & 10 & 0.0915371 & 0.716 ± 0.011 & 0.586 ± 0.071 & \textbf{0.746 ± 0.011}\\
+\hline
+Ionosphere & 351 & 33 & 2 & 0.5600000 & \textbf{0.879 ± 0.016} & 0.855 ± 0.021 & 0.858 ± 0.020\\
+\hline
+Dermatology & 366 & 34 & 6 & 0.1785714 & 0.946 ± 0.013 & \textbf{0.956 ± 0.009} & 0.950 ± 0.015\\
+\hline
+\end{tabular}
+\end{table}
+
+Table \ref{tab:svmodt-class-weight-f1-score-table-latex} presents the macro-averaged F1 scores obtained under different class weighting strategies across ten benchmark datasets. The results indicate that class weighting has a notable impact on predictive performance across datasets. For datasets exhibiting multiple classes or pronounced class imbalance, such as Cardiotography and Fertility, the choice of weighting strategy substantially affects the macro-averaged F1 score. Specifically, the Balanced weighting scheme frequently improves performance relative to the unweighted (None) configuration. Conversely, in datasets with more balanced class distributions, differences between weighting strategies are smaller, although the highest F1 scores are often achieved with either the Balanced or Custom weights. Overall, the results indicate that selecting an appropriate class weighting strategy is particularly important for datasets with multiple classes or significant class imbalance, while for more balanced datasets, weighting has a minimal impact.
+
+\paragraph{Maximum Feature Selection}\label{maximum-feature-selection}
+
+To control model complexity and encourage feature diversity across tree nodes, the algorithm dynamically limits the number of candidate features considered during split generation (see Figure \ref{fig:palmer-penguins-max-feature-selection-latex}). Let \(p\) denote the total number of available predictors. At depth \(d\) of the tree, the maximum number of features evaluated is denoted by \(m_d\).
+
+The value of \(m_d\) is determined using one of three configurable strategies:
+
+\[
+m_d =
+\begin{cases}
+m_{\text{base}} & \text{constant strategy} \\
+\lfloor m_{\text{base}} \cdot \alpha^{d-1} \rfloor & \text{decrease strategy} \\
+\text{Uniform}(\lfloor p \cdot \ell_{\min} \rfloor, \lfloor p \cdot \ell_{\max} \rfloor) & \text{random strategy}
+\end{cases}
+\]
+
+In the \textbf{constant strategy}, the same number of candidate features \(m_{\text{base}}\) is evaluated at every depth of the tree. This provides consistent computational cost across nodes.
+
+In the \textbf{decrease strategy}, the number of candidate features gradually decreases as the tree depth increases. The parameter \(\alpha \in (0,1]\) controls the rate of reduction. This approach allows early splits to explore a larger feature space while later splits focus on a smaller set of predictors.
+
+In the \textbf{random strategy}, the number of candidate features is sampled from a uniform distribution bounded by fractions \(\ell_{\min}\) and \(\ell_{\max}\) of the total feature count \(p\). This introduces additional stochasticity into the tree construction process and may improve generalization by reducing overfitting.
+
+Once \(m_d\) is determined, up to \(m_d\) features are selected using the specified feature selection method. The resulting subset is then used to train the SVM model responsible for generating the oblique split at the node.
+
+\begin{figure}
+
+{\centering \subfloat[constant\label{fig:palmer-penguins-max-feature-selection-latex-1}]{\includegraphics[width=0.3\linewidth]{paper-svmodt_files/figure-latex/palmer-penguins-max-feature-selection-latex-1} }\subfloat[decrease\label{fig:palmer-penguins-max-feature-selection-latex-2}]{\includegraphics[width=0.3\linewidth]{paper-svmodt_files/figure-latex/palmer-penguins-max-feature-selection-latex-2} }\subfloat[random\label{fig:palmer-penguins-max-feature-selection-latex-3}]{\includegraphics[width=0.3\linewidth]{paper-svmodt_files/figure-latex/palmer-penguins-max-feature-selection-latex-3} }
+
+}
+
+\caption{Comparison of constant, decreasing, and random maximum feature selection strategies using SVMODT on the Palmer Penguins dataset.}\label{fig:palmer-penguins-max-feature-selection-latex}
+\end{figure}
+
+\begin{table}
+\centering
+\caption{\label{tab:svmodt-max-features-accuracy-score-table-latex}Comparison of mean prediction accuracy (mean \(\pm\) sd) across maximum feature selection strategies against the Python STree benchmark. All SVMODT models are trained with \texttt{max\_depth = 15}, \texttt{feature\_method = "mutual"}, and adaptive \texttt{max\_features}. \textit{Constant}: \texttt{max\_features\_strategy = "constant"}; \textit{Decrease}: \texttt{max\_features\_strategy = "decrease"}, \texttt{max\_features\_decrease\_rate = 0.5}; \textit{Random}: \texttt{max\_features\_strategy = "random"}, \texttt{max\_features\_random\_range = c(0.5, 0.8)}. Bold values denote the highest prediction accuracy per dataset.}
+\centering
+\fontsize{8}{10}\selectfont
+\begin{tabular}[t]{l|c|c|c|c|c|c|c}
+\hline
+Dataset & N & X & L & STree & Constant & Decrease & Random\\
+\hline
+WDBC Diagnosis & 569 & 30 & 2 & \textbf{0.970 ± 0.003} & 0.969 ± 0.003 & \textbf{0.970 ± 0.004} & 0.967 ± 0.008\\
+\hline
+Iris & 150 & 4 & 3 & 0.965 ± 0.010 & \textbf{0.966 ± 0.006} & 0.955 ± 0.003 & 0.963 ± 0.006\\
+\hline
+Echocardiogram & 131 & 10 & 2 & 0.845 ± 0.008 & 0.846 ± 0.006 & 0.846 ± 0.004 & \textbf{0.850 ± 0.005}\\
+\hline
+Fertility & 100 & 9 & 2 & 0.874 ± 0.010 & 0.874 ± 0.010 & 0.875 ± 0.011 & \textbf{0.881 ± 0.000}\\
+\hline
+Wine & 178 & 13 & 3 & 0.959 ± 0.008 & \textbf{0.978 ± 0.008} & 0.976 ± 0.006 & 0.959 ± 0.009\\
+\hline
+Cardiotography-3 & 2126 & 21 & 3 & 0.903 ± 0.003 & 0.902 ± 0.004 & 0.890 ± 0.002 & \textbf{0.906 ± 0.005}\\
+\hline
+Cardiotography-10 & 2126 & 21 & 10 & 0.795 ± 0.018 & 0.792 ± 0.004 & 0.630 ± 0.007 & \textbf{0.797 ± 0.006}\\
+\hline
+Ionosphere & 351 & 33 & 2 & 0.892 ± 0.015 & \textbf{0.896 ± 0.011} & 0.892 ± 0.012 & 0.884 ± 0.013\\
+\hline
+Dermatology & 366 & 34 & 6 & 0.959 ± 0.004 & 0.972 ± 0.006 & \textbf{0.979 ± 0.006} & 0.971 ± 0.005\\
+\hline
+\end{tabular}
+\end{table}
+
+Table \ref{tab:svmodt-max-features-accuracy-score-table-latex} summarizes SVMODT performance across different maximum feature selection strategies compared to the Python STree benchmark. Overall, predictive accuracy is largely consistent across strategies, with differences generally within a few percentage points. For most datasets, all three maximum feature strategies---Constant, Decrease, and Random---perform similarly to the STree benchmark, demonstrating the robustness of SVMODT to variations in maximum feature selection. Some datasets, such as Wine, Cardiotography-10, and Dermatology, exhibit notable differences. For example, the Decrease strategy underperforms on Cardiotography-10 relative to Constant and Random, while Random selection yields the highest accuracy for Fertility. In datasets with smaller feature sets or fewer classes, differences between strategies are minimal, indicating that the choice of maximum feature strategy has limited impact when feature dimensionality is low. These results suggest that SVMODT is generally stable across maximum feature selection strategies, but careful selection of the strategy may yield marginal gains on larger or more complex datasets.
+
+\paragraph{Feature Penalty Mechanism}\label{feature-penalty-mechanism}
+
+To encourage feature diversity across tree nodes and reduce repeated reliance on the same predictors, the algorithm incorporates a feature penalty mechanism during feature selection. This mechanism discourages features that have already been used in earlier splits from being repeatedly selected at deeper levels of the tree (see Figure \ref{fig:wine-feature-penalty}).
+
+Let \(\mathcal{F}_{\text{used}}\) denote the set of features that have been previously utilized in the construction of the tree. During the feature selection process at depth \(d\), candidate features are evaluated using the specified feature selection method. A penalty parameter \(\lambda_{\text{pen}}\) is applied to features that belong to \(\mathcal{F}_{\text{used}}\), reducing their likelihood of being selected.
+
+Formally, if \(s_j\) denotes the original relevance score of feature \(j\), the penalized score \(\tilde{s}_j\) is defined as
+
+\[
+\tilde{s}_j =
+\begin{cases}
+s_j & \text{if } j \notin \mathcal{F}_{\text{used}} \\
+(1 - \lambda_{\text{pen}})\, s_j & \text{if } j \in \mathcal{F}_{\text{used}}
+\end{cases}
+\]
+
+where \(\lambda_{\text{pen}} \in [0,1]\) controls the strength of the penalty. A value of \(\lambda_{\text{pen}} = 0\) corresponds to no penalty, while larger values increasingly discourage the reuse of previously selected features.
+
+After selecting the feature subset \(\mathcal{F}_d\) for the current node, the set of used features is updated as
+
+\[
+\mathcal{F}_{\text{used}}' = \mathcal{F}_{\text{used}} \cup \mathcal{F}_d.
+\]
+
+This mechanism promotes exploration of different predictors throughout the tree construction process, which can improve model generalization and reduce overfitting caused by repeatedly selecting dominant features.
+
+\begin{figure}
+
+{\centering \subfloat[No Penalty\label{fig:wine-feature-penalty-1}]{\includegraphics[width=0.3\linewidth]{paper-svmodt_files/figure-latex/wine-feature-penalty-1} }\subfloat[Low (0.2)\label{fig:wine-feature-penalty-2}]{\includegraphics[width=0.3\linewidth]{paper-svmodt_files/figure-latex/wine-feature-penalty-2} }\subfloat[Medium (0.5)\label{fig:wine-feature-penalty-3}]{\includegraphics[width=0.3\linewidth]{paper-svmodt_files/figure-latex/wine-feature-penalty-3} }
+
+}
+
+\caption{Comparison of Low, Medium and High penalty on repeated features by SVMODT on Wine dataset.}\label{fig:wine-feature-penalty}
+\end{figure}
+
+\begin{table}
+\centering
+\caption{\label{tab:svmodt-features-penalty-score-table-latex}Comparison of Mean Prediction Accuracy (mean \(\pm\) sd) across feature penalisation strategies.All SVMODT models trained with \texttt{max\_depth = 15}, \texttt{feature\_method = "mutual"}, adaptive \texttt{max\_features}. \textit{None}: \texttt{penalize\_used\_features = FALSE}; \textit{Low}: \texttt{penalize\_used\_features = TRUE}, \texttt{feature\_penalty\_weight = 0.2}; \textit{Medium}: \texttt{penalize\_used\_features = TRUE}, \texttt{feature\_penalty\_weight = 0.5}; \textit{High}: \texttt{penalize\_used\_features = TRUE}, \texttt{feature\_penalty\_weight = 0.8}. Bold denotes the highest accuracy per dataset.}
+\centering
+\fontsize{8}{10}\selectfont
+\begin{tabular}[t]{l|c|c|c|c|c|c|c}
+\hline
+Dataset & N & X & L & None (Benchmark) & Low & Medium & High\\
+\hline
+WDBC Diagnosis & 569 & 30 & 2 & 0.946 ± 0.005 & \textbf{0.950 ± 0.004} & 0.949 ± 0.007 & 0.949 ± 0.007\\
+\hline
+Iris & 150 & 4 & 3 & \textbf{0.966 ± 0.006} & \textbf{0.966 ± 0.006} & \textbf{0.966 ± 0.006} & \textbf{0.966 ± 0.006}\\
+\hline
+Echocardiogram & 131 & 10 & 2 & \textbf{0.855 ± 0.001} & \textbf{0.855 ± 0.001} & \textbf{0.855 ± 0.001} & \textbf{0.855 ± 0.001}\\
+\hline
+Fertility & 100 & 9 & 2 & \textbf{0.881 ± 0.000} & \textbf{0.881 ± 0.000} & \textbf{0.881 ± 0.000} & \textbf{0.881 ± 0.000}\\
+\hline
+Wine & 178 & 13 & 3 & 0.950 ± 0.015 & 0.948 ± 0.016 & \textbf{0.951 ± 0.013} & 0.947 ± 0.011\\
+\hline
+Cardiotography-3 & 2126 & 21 & 3 & \textbf{0.883 ± 0.006} & \textbf{0.883 ± 0.004} & 0.882 ± 0.003 & 0.880 ± 0.004\\
+\hline
+Cardiotography-10 & 2126 & 21 & 10 & \textbf{0.782 ± 0.007} & 0.775 ± 0.008 & 0.776 ± 0.010 & 0.739 ± 0.034\\
+\hline
+Ionosphere & 351 & 33 & 2 & \textbf{0.869 ± 0.018} & 0.868 ± 0.016 & 0.868 ± 0.017 & 0.868 ± 0.017\\
+\hline
+Dermatology & 366 & 34 & 6 & 0.974 ± 0.006 & 0.977 ± 0.006 & \textbf{0.978 ± 0.006} & 0.968 ± 0.009\\
+\hline
+\end{tabular}
+\end{table}
+
+Table \ref{tab:svmodt-features-penalty-score-table-latex} compares SVMODT performance under different feature penalisation strategies compared to the benchmark (None). Overall, the impact of penalising previously used features varies across datasets. On datasets such as WDBC Diagnosis, Wine, and Dermatology, applying low or medium feature penalisation yields slightly higher prediction accuracy than the unpenalised benchmark. For example, Wine achieves the highest accuracy under Medium penalisation (0.951 ± 0.013). Several datasets, including Iris, Echocardiogram, and Fertility, show identical performance across all penalisation levels, suggesting that feature reuse does not influence accuracy in these cases. In datasets with more complex class structures or imbalanced classes, such as Cardiotography-10, high feature penalisation reduces predictive performance (0.739 ± 0.034), indicating that excessive penalisation can hinder model learning. In summary, moderate feature penalisation can provide marginal improvements in predictive accuracy, while excessive penalisation may be detrimental, particularly for datasets with large numbers of classes or complex patterns. Feature penalisation strategies should therefore be tuned according to dataset characteristics to optimise SVMODT performance.
+
+\subsection{Performance Evaluation of SVMODT with Hyperparameter Optimisation}\label{performance-evaluation-of-svmodt-with-hyperparameter-optimisation}
+
+Table \ref{tab:tbl-benchmark-model-latex} presents mean prediction accuracy across seven classifiers on ten benchmark datasets. SVMODT* refers to SVMODT trained with dataset-specific hyperparameters identified via a structured multi-seed grid search. Specifically, each candidate hyperparameter configuration was evaluated using three random seeds to estimate both mean accuracy and standard deviation. The configuration with the lowest standard deviation was then selected as the optimal hyperparameter set (see \ref{tab:tab-best-param-grid}) for evaluation across the remaining seeds. STree* denotes the Python STree implementation with dataset-specific kernel and regularisation parameters optimised per dataset. For context, CART baselines were included with shallow (max\_depth = 3, cp = 0.01) and deep (max\_depth = 15, cp = 0.001) configurations.
+
+\textbf{Overall competitiveness.} SVMODT* achieves the highest accuracy on three datasets (Iris, Dermatology, and Statlog Australian Credit), matching or exceeding all competitors including STree* on these benchmarks. Notably, SVMODT* relies exclusively on a linear kernel at each node, whereas STree* employs non-linear kernels on several datasets---specifically RBF on Ionosphere and polynomial on Echocardiogram---providing STree* with a representational advantage in those cases.
+
+\textbf{Performance relative to STree*.} Despite this kernel asymmetry, SVMODT* remains competitive across most datasets. STree* outperforms SVMODT* on WDBC, Fertility, and Ionosphere, where non-linear kernels or heavily regularised configurations (C = 0.05--7, RBF/poly kernels) confer clear advantages. On datasets where STree* uses a linear kernel (Iris, Wine, CTG-3, CTG-10, Dermatology), SVMODT* either matches or surpasses it, suggesting that the observed performance gap is largely attributable to kernel expressiveness rather than the oblique tree construction strategy.
+
+\textbf{Performance relative to default SVMODT.} Hyperparameter tuning via grid search provides measurable improvements on Iris (+0.005), Dermatology (+0.007), and CTG-3 (+0.005). However, SVMODT* underperforms the default configuration on WDBC (-0.004), Echocardiogram (-0.011), and Fertility (-0.046). The pronounced reduction on Fertility is notable: the grid search-selected configuration (correlation-based feature selection, balanced class weights, random maximum feature strategy, penalty weight = 0.6) generalises poorly compared to the default max\_depth = 15 with no additional constraints, indicating potential overfitting on small datasets (n = 100). This underscores the robustness of the default SVMODT configuration as a strong baseline.
+
+\textbf{Performance relative to tree-based baselines.} Both SVMODT variants substantially outperform CART (shallow and deep) on most datasets. The exception is CTG-10, where deep CART (0.821) surpasses all oblique methods, including SVMODT* (0.797) and STree* (0.806). This aligns with the known behaviour of axis-aligned trees on datasets with many classes: greedy feature splitting in deep trees can capture high-class-count structure effectively. On Dermatology (six classes), SVMODT* achieves the best result overall (0.979), demonstrating strength in multiclass, high-dimensional feature settings.
+
+\textbf{Hyperparameter patterns in SVMODT*.} Examination of the optimal configurations reveals a preference for shallow trees (max\_depth = 5--10), with random or decreasing maximum feature strategies selected in most datasets. Feature penalisation is active in six of nine datasets, highlighting the benefit of feature diversity in oblique trees. Correlation-based feature selection dominates across five datasets, followed by random (three datasets) and mutual information (one dataset). The min\_impurity\_decrease parameter is set to 0.01 or higher for CTG-10 and Ionosphere, acting as a regulariser to prevent spurious splits in higher-dimensional or noisier settings.
+
+SVMODT* provides competitive predictive performance across benchmark datasets, achieving top accuracy in several cases despite using linear node kernels. Hyperparameter tuning can yield modest gains, but default configurations already provide a strong baseline, particularly on small or low-dimensional datasets. Oblique trees with feature diversity and controlled regularisation show particular advantages for multiclass and high-dimensional problems.
+
+\begin{landscape}\begin{table}
+\centering
+\caption{\label{tab:tbl-benchmark-model-latex}Comparison of Mean Prediction Accuracy (mean \(\pm\) sd) across classifiers. \textit{STree*} denotes Python STree with dataset-specific hyperparameters. \textit{SVMODT*} denotes SVMODT with tuned hyperparameters from grid search. Bold denotes the highest accuracy per dataset.}
+\centering
+\fontsize{8}{10}\selectfont
+\begin{tabular}[t]{l|c|c|c|c|c|c|c|c|c|c}
+\hline
+Dataset & N & X & L & CART (shallow) & CART (deep) & SVM (linear) & Log. Reg. & STree* & SVMODT (Default) & SVMODT*\\
+\hline
+WDBC Diagnosis & 569 & 30 & 2 & 0.929 ± 0.007 & 0.931 ± 0.008 & 0.970 ± 0.004 & 0.946 ± 0.007 & \textbf{0.973 ± 0.004} & 0.969 ± 0.003 & 0.965 ± 0.005\\
+\hline
+Iris & 150 & 4 & 3 & 0.929 ± 0.008 & 0.929 ± 0.008 & 0.965 ± 0.010 & 0.962 ± 0.011 & 0.965 ± 0.010 & 0.966 ± 0.006 & \textbf{0.971 ± 0.006}\\
+\hline
+Echocardiogram & 131 & 10 & 2 & 0.817 ± 0.015 & 0.802 ± 0.012 & \textbf{0.846 ± 0.004} & 0.791 ± 0.018 & 0.844 ± 0.011 & \textbf{0.846 ± 0.006} & 0.835 ± 0.015\\
+\hline
+Fertility & 100 & 9 & 2 & 0.833 ± 0.026 & 0.833 ± 0.026 & 0.874 ± 0.010 & 0.840 ± 0.014 & \textbf{0.881 ± 0.000} & 0.874 ± 0.010 & 0.828 ± 0.024\\
+\hline
+Wine & 178 & 12 & 3 & 0.884 ± 0.020 & 0.884 ± 0.020 & 0.961 ± 0.005 & \textbf{0.982 ± 0.006} & 0.964 ± 0.010 & 0.978 ± 0.008 & 0.970 ± 0.008\\
+\hline
+Cardiotography-3 & 2126 & 21 & 3 & 0.901 ± 0.003 & \textbf{0.918 ± 0.005} & 0.897 ± 0.002 & 0.892 ± 0.003 & 0.903 ± 0.003 & 0.902 ± 0.004 & 0.907 ± 0.004\\
+\hline
+Cardiotography-10 & 2126 & 21 & 10 & 0.717 ± 0.003 & \textbf{0.821 ± 0.003} & 0.820 ± 0.007 & 0.820 ± 0.003 & 0.806 ± 0.007 & 0.792 ± 0.004 & 0.797 ± 0.006\\
+\hline
+Ionosphere & 351 & 33 & 2 & 0.892 ± 0.005 & 0.868 ± 0.011 & 0.878 ± 0.008 & 0.869 ± 0.010 & \textbf{0.949 ± 0.006} & 0.896 ± 0.011 & 0.886 ± 0.012\\
+\hline
+Dermatology & 366 & 34 & 6 & 0.777 ± 0.004 & 0.928 ± 0.006 & 0.966 ± 0.005 & 0.965 ± 0.006 & 0.966 ± 0.005 & 0.972 ± 0.006 & \textbf{0.979 ± 0.004}\\
+\hline
+\end{tabular}
+\end{table}
+\end{landscape}
 
 \section{Acknowledgements}\label{acknowledgements}
 
@@ -529,6 +749,36 @@ The authors would like to thank Professor \textbf{Natalia Da Silva} and Professo
     \Return $node$\newline
 }
 \end{algorithm}
+
+\begin{landscape}\begin{table}
+\centering\begingroup\fontsize{8}{10}\selectfont
+
+\begin{tabular}{l|r|l|l|l|l|r|r|r}
+\hline
+dataset & max\_depth & feature\_method & class\_weights & max\_features\_strategy & penalize\_used\_features & feature\_penalty\_weight & min\_impurity\_decrease & max\_features\\
+\hline
+wdbc & 10 & random & none & random & TRUE & 0.6 & 0.00 & NA\\
+\hline
+iris & 5 & cor & none & decrease & FALSE & 0.3 & 0.00 & 2\\
+\hline
+echocardiogram & 5 & random & balanced & decrease & TRUE & 0.6 & 0.01 & 3\\
+\hline
+fertility & 5 & cor & balanced & random & TRUE & 0.6 & 0.00 & NA\\
+\hline
+wine & 5 & cor & none & constant & FALSE & 0.3 & 0.00 & 13\\
+\hline
+ctg3 & 15 & cor & balanced & random & TRUE & 0.3 & 0.01 & NA\\
+\hline
+ctg10 & 10 & mutual & balanced & random & TRUE & 0.6 & 0.05 & NA\\
+\hline
+ionosphere & 5 & random & none & random & FALSE & 0.3 & 0.01 & NA\\
+\hline
+dermatology & 10 & cor & none & decrease & FALSE & 0.3 & 0.00 & 34\\
+\hline
+\end{tabular}
+\endgroup{}
+\end{table}
+\end{landscape}
 
 \bibliography{RJreferences.bib}
 
