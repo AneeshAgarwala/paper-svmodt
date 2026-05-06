@@ -6,34 +6,44 @@ library(svmodt)
 
 # ── Datasets ──────────────────────────────────────────────────────────────────
 ctg3 <- read.table("data/cardiotocography-3clases_R.dat") |>
-  mutate(clase = as.factor(clase)) |> standard_scaler()
+  mutate(clase = as.factor(clase)) |>
+  standard_scaler()
 
 ctg10 <- read.table("data/cardiotocography-10clases_R.dat") |>
-  mutate(clase = as.factor(clase)) |> standard_scaler()
+  mutate(clase = as.factor(clase)) |>
+  standard_scaler()
 
 australian_credit <- read.table("data/statlog-australian-credit_R.dat") |>
-  mutate(clase = as.factor(clase)) |> standard_scaler()
+  mutate(clase = as.factor(clase)) |>
+  standard_scaler()
 
 wdbc <- read.table("data/breast-cancer-wisc-diag_R.dat") |>
-  mutate(clase = as.factor(clase)) |> standard_scaler()
+  mutate(clase = as.factor(clase)) |>
+  standard_scaler()
 
 iris <- read.table("data/iris_R.dat") |>
-  mutate(clase = as.factor(clase)) |> standard_scaler()
+  mutate(clase = as.factor(clase)) |>
+  standard_scaler()
 
 echocardiogram <- read.table("data/echocardiogram_R.dat") |>
-  mutate(clase = as.factor(clase)) |> standard_scaler()
+  mutate(clase = as.factor(clase)) |>
+  standard_scaler()
 
 fertility <- read.table("data/fertility_R.dat") |>
-  mutate(clase = as.factor(clase)) |> standard_scaler()
+  mutate(clase = as.factor(clase)) |>
+  standard_scaler()
 
 wine <- read.table("data/wine_R.dat") |>
-  mutate(clase = as.factor(clase)) |> standard_scaler()
+  mutate(clase = as.factor(clase)) |>
+  standard_scaler()
 
 ionosphere <- read.table("data/ionosphere_R.dat") |>
-  mutate(clase = as.factor(clase)) |> standard_scaler()
+  mutate(clase = as.factor(clase)) |>
+  standard_scaler()
 
 dermatology <- read.table("data/dermatology_R.dat") |>
-  mutate(clase = as.factor(clase)) |> standard_scaler()
+  mutate(clase = as.factor(clase)) |>
+  standard_scaler()
 
 datasets <- list(
   wdbc           = wdbc,
@@ -59,6 +69,3 @@ for (name in names(datasets)) {
 }
 
 class_imbalance_ratio |> saveRDS("analysis/results/class-imbalance-ratio.RDS")
-
-
-
