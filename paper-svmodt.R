@@ -19,12 +19,15 @@ library(purrr)
 library(aorsf)
 library(tidyr)
 library(gridExtra)
+library(ggpubr)
 
 
-## ----palmer-penguins-introduction-split, fig.align='center', results='asis', fig.cap="Comparison of Axis-parallel and Axis-oblique splits on Palmerpenguins dataset.", fig.subcap=c('axis-parallel split', 'axis-oblique split'), out.width = '50%', cache=TRUE----
+## ----palmer-penguins-introduction-split, fig.align='center', results='asis', fig.cap="Comparison of axis-parallel and axis-oblique decision boundaries on the Palmerpenguins dataset using bill length (mm) and flipper length (mm) as predictor variables.", fig.subcap=c('axis-parallel split', 'axis-oblique split'), out.width = '80%', cache=TRUE----
 penguins_orsf <- penguins |> drop_na()
 
 penguins_orsf$flipper_length_mm <- as.numeric(penguins_orsf$flipper_length_mm)
+
+penguins_orsf <- penguins_orsf |> svmodt:::standard_scaler()
 
 plot_decision_surface <- function(predictions,
                                   # title,
@@ -48,10 +51,11 @@ plot_decision_surface <- function(predictions,
     geom_point(
       data = penguins_orsf,
       aes(color = species, shape = species),
+      size = 1,
       alpha = 0.5
     ) +
     scale_color_manual(values = cols) +
-    scale_fill_manual(values = cols) +
+    scale_fill_manual(values = cols, guide = "none") +
     labs(
       x = "Bill length, mm",
       y = "Flipper length, mm"
@@ -62,11 +66,12 @@ plot_decision_surface <- function(predictions,
     theme(
       panel.grid = element_blank(),
       panel.border = element_rect(fill = NA),
-      legend.position = "",
+      legend.title = element_text(size = 8),
+      legend.text = element_text(size = 6),
+      axis.title.x = element_text(size = 8),
+      axis.title.y = element_text(size = 8),
       aspect.ratio = 1,
-      # plot.title = element_text(size = 10, hjust = 0.5)
-    ) #+
-  # labs(title = title)
+    )
 }
 
 
@@ -112,8 +117,8 @@ titles <- c(
 
 plots <- map(preds, plot_decision_surface, grid = grid)
 
-plots[[1]]
-plots[[2]]
+
+ggarrange(plots[[1]], plots[[2]], ncol = 2, common.legend = TRUE, legend = "right")
 
 
 ## ----table-benchmark-streer-latex, eval= knitr::is_latex_output()-------------
@@ -174,10 +179,10 @@ tbl_bold[model_cols] <- t(apply(tbl[model_cols], 1, function(row) {
 tbl_bold |>
   kable(
     row.names = FALSE,
-    col.names = c("Dataset", "N", "X", "L", "StreeR", "STree", "StreeR(Med)", "Stree(Med)"),
+    col.names = c("Dataset", "N", "X", "L", "STreeR", "STree", "STreeR(Med)", "Stree(Med)"),
     align = "lccccccc",
     escape = FALSE,
-    caption = "Comparison of mean prediction accuracy and median training time for StreeR and STree. Here, \\(N\\) denotes the number of observations, \\(X\\) the number of features, and \\(L\\) the number of classes."
+    caption = "Comparison of mean prediction accuracy and median training time for STreeR and STree. Here, \\(N\\) denotes the number of observations, \\(X\\) the number of features, and \\(L\\) the number of classes."
   ) |>
   kable_styling(
     full_width = FALSE,
@@ -237,10 +242,10 @@ tbl_bold |>
 # }))
 # 
 # kbl(tbl_bold,
-#     col.names = c("Dataset", "N", "X", "L", "StreeR", "STree", "StreeR (Med)", "Stree (Med)"),
+#     col.names = c("Dataset", "N", "X", "L", "STreeR", "STree", "STreeR (Med)", "Stree (Med)"),
 #     align = "lccccccc",
 #     escape = FALSE,
-#     caption = "Comparison of mean prediction accuracy and median training time for StreeR and STree. Here, \\(N\\) denotes the number of observations, \\(X\\) the number of features, and \\(L\\) the number of classes."
+#     caption = "Comparison of mean prediction accuracy and median training time for STreeR and STree. Here, \\(N\\) denotes the number of observations, \\(X\\) the number of features, and \\(L\\) the number of classes."
 # ) |>
 #   kable_styling(
 #     bootstrap_options = c("striped", "hover", "condensed"),
@@ -254,7 +259,7 @@ tbl_bold |>
 source(file = "analysis/plot-surface.R")
 
 
-## ----palmer-penguins-max-feature-selection-latex, eval=knitr::is_latex_output(), fig.align='center', results='asis', fig.cap="Comparison of constant, decreasing, and random maximum feature selection strategies using SVMODT on the Palmer Penguins dataset.", fig.subcap=c('constant', 'decrease', 'random'), out.width = '30%'----
+## ----palmer-penguins-max-feature-selection-latex, eval=knitr::is_latex_output(), fig.align='center', results='asis', fig.cap="Comparison of constant, decreasing, and random maximum feature selection strategies using SVMODT on the Palmer Penguins dataset.", fig.subcap=c('constant', 'decrease', 'random'), fig.width = 6----
 penguins_orsf <- penguins |>
   select(-island, -sex, -year) |>
   drop_na() |>
@@ -296,10 +301,7 @@ plot1 <- plot_svmodt_surface(fit_constant, penguins_orsf, "species")
 plot2 <- plot_svmodt_surface(fit_decrease, penguins_orsf, "species")
 plot3 <- plot_svmodt_surface(fit_random, penguins_orsf, "species")
 
-
-plot1
-plot2
-plot3
+ggarrange(plot1, plot2, plot3, nrow = 1, common.legend = TRUE, legend = "right")
 
 
 ## ----palmer-penguins-max-feature-selection-html, eval=knitr::is_html_output(), fig.align='center', results='asis', fig.cap="Comparison of constant, decreasing, and random maximum feature selection strategies using SVMODT on the Palmer Penguins dataset.", fig.subcap=c('constant', 'decrease', 'random'), out.width = '30%'----
@@ -357,17 +359,7 @@ tbl_max_features_bold |>
     align = "lccccccc",
     escape = FALSE,
     caption = paste0(
-  "Comparison of mean prediction accuracy (mean \\(\\pm\\) standard deviation) ",
-  "across maximum feature selection strategies for SVMODT, with results benchmarked ",
-  "against the Python STree implementation. ",
-  "All SVMODT models were trained using \\texttt{max\\_depth = 15}, ",
-  "mutual-information feature ranking, and adaptive feature selection. ",
-  "The constant strategy uses a fixed number of candidate features at each node; ",
-  "the decrease strategy progressively reduces the number of available features ",
-  "with tree depth (decrease rate = 0.5); ",
-  "the random strategy samples the candidate feature proportion uniformly from ",
-  "\\texttt{c(0.5, 0.8)} at each split. ",
-  "Bold values indicate the highest prediction accuracy for each dataset."
+  "Comparison of mean prediction accuracy (mean \\(\\pm\\) standard deviation) across maximum feature selection strategies for SVMODT, with results benchmarked against the Python STree implementation All SVMODT models were trained using maximum depth parameter (\\(d_{\\max}=15\\)), mutual-information feature ranking, and adaptive feature selection. The constant strategy uses a fixed number of candidate features at each node; the decrease strategy progressively reduces the number of available features with tree depth (\\(\\alpha\\) = 0.5); the random strategy samples the candidate feature proportion uniformly from the interval \\(l_{\\min}=0.5\\) to \\(l_{\\max}=0.8\\) at each split. Bold values indicate the highest prediction accuracy for each dataset."
     )
   ) |>
   kable_styling(
@@ -388,17 +380,7 @@ tbl_max_features_bold |>
 #     align = "lccccccc",
 #     escape = FALSE,
 #     caption = paste0(
-#   "Comparison of mean prediction accuracy (mean \\(\\pm\\) standard deviation) ",
-#   "across maximum feature selection strategies for SVMODT, with results benchmarked ",
-#   "against the Python STree implementation. ",
-#   "All SVMODT models were trained using \\texttt{max\\_depth = 15}, ",
-#   "mutual-information feature ranking, and adaptive feature selection. ",
-#   "The constant strategy uses a fixed number of candidate features at each node; ",
-#   "the decrease strategy progressively reduces the number of available features ",
-#   "with tree depth (decrease rate = 0.5); ",
-#   "the random strategy samples the candidate feature proportion uniformly from ",
-#   "\\texttt{c(0.5, 0.8)} at each split. ",
-#   "Bold values indicate the highest prediction accuracy for each dataset."
+#       "Comparison of mean prediction accuracy (mean \\(\\pm\\) standard deviation) across maximum feature selection strategies for SVMODT, with results benchmarked against the Python STree implementation All SVMODT models were trained using maximum depth parameter (\\(d_{\\max}=15\\)), mutual-information feature ranking, and adaptive feature selection. The constant strategy uses a fixed number of candidate features at each node; the decrease strategy progressively reduces the number of available features with tree depth (\\(\\alpha\\) = 0.5); the random strategy samples the candidate feature proportion uniformly from the interval \\(l_{\\min}=0.5\\) to \\(l_{\\max}=0.8\\) at each split. Bold values indicate the highest prediction accuracy for each dataset."
 # )
 #   ) |>
 #   kable_styling(
@@ -409,7 +391,7 @@ tbl_max_features_bold |>
 #   )
 
 
-## ----palmer-penguins-feature-selection-split-latex, eval = knitr::is_latex_output(), fig.align='center', results='asis', fig.cap="Comparison of random, mutual, and correlated feature selection methods using SVMODT on the Palmer Penguins dataset.", fig.subcap=c('random', 'mutual', 'correlation'), out.width = '30%'----
+## ----palmer-penguins-feature-selection-split-latex, eval = knitr::is_latex_output(), fig.align='center', results='asis', fig.cap="Comparison of random, mutual, and correlated feature selection methods using SVMODT on the Palmer Penguins dataset.", fig.subcap=c('random', 'mutual', 'correlation'), fig.width = 6----
 # penguins_orsf$island <- as.numeric(penguins_orsf$island)
 # penguins_orsf$sex <- as.numeric(penguins_orsf$sex)
 
@@ -449,9 +431,7 @@ plot2 <- plot_svmodt_surface(fit_mutual, penguins_orsf, "species")
 plot3 <- plot_svmodt_surface(fit_cor, penguins_orsf, "species")
 
 # Display plots
-plot1
-plot2
-plot3
+ggarrange(plot1, plot2, plot3, nrow = 1, common.legend = TRUE, legend = "right")
 
 
 ## ----palmer-penguins-feature-selection-split-html, eval = knitr::is_html_output(), fig.align='center', results='asis', fig.cap="Comparison of random, mutual, and correlated feature selection methods using SVMODT on the Palmer Penguins dataset.", fig.subcap=c('random', 'mutual', 'correlation'), out.width = '30%'----
@@ -509,17 +489,7 @@ tbl_feature_bold |>
     align = "lcccccccc",
     escape = FALSE,
     caption = paste0(
-  "Comparison of mean prediction accuracy across feature selection strategies ",
-  "for SVMODT, benchmarked against the Python STree implementation. ",
-  "All SVMODT models were trained using \\texttt{max\\_depth = 15}. ",
-  "The random strategy selects candidate predictors using random subset sampling ",
-  "(\\texttt{n\\_subsets = 10}); ",
-  "the mutual information strategy ranks predictors according to their dependency ",
-  "with the response variable; ",
-  "the correlation strategy ranks predictors using absolute correlation with the response. ",
-  "STree does not employ an explicit pre-split feature ranking mechanism, instead ",
-  "optimising the node classifier directly on the available predictors. ",
-  "Bold values indicate the highest prediction accuracy for each dataset."
+  "Comparison of mean prediction accuracy across feature selection strategies for SVMODT, benchmarked against the Python STree implementation. All SVMODT models were trained using \\(d_{\\max}=15\\). The random strategy selects candidate predictors using random subset sampling \\(n_{\\text{subsets}} = 10\\); the mutual information strategy ranks predictors according to their dependency with the response variable; the correlation strategy ranks predictors using absolute correlation with the response. STree does not employ an explicit pre-split feature ranking mechanism, instead optimising the node classifier directly on the available predictors. Bold values indicate the highest prediction accuracy for each dataset."
 )
   ) |>
   kable_styling(
@@ -540,17 +510,7 @@ tbl_feature_bold |>
 #     align = "lcccccccc",
 #     escape = FALSE,
 #     caption = paste0(
-#   "Comparison of mean prediction accuracy across feature selection strategies ",
-#   "for SVMODT, benchmarked against the Python STree implementation. ",
-#   "All SVMODT models were trained using \\texttt{max\\_depth = 15}. ",
-#   "The random strategy selects candidate predictors using random subset sampling ",
-#   "(\\texttt{n\\_subsets = 10}); ",
-#   "the mutual information strategy ranks predictors according to their dependency ",
-#   "with the response variable; ",
-#   "the correlation strategy ranks predictors using absolute correlation with the response. ",
-#   "STree does not employ an explicit pre-split feature ranking mechanism, instead ",
-#   "optimising the node classifier directly on the available predictors. ",
-#   "Bold values indicate the highest prediction accuracy for each dataset."
+#   "Comparison of mean prediction accuracy across feature selection strategies for SVMODT, benchmarked against the Python STree implementation. All SVMODT models were trained using \\(d_{\\max}=15\\). The random strategy selects candidate predictors using random subset sampling \\(n_{\\text{subsets}}=10\\); the mutual information strategy ranks predictors according to their dependency with the response variable; the correlation strategy ranks predictors using absolute correlation with the response. STree does not employ an explicit pre-split feature ranking mechanism, instead optimising the node classifier directly on the available predictors. Bold values indicate the highest prediction accuracy for each dataset."
 # )
 #   ) |>
 #   kable_styling(
@@ -562,7 +522,7 @@ tbl_feature_bold |>
 # 
 
 
-## ----wine-feature-penalty, fig.align='center', results='asis', fig.cap="Comparison of Low, Medium and High penalty on repeated features by SVMODT on Wine dataset.", fig.subcap=c('No Penalty', 'Low (0.2)', 'Medium (0.5)', 'High (0.8)'), out.width = '30%'----
+## ----wine-feature-penalty, fig.align='center', results='asis', fig.cap="Comparison of Low, Medium and High penalty on repeated features by SVMODT on Wine dataset.", fig.subcap=c('No Penalty', 'Low (0.2)', 'Medium (0.5)', 'High (0.8)'), out.width = '30%', fig.pos='h'----
 wine <- read.table("data/wine_R.dat") |>
   mutate(clase = as.factor(clase)) |> svmodt:::standard_scaler()
 
@@ -695,7 +655,7 @@ tbl_penalty_bold[model_cols_penalty] <- t(apply(tbl_penalty[model_cols_penalty],
 }))
 
 
-## ----svmodt-features-penalty-score-table-latex, eval=knitr::is_latex_output()----
+## ----svmodt-features-penalty-score-table-latex, eval=knitr::is_latex_output(), fig.pos='h'----
 tbl_penalty_bold |>
   kable(
     row.names = FALSE,
@@ -705,13 +665,7 @@ tbl_penalty_bold |>
     align  = "lccccccc",
     escape = FALSE,
     caption = paste0(
-      "Comparison of mean prediction accuracy (mean \\(\\pm\\) standard deviation) ",
-  "across feature penalisation strategies for SVMODT. ",
-  "All models were trained using \\texttt{max\\_depth = 15}, ",
-  "mutual-information feature ranking, and adaptive maximum feature selection. ",
-  "No penalisation corresponds to reuse of previously selected features being unrestricted. ",
-  "Low, medium, and high penalisation correspond to feature penalty weights of 0.2, 0.5, and 0.8, respectively. ",
-  "Bold values indicate the highest accuracy for each dataset."
+      "Comparison of mean prediction accuracy (mean \\(\\pm\\) standard deviation) across feature penalisation strategies for SVMODT. All models were trained using \\(d_{\\max}=15\\), mutual-information feature ranking, and adaptive maximum feature selection. No penalisation corresponds to reuse of previously selected features being unrestricted. Low, medium, and high penalisation correspond to feature penalty weights of \\(\\lambda\\) = 0.2, \\(\\lambda\\) = 0.5, and \\(\\lambda\\) = 0.8, respectively. Bold values indicate the highest accuracy for each dataset."
     )
   ) |>
   kable_styling(
@@ -731,13 +685,7 @@ tbl_penalty_bold |>
 #     align  = "lccccccc",
 #     escape = FALSE,
 #     caption = paste0(
-#       "Comparison of mean prediction accuracy (mean \\(\\pm\\) standard deviation) ",
-#   "across feature penalisation strategies for SVMODT. ",
-#   "All models were trained using \\texttt{max\\_depth = 15}, ",
-#   "mutual-information feature ranking, and adaptive maximum feature selection. ",
-#   "No penalisation corresponds to reuse of previously selected features being unrestricted. ",
-#   "Low, medium, and high penalisation correspond to feature penalty weights of 0.2, 0.5, and 0.8, respectively. ",
-#   "Bold values indicate the highest accuracy for each dataset."
+#       "Comparison of mean prediction accuracy (mean \\(\\pm\\) standard deviation) across feature penalisation strategies for SVMODT. All models were trained using \\(d_{\\max}=15\\), mutual-information feature ranking, and adaptive maximum feature selection. No penalisation corresponds to reuse of previously selected features being unrestricted. Low, medium, and high penalisation correspond to feature penalty weights of \\(\\lambda\\) = 0.2, \\(\\lambda\\) = 0.5, and \\(\\lambda\\) = 0.8, respectively. Bold values indicate the highest accuracy for each dataset."
 #     )
 #   ) |>
 #   kable_styling(
@@ -787,7 +735,7 @@ min_sample_table <- cbind(rbind(`10` = count_tree_nodes(tree_wdbc_min_10_sample)
                   acc_wdbc_50_sample), 4)) 
 
 
-## ----min-split-table-latex, eval=knitr::is_latex_output()---------------------
+## ----min-split-table-latex, eval=knitr::is_latex_output(),fig.pos='h'---------
 min_sample_table |>
   as.data.frame() |>
   tibble::rownames_to_column(var = "Min Samples") |>
@@ -837,7 +785,7 @@ acc_cardio_depth_7 <- mean(svm_predict_tree(tree = tree_cardio_depth_7, newdata 
 
 
 
-## ----max-depth-table-latex, eval=knitr::is_latex_output()---------------------
+## ----max-depth-table-latex, eval=knitr::is_latex_output(), fig.pos='h'--------
 cbind(rbind(`3` = count_tree_nodes(tree_cardio_depth_3), 
             `5` = count_tree_nodes(tree_cardio_depth_5), 
             `7` = count_tree_nodes(tree_cardio_depth_7)),
@@ -895,7 +843,7 @@ acc_cardio_impurity_001 <- mean(svm_predict_tree(tree = tree_cardio_impurity_001
 acc_cardio_impurity_01 <- mean(svm_predict_tree(tree = tree_cardio_impurity_01, newdata = cardio_test) == cardio_test$clase)
 
 
-## ----min-impurity-table-latex, eval=knitr::is_latex_output()------------------
+## ----min-impurity-table-latex, eval=knitr::is_latex_output(),fig.pos='h'------
 cbind(rbind(`0.005` = count_tree_nodes(tree_cardio_impurity_0005), 
             `0.01` = count_tree_nodes(tree_cardio_impurity_001), 
             `0.1` = count_tree_nodes(tree_cardio_impurity_01)),
@@ -933,7 +881,7 @@ cbind(rbind(`0.005` = count_tree_nodes(tree_cardio_impurity_0005),
 #   )
 
 
-## ----palmer-penguins-weighted-split-latex, eval=knitr::is_latex_output(), fig.align='center', results='asis', fig.cap="Comparison of equal, balanced, and custom weighting schemes using SVMODT on the Palmer Penguins dataset.", fig.subcap=c('equal', 'balanced', 'custom'), out.width = '30%'----
+## ----palmer-penguins-weighted-split-latex, eval=knitr::is_latex_output(), fig.align='center', results='asis', fig.cap="Comparison of equal, balanced, and custom weighting schemes using SVMODT on the Palmer Penguins dataset.", fig.subcap=c('equal', 'balanced', 'custom'), fig.width = 6----
 fit_none <- svm_split(
   data = penguins_orsf,
   response = "species",
@@ -967,10 +915,7 @@ plot1 <- plot_svmodt_surface(fit_none, penguins_orsf, "species")
 plot2 <- plot_svmodt_surface(fit_balanced, penguins_orsf, "species")
 plot3 <- plot_svmodt_surface(fit_custom, penguins_orsf, "species")
 
-
-plot1
-plot2
-plot3
+ggarrange(plot1, plot2, plot3, nrow = 1, common.legend = TRUE, legend = "right")
 
 
 ## ----palmer-penguins-weighted-split-html, eval=knitr::is_html_output(), fig.align='center', results='asis', fig.cap="Comparison of Equal, Balanced and Custom Weights by SVMODT on Palmerpenguins dataset. WHATS THE DIFFERENCE BETWEEN STREE AND NONE", fig.subcap=c('equal', 'balanced', 'custom'), out.width = '30%'----
@@ -1027,12 +972,7 @@ tbl_weights_f1_bold |>
     align = "lccccccc",
     escape = FALSE,
     caption = paste0(
-  "Comparison of macro-averaged F1 score (mean \\(\\pm\\) sd) across class weighting strategies. ",
-  "All SVMODT models are trained with \\texttt{max\\_depth = 15}, ",
-  "\\texttt{feature\\_method = \"mutual\"}, and adaptive \\texttt{max\\_features}. ",
-  "\\textit{None}: \\texttt{class\\_weights = \"none\"}; ",
-  "\\textit{Balanced}: \\texttt{class\\_weights = \"balanced\"}. ",
-  "Bold values denote the highest F1 score for each dataset."
+  "Comparison of macro-averaged F1 score (mean \\(\\pm\\) sd) across class weighting strategies. All SVMODT models are trained with \\(d_{\\max}=15\\), \\(\\mathrm{strat}_{m}=\\texttt{\"mutual\"}\\). None: \\(\\mathrm{strat}_{w}=\\texttt{\"none\"}\\); Balanced: \\(\\mathrm{strat}_{w}=\\texttt{\"balanced\"}\\). Bold values denote the highest F1 score for each dataset."
 )
   ) |>
   kable_styling(
@@ -1053,12 +993,7 @@ tbl_weights_f1_bold |>
 #     align = "lccccccc",
 #     escape = FALSE,
 #     caption = paste0(
-#   "Comparison of macro-averaged F1 score (mean \\(\\pm\\) sd) across class weighting strategies. ",
-#   "All SVMODT models are trained with \\texttt{max\\_depth = 15}, ",
-#   "\\texttt{feature\\_method = \"mutual\"}, and adaptive \\texttt{max\\_features}. ",
-#   "\\textit{None}: \\texttt{class\\_weights = \"none\"}; ",
-#   "\\textit{Balanced}: \\texttt{class\\_weights = \"balanced\"}. ",
-#   "Bold values denote the highest F1 score for each dataset."
+#   "Comparison of macro-averaged F1 score (mean \\(\\pm\\) sd) across class weighting strategies. All SVMODT models are trained with \\(d_{\\max}=15\\), \\(\\mathrm{strat}_{m}=\\texttt{\"mutual\"}\\). None: \\(\\mathrm{strat}_{w}=\\texttt{\"none\"}\\); Balanced: \\(\\mathrm{strat}_{w}=\\texttt{\"balanced\"}\\). Bold values denote the highest F1 score for each dataset."
 # )
 #   ) |>
 #   kable_styling(
@@ -1071,11 +1006,8 @@ tbl_weights_f1_bold |>
 
 ## ----tbl-benchmark-model-setup------------------------------------------------
 benchmark_summary_table <- readRDS("analysis/results/benchmark_summary_table.rds")
-
 benchmark_summary_table <- benchmark_summary_table[,-6:-7]  
-
 models <- 5:12
-  
 
 bold_benchmark_summary_table <- benchmark_summary_table
 bold_benchmark_summary_table[models] <- t(apply(benchmark_summary_table[models], 1, function(row) {
@@ -1086,25 +1018,50 @@ bold_benchmark_summary_table[models] <- t(apply(benchmark_summary_table[models],
   out
 }))
 
+table_a <- bold_benchmark_summary_table[, c(1:4, 5:8)]
+table_b <- bold_benchmark_summary_table[, c(1:4, 9:12)]
 
-## ----tbl-benchmark-model-latex, eval= knitr::is_latex_output()----------------
-bold_benchmark_summary_table |>  
-kable(
+
+## ----tbl-benchmark-model-latex-a, eval=knitr::is_latex_output()---------------
+table_a |>
+  kable(
     row.names = FALSE,
     col.names = c(
       "Dataset", "N", "X", "L",
       "CART*",
       "SVM (linear)",
       "AORSF",
-      "Log. Reg.",
+      "Log. Reg."
+    ),
+    align  = paste0("l", paste(rep("c", ncol(table_a) - 1), collapse = "")),
+    escape = FALSE,
+    caption = paste0(
+      "Comparison of Mean Prediction Accuracy (mean \\(\\pm\\) sd) across classifiers (Part 1). ",
+      "Bold denotes the highest accuracy per dataset."
+    )
+  ) |>
+  kable_styling(
+    full_width = FALSE,
+    position   = "center",
+    font_size  = 6
+  )
+
+
+## ----tbl-benchmark-model-latex-b, eval=knitr::is_latex_output()---------------
+table_b |>
+  kable(
+    row.names = FALSE,
+    col.names = c(
+      "Dataset", "N", "X", "L",
       "PPTree",
       "STree*",
       "SVMODT (Default)",
       "SVMODT*"
     ),
-    align  = paste0("l", paste(rep("c", ncol(bold_benchmark_summary_table) - 1), collapse = "")),
+    align  = paste0("l", paste(rep("c", ncol(table_b) - 1), collapse = "")),
+    escape = FALSE,
     caption = paste0(
-      "Comparison of Mean Prediction Accuracy (mean \\(\\pm\\) sd) across classifiers. ",
+      "Comparison of Mean Prediction Accuracy (mean \\(\\pm\\) sd) across classifiers (Part 2). ",
       "\\textit{STree*} denotes Python STree with dataset-specific hyperparameters. ",
       "\\textit{SVMODT*} denotes SVMODT with tuned hyperparameters from grid search. ",
       "Bold denotes the highest accuracy per dataset."
@@ -1114,13 +1071,12 @@ kable(
     full_width = FALSE,
     position   = "center",
     font_size  = 6
-  ) |>
-  landscape()
+  )
 
 
 ## ----tbl-benchmark-model-html, eval= knitr::is_html_output()------------------
 # bold_benchmark_summary_table |>
-# kable(
+#   kbl(
 #     row.names = FALSE,
 #     col.names = c(
 #       "Dataset", "N", "X", "L",
@@ -1150,16 +1106,34 @@ kable(
 #   )
 
 
-## ----tab-best-param-grid, results='asis'--------------------------------------
+## ----table-best-param-grid-setup----------------------------------------------
 best_param <- readRDS(file = "analysis/results/grid_search_best_params.rds")
 
 best_param <- best_param[1:9,1:8]
 
-best_param |> kable() |>
+
+## ----table-best-param-grid-latex, eval=knitr::is_latex_output(), fig.pos='h'----
+best_param |> kable(
+  caption = "Hyperparameters Selected through the Grid Search Procedure.",
+  col.names = c("Dataset", "Max Depth", "Feature Selection Method", "Class Weight Strategy", "Max Feature Strategy", "Penalize Used Features", "Feature Penalty Weight", "Impurity Decrease") 
+) |>
   kable_styling(
     full_width = FALSE,
     position   = "center",
-    font_size  = 8
-  ) |>
-  landscape()
+    font_size  = 4,
+    latex_options = "hold_position"
+  )
+
+## ----table-best-param-grid-html, eval=knitr::is_html_output()-----------------
+# best_param |> kbl(
+#   caption = "Hyperparameters Selected through the Grid Search Procedure.",
+#   col.names = c("Dataset", "Max Depth", "Feature Selection Method", "Class Weight Strategy", "Max Feature Strategy", "Penalize Used Features", "Feature Penalty Weight", "Impurity Decrease"),
+#   escape = FALSE
+# ) |>
+#   kable_styling(
+#     bootstrap_options = c("striped", "hover", "condensed"),
+#     full_width = FALSE,
+#     position = "center",
+#     font_size = 8
+#   )
 

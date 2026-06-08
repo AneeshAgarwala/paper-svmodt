@@ -76,8 +76,9 @@ plot_svmodt_surface <- function(tree, data, response, resolution = 200) {
         x = .data[[plot_features[1]]],
         y = .data[[plot_features[2]]],
         color = .data[[response]],
-        shape = .data[[response]]
+        shape = .data[[response]],
       ),
+      size = 1,
       alpha = 0.5
     ) +
     scale_color_brewer(palette = "Dark2") +
@@ -92,9 +93,11 @@ plot_svmodt_surface <- function(tree, data, response, resolution = 200) {
     theme(
       panel.grid = element_blank(),
       panel.border = element_rect(fill = NA),
-      legend.position = "bottom",
-      legend.text = element_text(size = 8),
-      legend.title = element_blank(),
+      legend.position = "right",
+      legend.text = element_text(size = 6),
+      legend.title = element_text(size = 8),
+      axis.title.x = element_text(size = 8),
+      axis.title.y = element_text(size = 8),
       aspect.ratio = 1
     ) +
     guides(fill = "none")

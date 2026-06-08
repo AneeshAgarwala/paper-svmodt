@@ -24,7 +24,7 @@ wdbc <- read.table("data/breast-cancer-wisc-diag_R.dat") |>
   mutate(clase = as.factor(clase)) |>
   standard_scaler()
 
-iris <- read.table("data/iris_R.dat") |>
+iris_data <- read.table("data/iris_R.dat") |>
   mutate(clase = as.factor(clase)) |>
   standard_scaler()
 
@@ -50,7 +50,7 @@ dermatology <- read.table("data/dermatology_R.dat") |>
 
 datasets <- list(
   wdbc           = wdbc,
-  iris           = iris,
+  iris           = iris_data,
   echocardiogram = echocardiogram,
   fertility      = fertility,
   wine           = wine,
@@ -69,6 +69,7 @@ grid_search_seeds <- seed_list[1:3]
 # min_samples: removed <U+2014> fixed at default in svm_split
 # impurity_measure: fixed at "entropy"
 param_grid_base <- expand.grid(
+  max_depth = 10,
   feature_method         = c("random", "mutual", "cor"),
   class_weights          = c("none", "balanced"),
   max_features_strategy  = c("constant", "decrease", "random"),
@@ -130,6 +131,7 @@ build_args <- function(params, data, response) {
     data = data,
     response = response,
     feature_method = method,
+    max_depth = 10L,
     class_weights = as.character(params$class_weights),
     max_features_strategy = strategy,
     penalize_used_features = penalize,
@@ -181,18 +183,21 @@ svmodt_caret_model <- list(
   tags = "Classification",
   parameters = data.frame(
     parameter = c(
+      "max_depth",
       "feature_method", "class_weights",
       "max_features_strategy", "penalize_used_features",
       "feature_penalty_weight", "max_features",
       "min_impurity_decrease"
     ),
     class = c(
+      "numeric",
       "character", "character",
       "character", "logical",
       "numeric", "numeric",
       "numeric"
     ),
     label = c(
+      "Max Depth",
       "Feature Method", "Class Weights",
       "Max Features Strategy", "Penalize Features",
       "Penalty Weight", "Max Features",
@@ -298,7 +303,7 @@ grid_search_results <- list()
 best_params_list <- list()
 
 for (dataset_name in names(datasets)) {
-  cat("\n<U+2500><U+2500> Grid search:", dataset_name, "\n")
+  cat("Grid search:", dataset_name, "\n")
 
   grid_search_results[[dataset_name]] <- run_multiseed_grid_search(
     data            = datasets[[dataset_name]],
