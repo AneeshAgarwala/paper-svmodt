@@ -21,18 +21,17 @@
 \newlabel{fig:palmer-penguins-introduction-split}{{1}{1}{Comparison of axis-parallel and axis-oblique decision boundaries on the Palmerpenguins dataset using bill length (mm) and flipper length (mm) as predictor variables}{figure.caption.2}{}}
 \citation{breiman1984}
 \citation{cortes1995}
-\citation{cristianini2000}
 \citation{bennet1998}
 \citation{takahashi2002,bala2011,ganaie2022}
 \citation{Montanana2021,scikit2011}
 \citation{menkovski2008}
 \citation{brodley1995}
+\citation{breiman1984}
 \citation{quinlan1986}
 \citation{quinlan1993}
 \citation{mingers1989,schaffer1992}
 \@writefile{brf}{\backcite{breiman1984}{{2}{2.1}{figure.caption.2}}}
 \@writefile{brf}{\backcite{cortes1995}{{2}{2.1}{figure.caption.2}}}
-\@writefile{brf}{\backcite{cristianini2000}{{2}{2.1}{figure.caption.2}}}
 \@writefile{brf}{\backcite{bennet1998}{{2}{2.1}{figure.caption.2}}}
 \@writefile{brf}{\backcite{takahashi2002}{{2}{2.1}{figure.caption.2}}}
 \@writefile{brf}{\backcite{bala2011}{{2}{2.1}{figure.caption.2}}}
@@ -47,6 +46,7 @@
 \@writefile{brf}{\backcite{brodley1995}{{2}{2.2.1}{subsection.2.2.1}}}
 \@writefile{toc}{\contentsline {subsubsection}{Axis-Parallel Decision Trees}{2}{subsection.2.2.1}\protected@file@percent }
 \newlabel{axis-parallel-decision-trees}{{2.2.1}{2}{Axis-Parallel Decision Trees}{subsection.2.2.1}{}}
+\@writefile{brf}{\backcite{breiman1984}{{2}{2.2.1}{subsection.2.2.1}}}
 \citation{pagallo1990}
 \citation{said2025}
 \citation{brodley1995}
@@ -115,6 +115,7 @@
 \newlabel{stree}{{2.2.2}{4}{STree}{subsection.2.2.2}{}}
 \@writefile{brf}{\backcite{stree2021}{{4}{2.2.2}{subsection.2.2.2}}}
 \@writefile{brf}{\backcite{Montanana2021}{{4}{2.2.2}{subsection.2.2.2}}}
+\citation{kelly2023uci}
 \@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces Comparison of mean prediction accuracy and median training time for STreeR and STree. Here, \(N\) denotes the number of observations, \(X\) the number of features, and \(L\) the number of classes.}}{5}{table.caption.3}\protected@file@percent }
 \newlabel{tab:table-benchmark-streer-latex}{{1}{5}{Comparison of mean prediction accuracy and median training time for STreeR and STree. Here, \(N\) denotes the number of observations, \(X\) the number of features, and \(L\) the number of classes}{table.caption.3}{}}
 \@writefile{toc}{\contentsline {section}{\numberline {2.3}Contributed Methods}{5}{section.2.3}\protected@file@percent }
@@ -123,6 +124,7 @@
 \newlabel{streer}{{2.3.1}{5}{STreeR}{subsection.2.3.1}{}}
 \@writefile{loa}{\contentsline {algocf}{\numberline {1}{\ignorespaces STreeR: Multi-class OVR SVM-based oblique decision tree}}{5}{algocf.1}\protected@file@percent }
 \newlabel{alg:streer}{{1}{5}{STreeR}{algocf.1}{}}
+\@writefile{brf}{\backcite{kelly2023uci}{{5}{17}{AlgoLine.1.17}}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {2.3.2}Support Vector Machine based Oblique Decision Trees: SVMODT}{6}{subsection.2.3.2}\protected@file@percent }
 \newlabel{support-vector-machine-based-oblique-decision-trees-svmodt}{{2.3.2}{6}{Support Vector Machine based Oblique Decision Trees: SVMODT}{subsection.2.3.2}{}}
 \@writefile{toc}{\contentsline {subsubsection}{Key Features}{6}{subsection.2.3.2}\protected@file@percent }
@@ -171,8 +173,8 @@
 \newlabel{tab:min-impurity-table-latex}{{7}{13}{Comparison of tree structure and accuracy across different minimum impurity threshold values on the Cardiotocography dataset}{table.caption.12}{}}
 \@writefile{toc}{\contentsline {paragraph}{Class Weight Handling}{13}{table.caption.12}\protected@file@percent }
 \newlabel{class-weight-handling}{{24}{13}{Class Weight Handling}{table.caption.12}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces Comparison of equal, balanced, and custom weighting schemes using SVMODT on the Palmer Penguins dataset.}}{14}{figure.caption.13}\protected@file@percent }
-\newlabel{fig:palmer-penguins-weighted-split-latex}{{5}{14}{Comparison of equal, balanced, and custom weighting schemes using SVMODT on the Palmer Penguins dataset}{figure.caption.13}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces Comparison of equal, balanced, and custom weighting schemes using SVMODT on the Palmer Penguins dataset.}}{13}{figure.caption.13}\protected@file@percent }
+\newlabel{fig:palmer-penguins-weighted-split-latex}{{5}{13}{Comparison of equal, balanced, and custom weighting schemes using SVMODT on the Palmer Penguins dataset}{figure.caption.13}{}}
 \@writefile{lot}{\contentsline {table}{\numberline {8}{\ignorespaces Comparison of macro-averaged F1 score (mean \(\pm \) sd) across class weighting strategies. All SVMODT models are trained with \(d_{\max }=15\), \(\mathrm  {strat}_{m}=\texttt  {"mutual"}\). None: \(\mathrm  {strat}_{w}=\texttt  {"none"}\); Balanced: \(\mathrm  {strat}_{w}=\texttt  {"balanced"}\). Bold values denote the highest F1 score for each dataset.}}{14}{table.caption.14}\protected@file@percent }
 \newlabel{tab:svmodt-class-weight-f1-score-table-latex}{{8}{14}{Comparison of macro-averaged F1 score (mean \(\pm \) sd) across class weighting strategies. All SVMODT models are trained with \(d_{\max }=15\), \(\mathrm {strat}_{m}=\texttt {"mutual"}\). None: \(\mathrm {strat}_{w}=\texttt {"none"}\); Balanced: \(\mathrm {strat}_{w}=\texttt {"balanced"}\). Bold values denote the highest F1 score for each dataset}{table.caption.14}{}}
 \@writefile{toc}{\contentsline {subsubsection}{Algorithm}{14}{table.caption.14}\protected@file@percent }
@@ -204,26 +206,26 @@
 \citation{montanana2025}
 \citation{OpenAI2026}
 \citation{anthropic2026claude}
-\citation{Montanana2021}
 \@writefile{brf}{\backcite{montanana2025}{{18}{2.5}{section.2.5}}}
 \@writefile{toc}{\contentsline {section}{\numberline {2.6}Acknowledgements}{18}{section.2.6}\protected@file@percent }
 \newlabel{acknowledgements}{{2.6}{18}{Acknowledgements}{section.2.6}{}}
 \@writefile{brf}{\backcite{OpenAI2026}{{18}{2.6}{section.2.6}}}
 \@writefile{brf}{\backcite{anthropic2026claude}{{18}{2.6}{section.2.6}}}
-\@writefile{toc}{\contentsline {section}{\numberline {2.7}Appendix}{18}{section.2.7}\protected@file@percent }
-\newlabel{appendix}{{2.7}{18}{Appendix}{section.2.7}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.7.1}Stree Algorithm}{18}{subsection.2.7.1}\protected@file@percent }
-\newlabel{stree-algorithm}{{2.7.1}{18}{Stree Algorithm}{subsection.2.7.1}{}}
-\@writefile{brf}{\backcite{Montanana2021}{{18}{2.7.1}{subsection.2.7.1}}}
-\bibdata{RJreferences.bib}
-\bibcite{anthropic2026claude}{{1}{2026}{{Anthropic}}{{}}}
-\bibcite{bala2011}{{2}{2011}{{Bala and Agrawal}}{{}}}
+\citation{Montanana2021}
+\@writefile{toc}{\contentsline {section}{\numberline {2.7}Appendix}{19}{section.2.7}\protected@file@percent }
+\newlabel{appendix}{{2.7}{19}{Appendix}{section.2.7}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.7.1}Stree Algorithm}{19}{subsection.2.7.1}\protected@file@percent }
+\newlabel{stree-algorithm}{{2.7.1}{19}{Stree Algorithm}{subsection.2.7.1}{}}
+\@writefile{brf}{\backcite{Montanana2021}{{19}{2.7.1}{subsection.2.7.1}}}
 \@writefile{loa}{\contentsline {algocf}{\numberline {5}{\ignorespaces STree (Multi-class SVM-based oblique decision tree)}}{19}{algocf.5}\protected@file@percent }
 \newlabel{alg:stree}{{5}{19}{Stree Algorithm}{algocf.5}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {2.7.2}SVMODT* Hyperparameters}{19}{subsection.2.7.2}\protected@file@percent }
 \newlabel{svmodt-hyperparameters}{{2.7.2}{19}{SVMODT* Hyperparameters}{subsection.2.7.2}{}}
 \@writefile{lot}{\contentsline {table}{\numberline {11}{\ignorespaces Hyperparameters Selected through the Grid Search Procedure.}}{19}{table.caption.17}\protected@file@percent }
 \newlabel{tab:table-best-param-grid-latex}{{11}{19}{Hyperparameters Selected through the Grid Search Procedure}{table.caption.17}{}}
+\bibdata{RJreferences.bib}
+\bibcite{anthropic2026claude}{{1}{2026}{{Anthropic}}{{}}}
+\bibcite{bala2011}{{2}{2011}{{Bala and Agrawal}}{{}}}
 \bibcite{bennet1998}{{3}{1998}{{Bennett and Blue}}{{}}}
 \bibcite{breiman1984}{{4}{1984}{{Breiman et~al.}}{{Breiman, Friedman, Olshen, and Stone}}}
 \bibcite{brodley1995}{{5}{1995}{{Brodley and Utgoff}}{{}}}
@@ -241,29 +243,30 @@
 \bibcite{gallant1986}{{17}{1986}{{Gallant}}{{}}}
 \bibcite{ganaie2022}{{18}{2022}{{Ganaie et~al.}}{{Ganaie, Tanveer, Suganthan, and Snasel}}}
 \bibcite{hsu2002}{{19}{2002}{{Hsu and Lin}}{{}}}
-\bibcite{kittler1986}{{20}{1986}{{Kittler}}{{}}}
-\bibcite{kozial2009}{{21}{2009}{{Koziol and Wozniak}}{{}}}
-\bibcite{kruskal1969}{{22}{1969}{{Kruskal}}{{}}}
-\bibcite{pptree2013}{{23}{2013}{{Lee et~al.}}{{Lee, Cook, Park, and Lee}}}
-\bibcite{lemmond2010}{{24}{2010}{{Lemmond et~al.}}{{Lemmond, Chen, Hatch, and Hanley}}}
-\bibcite{huan1998}{{25}{1998}{{Liu and Setiono}}{{}}}
-\bibcite{menkovski2008}{{26}{2008}{{Menkovski et~al.}}{{Menkovski, Christou, and Efremidis}}}
-\bibcite{menze2011}{{27}{2011}{{Menze et~al.}}{{Menze, Kelm, Splitthoff, Koethe, and Hamprecht}}}
-\bibcite{mingers1989}{{28}{1989}{{Mingers}}{{}}}
-\bibcite{stree2021}{{29}{2021}{{Monta{\~{n}}ana et~al.}}{{Monta{\~{n}}ana, G{\'a}mez, and Puerta}}}
-\bibcite{Montanana2021}{{30}{2021}{{Montañana et~al.}}{{Montañana, Gámez, and Puerta}}}
-\bibcite{montanana2025}{{31}{2025}{{Montañana et~al.}}{{Montañana, Gámez, and Puerta}}}
-\bibcite{MurthyKS94}{{32}{1994}{{Murthy et~al.}}{{Murthy, Kasif, and Salzberg}}}
-\bibcite{nanda2018}{{33}{2018}{{Nanda et~al.}}{{Nanda, Seminar, Nandika, and Maddu}}}
-\bibcite{OpenAI2026}{{34}{}{{OpenAI}}{{}}}
-\bibcite{pagallo1990}{{35}{1990}{{Pagallo and Haussler}}{{}}}
-\bibcite{scikit2011}{{36}{2011}{{Pedregosa et~al.}}{{Pedregosa, Varoquaux, Gramfort, Michel, Thirion, Grisel, Blondel, Prettenhofer, Weiss, Dubourg, Vanderplas, Passos, Cournapeau, Brucher, Perrot, and Duchesnay}}}
-\bibcite{quinlan1986}{{37}{1986}{{Quinlan}}{{}}}
-\bibcite{quinlan1993}{{38}{2014}{{Quinlan}}{{}}}
-\bibcite{Reynolds2019}{{39}{2019}{{Reynolds et~al.}}{{Reynolds, Callaghan, and Banerjee}}}
-\bibcite{schaffer1992}{{40}{1992}{{Schaffer}}{{}}}
-\bibcite{takahashi2002}{{41}{2002}{{Takahashi and Abe}}{{}}}
-\bibcite{Truong2009}{{42}{2009}{{Truong}}{{}}}
-\bibcite{young1984}{{43}{1984}{{Young}}{{}}}
+\bibcite{kelly2023uci}{{20}{2023}{{Kelly et~al.}}{{Kelly, Longjohn, and Nottingham}}}
+\bibcite{kittler1986}{{21}{1986}{{Kittler}}{{}}}
+\bibcite{kozial2009}{{22}{2009}{{Koziol and Wozniak}}{{}}}
+\bibcite{kruskal1969}{{23}{1969}{{Kruskal}}{{}}}
+\bibcite{pptree2013}{{24}{2013}{{Lee et~al.}}{{Lee, Cook, Park, and Lee}}}
+\bibcite{lemmond2010}{{25}{2010}{{Lemmond et~al.}}{{Lemmond, Chen, Hatch, and Hanley}}}
+\bibcite{huan1998}{{26}{1998}{{Liu and Setiono}}{{}}}
+\bibcite{menkovski2008}{{27}{2008}{{Menkovski et~al.}}{{Menkovski, Christou, and Efremidis}}}
+\bibcite{menze2011}{{28}{2011}{{Menze et~al.}}{{Menze, Kelm, Splitthoff, Koethe, and Hamprecht}}}
+\bibcite{mingers1989}{{29}{1989}{{Mingers}}{{}}}
+\bibcite{stree2021}{{30}{2021}{{Monta{\~{n}}ana et~al.}}{{Monta{\~{n}}ana, G{\'a}mez, and Puerta}}}
+\bibcite{Montanana2021}{{31}{2021}{{Montañana et~al.}}{{Montañana, Gámez, and Puerta}}}
+\bibcite{montanana2025}{{32}{2025}{{Montañana et~al.}}{{Montañana, Gámez, and Puerta}}}
+\bibcite{MurthyKS94}{{33}{1994}{{Murthy et~al.}}{{Murthy, Kasif, and Salzberg}}}
+\bibcite{nanda2018}{{34}{2018}{{Nanda et~al.}}{{Nanda, Seminar, Nandika, and Maddu}}}
+\bibcite{OpenAI2026}{{35}{}{{OpenAI}}{{}}}
+\bibcite{pagallo1990}{{36}{1990}{{Pagallo and Haussler}}{{}}}
+\bibcite{scikit2011}{{37}{2011}{{Pedregosa et~al.}}{{Pedregosa, Varoquaux, Gramfort, Michel, Thirion, Grisel, Blondel, Prettenhofer, Weiss, Dubourg, Vanderplas, Passos, Cournapeau, Brucher, Perrot, and Duchesnay}}}
+\bibcite{quinlan1986}{{38}{1986}{{Quinlan}}{{}}}
+\bibcite{quinlan1993}{{39}{2014}{{Quinlan}}{{}}}
+\bibcite{Reynolds2019}{{40}{2019}{{Reynolds et~al.}}{{Reynolds, Callaghan, and Banerjee}}}
+\bibcite{schaffer1992}{{41}{1992}{{Schaffer}}{{}}}
+\bibcite{takahashi2002}{{42}{2002}{{Takahashi and Abe}}{{}}}
+\bibcite{Truong2009}{{43}{2009}{{Truong}}{{}}}
+\bibcite{young1984}{{44}{1984}{{Young}}{{}}}
 \ttl@finishall
 \gdef \@abspage@last{22}

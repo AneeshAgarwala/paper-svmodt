@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.6.7)  7 JUN 2026 21:21
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.6.7)  8 JUN 2026 17:33
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -865,99 +865,101 @@ Package pdftex.def Info: paper-svmodt_files/figure-latex/palmer-penguins-introdu
 [1{c:/Users/AneeshAG/AppData/Roaming/TinyTeX/texmf-var/fonts/map/pdftex/updmap/pdftex.map}{c:/Users/AneeshAG/AppData/Roaming/TinyTeX/texmf-dist/fonts/enc/dvips/base/8r.enc}
 
  <./paper-svmodt_files/figure-latex/palmer-penguins-introduction-split-1.pdf>] [2] [3] [4]
-LaTeX Font Info:    Trying to load font information for T1+zi4 on input line 141.
+LaTeX Font Info:    Trying to load font information for T1+zi4 on input line 140.
 (c:/Users/AneeshAG/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/inconsolata/t1zi4.fd
 File: t1zi4.fd 2018/01/14 T1/zi4 (Inconsolata)
 )
 LaTeX Font Info:    Font shape `T1/zi4/m/n' will be
-(Font)              scaled to size 9.18004pt on input line 141.
+(Font)              scaled to size 9.18004pt on input line 140.
 Package microtype Info: Loading generic protrusion settings for font family
 (microtype)             `zi4' (encoding: T1).
 (microtype)             For optimal results, create family-specific settings.
 (microtype)             See the microtype manual for details.
-LaTeX Font Info:    Trying to load font information for TS1+ppl on input line 154.
+LaTeX Font Info:    Trying to load font information for TS1+ppl on input line 153.
 (c:/Users/AneeshAG/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/psnfss/ts1ppl.fd
 File: ts1ppl.fd 2001/06/04 font definitions for TS1/ppl.
 ) [5{c:/Users/AneeshAG/AppData/Roaming/TinyTeX/texmf-dist/fonts/enc/dvips/inconsolata/i4-t1-0.enc}] [6] [7]
-<paper-svmodt_files/figure-latex/palmer-penguins-max-feature-selection-latex-1.pdf, id=342, 423.5825pt x 112.42pt>
+<paper-svmodt_files/figure-latex/palmer-penguins-max-feature-selection-latex-1.pdf, id=345, 423.5825pt x 112.42pt>
 File: paper-svmodt_files/figure-latex/palmer-penguins-max-feature-selection-latex-1.pdf Graphic file (type pdf)
 <use paper-svmodt_files/figure-latex/palmer-penguins-max-feature-selection-latex-1.pdf>
-Package pdftex.def Info: paper-svmodt_files/figure-latex/palmer-penguins-max-feature-selection-latex-1.pdf  used on input line 339.
+Package pdftex.def Info: paper-svmodt_files/figure-latex/palmer-penguins-max-feature-selection-latex-1.pdf  used on input line 338.
 (pdftex.def)             Requested size: 423.58147pt x 112.41972pt.
 
-Overfull \hbox (25.24289pt too wide) in paragraph at lines 339--340
+Overfull \hbox (25.24289pt too wide) in paragraph at lines 338--339
  [][] 
  []
 
 [8] [9 <./paper-svmodt_files/figure-latex/palmer-penguins-max-feature-selection-latex-1.pdf>]
-<paper-svmodt_files/figure-latex/palmer-penguins-feature-selection-split-latex-1.pdf, id=393, 423.5825pt x 112.42pt>
+<paper-svmodt_files/figure-latex/palmer-penguins-feature-selection-split-latex-1.pdf, id=396, 423.5825pt x 112.42pt>
 File: paper-svmodt_files/figure-latex/palmer-penguins-feature-selection-split-latex-1.pdf Graphic file (type pdf)
 <use paper-svmodt_files/figure-latex/palmer-penguins-feature-selection-split-latex-1.pdf>
-Package pdftex.def Info: paper-svmodt_files/figure-latex/palmer-penguins-feature-selection-split-latex-1.pdf  used on input line 399.
+Package pdftex.def Info: paper-svmodt_files/figure-latex/palmer-penguins-feature-selection-split-latex-1.pdf  used on input line 398.
 (pdftex.def)             Requested size: 423.58147pt x 112.41972pt.
 
-Overfull \hbox (25.24289pt too wide) in paragraph at lines 399--400
+Overfull \hbox (25.24289pt too wide) in paragraph at lines 398--399
  [][] 
  []
 
 
-Overfull \hbox (9.00417pt too wide) in paragraph at lines 413--436
+Overfull \hbox (9.00417pt too wide) in paragraph at lines 412--435
  [][] 
  []
 
-[10 <./paper-svmodt_files/figure-latex/palmer-penguins-feature-selection-split-latex-1.pdf>]
-<paper-svmodt_files/figure-latex/wine-feature-penalty-1.pdf, id=412, 351.3125pt x 310.15875pt>
+<paper-svmodt_files/figure-latex/wine-feature-penalty-1.pdf, id=398, 351.3125pt x 310.15875pt>
 File: paper-svmodt_files/figure-latex/wine-feature-penalty-1.pdf Graphic file (type pdf)
 <use paper-svmodt_files/figure-latex/wine-feature-penalty-1.pdf>
-Package pdftex.def Info: paper-svmodt_files/figure-latex/wine-feature-penalty-1.pdf  used on input line 446.
+Package pdftex.def Info: paper-svmodt_files/figure-latex/wine-feature-penalty-1.pdf  used on input line 445.
 (pdftex.def)             Requested size: 119.50278pt x 105.50464pt.
-<paper-svmodt_files/figure-latex/wine-feature-penalty-2.pdf, id=413, 351.3125pt x 310.15875pt>
+<paper-svmodt_files/figure-latex/wine-feature-penalty-2.pdf, id=399, 351.3125pt x 310.15875pt>
 File: paper-svmodt_files/figure-latex/wine-feature-penalty-2.pdf Graphic file (type pdf)
 <use paper-svmodt_files/figure-latex/wine-feature-penalty-2.pdf>
-Package pdftex.def Info: paper-svmodt_files/figure-latex/wine-feature-penalty-2.pdf  used on input line 446.
+Package pdftex.def Info: paper-svmodt_files/figure-latex/wine-feature-penalty-2.pdf  used on input line 445.
 (pdftex.def)             Requested size: 119.50278pt x 105.50464pt.
-<paper-svmodt_files/figure-latex/wine-feature-penalty-3.pdf, id=414, 351.3125pt x 310.15875pt>
+<paper-svmodt_files/figure-latex/wine-feature-penalty-3.pdf, id=400, 351.3125pt x 310.15875pt>
 File: paper-svmodt_files/figure-latex/wine-feature-penalty-3.pdf Graphic file (type pdf)
 <use paper-svmodt_files/figure-latex/wine-feature-penalty-3.pdf>
-Package pdftex.def Info: paper-svmodt_files/figure-latex/wine-feature-penalty-3.pdf  used on input line 446.
+Package pdftex.def Info: paper-svmodt_files/figure-latex/wine-feature-penalty-3.pdf  used on input line 445.
 (pdftex.def)             Requested size: 119.50278pt x 105.50464pt.
 
-Overfull \hbox (9.44412pt too wide) in paragraph at lines 478--501
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+[10 <./paper-svmodt_files/figure-latex/palmer-penguins-feature-selection-split-latex-1.pdf>]
+Overfull \hbox (9.44412pt too wide) in paragraph at lines 477--500
  [][] 
  []
 
 [11 <./paper-svmodt_files/figure-latex/wine-feature-penalty-1.pdf> <./paper-svmodt_files/figure-latex/wine-feature-penalty-2.pdf> <./paper-svmodt_files/figure-latex/wine-feature-penalty-3.pdf>] [12]
-<paper-svmodt_files/figure-latex/palmer-penguins-weighted-split-latex-1.pdf, id=457, 423.5825pt x 112.42pt>
+<paper-svmodt_files/figure-latex/palmer-penguins-weighted-split-latex-1.pdf, id=460, 423.5825pt x 112.42pt>
 File: paper-svmodt_files/figure-latex/palmer-penguins-weighted-split-latex-1.pdf Graphic file (type pdf)
 <use paper-svmodt_files/figure-latex/palmer-penguins-weighted-split-latex-1.pdf>
-Package pdftex.def Info: paper-svmodt_files/figure-latex/palmer-penguins-weighted-split-latex-1.pdf  used on input line 588.
+Package pdftex.def Info: paper-svmodt_files/figure-latex/palmer-penguins-weighted-split-latex-1.pdf  used on input line 587.
 (pdftex.def)             Requested size: 423.58147pt x 112.41972pt.
 
-Overfull \hbox (25.24289pt too wide) in paragraph at lines 588--589
+Overfull \hbox (25.24289pt too wide) in paragraph at lines 587--588
  [][] 
  []
 
-
-Overfull \hbox (20.33995pt too wide) in paragraph at lines 604--627
+[13 <./paper-svmodt_files/figure-latex/palmer-penguins-weighted-split-latex-1.pdf>]
+Overfull \hbox (20.33995pt too wide) in paragraph at lines 603--626
  [][] 
  []
 
-[13] [14 <./paper-svmodt_files/figure-latex/palmer-penguins-weighted-split-latex-1.pdf>] [15] [16] [17] [18] (./RJwrapper.bbl (./RJwrapper.brf)
+[14] [15] [16] [17] [18] [19] (./RJwrapper.bbl (./RJwrapper.brf)
 \tf@brf=\write6
 \openout6 = `RJwrapper.brf'.
 
-[19] [20] [21])
+[20] [21])
 
 LaTeX Font Warning: Font shape `T1/zi4/m/it' undefined
-(Font)              using `T1/zi4/m/n' instead on input line 927.
+(Font)              using `T1/zi4/m/n' instead on input line 930.
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 927--928
+Underfull \hbox (badness 10000) in paragraph at lines 930--931
 
  []
 
 LaTeX Font Info:    Font shape `T1/zi4/m/it' will be
-(Font)              scaled to size 9.18004pt on input line 937.
+(Font)              scaled to size 9.18004pt on input line 940.
 ) [22] (./RJwrapper.aux)
  ***********
 LaTeX2e <2026-06-01>
@@ -969,21 +971,21 @@ LaTeX Font Warning: Some font shapes were not available, defaults substituted.
 Package rerunfilecheck Info: File `RJwrapper.out' has not changed.
 (rerunfilecheck)             Checksum: AC15E77086C29AEACBADB0FEAAF1BB5B;3521.
 Package rerunfilecheck Info: File `RJwrapper.brf' has not changed.
-(rerunfilecheck)             Checksum: BAB15F797C00A5855C23D9C5E99B5476;2933.
+(rerunfilecheck)             Checksum: E3FB8FF9841DADB99D0DF3F7E4D8A166;2980.
  ) 
 Here is how much of TeX's memory you used:
- 29365 strings out of 469156
- 538865 string characters out of 5458348
- 975929 words of memory out of 5000000
- 57090 multiletter control sequences out of 15000+600000
+ 29372 strings out of 469156
+ 538990 string characters out of 5458348
+ 975992 words of memory out of 5000000
+ 57096 multiletter control sequences out of 15000+600000
  710065 words of font info for 465 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
  117i,23n,131p,1647b,1033s stack positions out of 10000i,1000n,20000p,200000b,200000s
 <c:/Users/AneeshAG/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/inconsolata/Inconsolata-zi4r.pfb><c:/Users/AneeshAG/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb><c:/Users/AneeshAG/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb><c:/Users/AneeshAG/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb><c:/Users/AneeshAG/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb><c:/Users/AneeshAG/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/mathpazo/fplmbb.pfb><c:/Users/AneeshAG/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/mathpazo/fplmbi.pfb><c:/Users/AneeshAG/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/mathpazo/fplmr.pfb><c:/Users/AneeshAG/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/mathpazo/fplmri.pfb><c:/Users/AneeshAG/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/urw/palatino/uplb8a.pfb><c:/Users/AneeshAG/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/urw/palatino/uplbi8a.pfb><c:/Users/AneeshAG/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/urw/palatino/uplr8a.pfb><c:/Users/AneeshAG/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/urw/palatino/uplri8a.pfb>
-Output written on RJwrapper.pdf (22 pages, 1740416 bytes).
+Output written on RJwrapper.pdf (22 pages, 1740354 bytes).
 PDF statistics:
- 796 PDF objects out of 1000 (max. 8388607)
- 717 compressed objects within 8 object streams
- 222 named destinations out of 1000 (max. 500000)
+ 800 PDF objects out of 1000 (max. 8388607)
+ 721 compressed objects within 8 object streams
+ 223 named destinations out of 1000 (max. 500000)
  129736 words of extra memory for PDF output out of 154059 (max. 10000000)
 
