@@ -4,6 +4,7 @@ library(dplyr)
 library(purrr)
 library(reticulate)
 # install.packages("D:/SVMODT/project-svodt/", repos = NULL, type = "source")
+source("analysis/stree-code.R")
 library(svmodt)
 # Libraries - Python
 stree <- import("stree")

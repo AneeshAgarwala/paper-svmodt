@@ -40,7 +40,7 @@ plot_svmodt_surface <- function(tree, data, response, resolution = 200) {
   grid <- grid[, intersect(names(data), names(grid)), drop = FALSE]
 
   # Get predictions with probabilities
-  pred_result <- svm_predict_tree(tree, grid,
+  pred_result <- predict(tree, grid,
     return_probs = TRUE,
     calibrate_probs = TRUE
   )

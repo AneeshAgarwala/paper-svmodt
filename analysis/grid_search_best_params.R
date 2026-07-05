@@ -1,6 +1,5 @@
-install.packages("../project-svodt/", repos = NULL, type = "source")
 
-devtools::load_all("../project-svodt/")
+source("analysis/stree-code.R")
 library(svmodt)
 library(dplyr)
 library(purrr)
@@ -222,7 +221,7 @@ svmodt_caret_model <- list(
   },
   predict = function(modelFit, newdata, submodels = NULL) {
     tryCatch(
-      as.character(svm_predict_tree(modelFit, as.data.frame(newdata))),
+      as.character(predict(modelFit, as.data.frame(newdata))),
       error = function(e) {
         message("  [WARN] predict failed: ", conditionMessage(e))
         rep(NA_character_, nrow(newdata))
@@ -420,7 +419,7 @@ for (dataset_name in names(datasets)) {
             svmodt::svm_split,
             c(list(data = train_data, response = "clase", max_depth = 10), best_args)
           )
-          preds <- svm_predict_tree(model, test_data)
+          preds <- predict(model, test_data)
           mean(preds == test_data$clase, na.rm = TRUE)
         },
         error = function(e) {

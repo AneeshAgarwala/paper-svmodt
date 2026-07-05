@@ -1,6 +1,6 @@
 ---
-title: "svmodt: An R Package for Linear SVM-Based Oblique Decision Trees"
-date: "2025-10-29"
+title: "Svmodt: An R Package for Linear SVM-Based Oblique Decision Trees"
+date: "2026-07-05"
 abstract: >
   Decision trees are widely used for classification tasks due to their representational power and interpretability, but traditional trees with axis-aligned splits often need many splits in order to approximate complex decision boundaries. Oblique decision trees split according to a linear combination of variables, providing greater flexibility, but deciding how and where to split becomes challenging. We consider linear Support Vector Machines (SVM) as a principled and computationally convenient method to learn node specified oblique splits. We provide STreeR, the first fully native R implementation of the STree algorithm implementing SVM-based oblique decision trees that use linear Support Vector Machines at each node to create multivariate splits, and validate it against the original Python implementation. We then introduce svmodt, an R package extending STree to support dynamic feature selection strategies, node-specific class weighting for handling imbalanced data, and feature diversity mechanisms through penalisation. We demonstrate that SVMODT outperforms axis-parallel decision trees while also maintaining more similar tree structures. The package includes detailed documentation, and is available on [GitHub](https://github.com/AneeshAgarwala/project-svodt).
 draft: true
@@ -22,10 +22,10 @@ author:
     email: Erik.Sverdrup@monash.edu
 type: package
 output: 
+  rjtools::rjournal_pdf_article:
+    toc: no
   rjtools::rjournal_web_article:
     self_contained: yes
-    toc: no
-  rjtools::rjournal_pdf_article:
     toc: no
 header-includes:
   \usepackage{amsmath}
@@ -42,10 +42,11 @@ bibliography: RJreferences.bib
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE, fig.width = 5)
 knitr::opts_knit$set(latex_engine = "xelatex")
+
 library(kableExtra)
 library(dplyr)
-# devtools::install_github("AneeshAgarwala/svmodt")
-#install.packages("../project-svodt/", repos = NULL, type = "source")
+#install.packages("svmodt")
+source("analysis/stree-code.R")
 library(svmodt)
 library(palmerpenguins)
 library(rpart)
@@ -94,7 +95,7 @@ penguins_orsf <- penguins |> drop_na()
 
 penguins_orsf$flipper_length_mm <- as.numeric(penguins_orsf$flipper_length_mm)
 
-penguins_orsf <- penguins_orsf |> svmodt:::standard_scaler()
+penguins_orsf <- penguins_orsf |> standard_scaler()
 
 plot_decision_surface <- function(predictions,
                                   # title,
@@ -280,7 +281,7 @@ The algorithm generates a binary tree recursively (see Algorithm \@ref(alg:stree
 
 When all instances at a node belong to more than two classes ($k'>2$), the approach generates multiple candidate binary splits: For each class label $y_i$, it constructs a one-vs-rest binary problem: Class $y_i$ vs. all other classes. It trains an SVM for each of these $k'$ problems, resulting in $k'$ hyperplanes $H_i$, $i = 1, \ldots, K$. Each hyperplane partitions the data into $T_i^+$ and $T_i^-$. The algorithm computes the impurity (using Shannon entropy) of the class distribution within each partition. When only two classes remain, STree trains a single SVM to obtain the maximum‑margin hyperplane. Instances are then routed left or right based on the sign of their distance to this hyperplane. Stree's performance depends heavily on hyperparameter tuning, including kernel choice (linear, polynomial or Gaussian), gamma, polynomial degree, regularisation parameter C, and max iteration.
 
-# Contributed Methods
+# Contributed methods
 
 ## STreeR
 
@@ -708,7 +709,7 @@ Once $m_d$ is determined, up to $m_d$ features are selected using the specified 
 penguins_orsf <- penguins |>
   select(-island, -sex, -year) |>
   drop_na() |>
-  svmodt:::standard_scaler()
+  standard_scaler()
   
 penguins_orsf$flipper_length_mm <- as.numeric(penguins_orsf$flipper_length_mm)
 
@@ -761,9 +762,9 @@ FIGURE DON;T APPEAR TO USE STANDARDISED DATA?
 -->
 
 ```{r palmer-penguins-max-feature-selection-html, eval=knitr::is_html_output(), fig.align='center', results='asis', fig.cap="Comparison of constant, decreasing, and random maximum feature selection strategies using SVMODT on the Palmer Penguins dataset.", fig.subcap=c('constant', 'decrease', 'random'), out.width = '30%'}
-knitr::include_graphics(path = "analysis/results/max-feature-selection/constant/tour-constant.gif")
-knitr::include_graphics(path = "analysis/results/max-feature-selection/decrease/tour-decrease.gif")
-knitr::include_graphics(path = "analysis/results/max-feature-selection/random/tour-random.gif")
+knitr::include_graphics(path = "figures/max-feature-selection/tour-constant.gif")
+knitr::include_graphics(path = "figures/max-feature-selection/tour-decrease.gif")
+knitr::include_graphics(path = "figures/max-feature-selection/tour-random.gif")
 ```
 
 ```{r svmodt-max-features-accuracy-score-table}
@@ -905,9 +906,9 @@ ggarrange(plot1, plot2, plot3, nrow = 1, common.legend = TRUE, legend = "right")
 ```
 
 ```{r palmer-penguins-feature-selection-split-html, eval = knitr::is_html_output(), fig.align='center', results='asis', fig.cap="Comparison of random, mutual, and correlated feature selection methods using SVMODT on the Palmer Penguins dataset.", fig.subcap=c('random', 'mutual', 'correlation'), out.width = '30%'}
-knitr::include_graphics(path = "analysis/results/feature-selection/random/tour-random.gif")
-knitr::include_graphics(path = "analysis/results/feature-selection/mutual/tour-mutual.gif")
-knitr::include_graphics(path = "analysis/results/feature-selection/corr/tour-corr.gif")
+knitr::include_graphics(path = "figures/feature-selection/tour-random.gif")
+knitr::include_graphics(path = "figures/feature-selection/tour-mutual.gif")
+knitr::include_graphics(path = "figures/feature-selection/tour-corr.gif")
 ```
 
 To further encourage diversity across tree nodes, the algorithm incorporates a feature reuse penalty mechanism. Previously selected features are tracked in the set $\mathcal{F}_{\text{used}}$, and a penalty parameter $\lambda_{\text{pen}}$ reduces the probability that these features are repeatedly chosen at deeper levels of the tree. After the candidate feature subset $\mathcal{F}_d$ is selected, the corresponding predictors are standardized at the node level. Features that become constant after preprocessing are removed. If no valid features remain, the node is converted into a leaf node. The selected feature subset is then used to train the SVM model responsible for generating the oblique decision boundary at the node. For strategies involving random feature subsets, multiple candidate subsets may be evaluated. For each candidate subset, a Support Vector Machine is fitted and the resulting split is assessed using an impurity based criterion such as information gain. The subset that produces the highest impurity reduction is selected for the node.
@@ -1006,7 +1007,7 @@ Features that have already been selected in earlier splits receive a reduced rel
 
 ```{r wine-feature-penalty, fig.align='center', results='asis', fig.cap="Comparison of Low, Medium and High penalty on repeated features by SVMODT on Wine dataset.", fig.subcap=c('No Penalty', 'Low (0.2)', 'Medium (0.5)', 'High (0.8)'), out.width = '30%', fig.pos='h'}
 wine <- read.table("data/wine_R.dat") |>
-  mutate(clase = as.factor(clase)) |> svmodt:::standard_scaler()
+  mutate(clase = as.factor(clase)) |> standard_scaler()
 
 fit_no_penalty <- svm_split(
   data = wine,
@@ -1241,8 +1242,8 @@ tree_wdbc_min_10_sample <- svm_split(data = wdbc_train, response = "diagnosis", 
 tree_wdbc_min_50_sample <- svm_split(data = wdbc_train, response = "diagnosis", min_samples = 50, feature_method = "mutual", max_features_strategy = "random")
 
 
-acc_wdbc_10_sample <- mean(svm_predict_tree(tree = tree_wdbc_min_10_sample, newdata = wdbc_test) == wdbc_test$diagnosis)
-acc_wdbc_50_sample <- mean(svm_predict_tree(tree = tree_wdbc_min_50_sample, newdata = wdbc_test) == wdbc_test$diagnosis)
+acc_wdbc_10_sample <- mean(predict(tree_wdbc_min_10_sample, wdbc_test) == wdbc_test$diagnosis)
+acc_wdbc_50_sample <- mean(predict(tree_wdbc_min_50_sample, wdbc_test) == wdbc_test$diagnosis)
 
 min_sample_table <- cbind(rbind(`10` = count_tree_nodes(tree_wdbc_min_10_sample), 
             `50` = count_tree_nodes(tree_wdbc_min_50_sample)), 
@@ -1287,7 +1288,7 @@ Table `r knitr::asis_output(ifelse(knitr::is_html_output(), '\\@ref(tab:max-dept
 
 ```{r max-depth-table-setup}
 cardiotocography <- read.table("data/cardiotocography-3clases_R.dat") |>
-  mutate(clase = as.factor(clase)) |> svmodt:::standard_scaler()
+  mutate(clase = as.factor(clase)) |> standard_scaler()
 
 set.seed(17)
 cardio_split <- initial_split(data = cardiotocography, prop = 0.8, strata = clase)
@@ -1298,9 +1299,9 @@ tree_cardio_depth_3 <- svm_split(data = cardio_train, response = "clase", max_de
 tree_cardio_depth_5 <- svm_split(data = cardio_train, response = "clase", max_depth = 5)
 tree_cardio_depth_7 <- svm_split(data = cardio_train, response = "clase", max_depth = 7)
 
-acc_cardio_depth_2 <- mean(svm_predict_tree(tree = tree_cardio_depth_3, newdata = cardio_test) == cardio_test$clase)
-acc_cardio_depth_5 <- mean(svm_predict_tree(tree = tree_cardio_depth_5, newdata = cardio_test) == cardio_test$clase)
-acc_cardio_depth_7 <- mean(svm_predict_tree(tree = tree_cardio_depth_7, newdata = cardio_test) == cardio_test$clase)
+acc_cardio_depth_2 <- mean(predict(tree_cardio_depth_3, cardio_test) == cardio_test$clase)
+acc_cardio_depth_5 <- mean(predict(tree_cardio_depth_5, cardio_test) == cardio_test$clase)
+acc_cardio_depth_7 <- mean(predict(tree_cardio_depth_7, cardio_test) == cardio_test$clase)
 
 ```
 
@@ -1347,7 +1348,7 @@ Table `r knitr::asis_output(ifelse(knitr::is_html_output(), '\\@ref(tab:min-impu
 
 ```{r min-impurity-table-setup}
 cardiotocography <- read.table("data/cardiotocography-3clases_R.dat") |>
-  mutate(clase = as.factor(clase)) |> svmodt:::standard_scaler()
+  mutate(clase = as.factor(clase)) |> standard_scaler()
 
 set.seed(17)
 cardio_split <- initial_split(data = cardiotocography, prop = 0.8, strata = clase)
@@ -1361,9 +1362,9 @@ tree_cardio_impurity_001 <- svm_split(data = cardio_train, response = "clase", m
 tree_cardio_impurity_01 <- svm_split(data = cardio_train, response = "clase", max_depth = 5, min_impurity_decrease = 0.1)
 
 
-acc_cardio_impurity_0005 <- mean(svm_predict_tree(tree = tree_cardio_impurity_0005, newdata = cardio_test) == cardio_test$clase)
-acc_cardio_impurity_001 <- mean(svm_predict_tree(tree = tree_cardio_impurity_001, newdata = cardio_test) == cardio_test$clase)
-acc_cardio_impurity_01 <- mean(svm_predict_tree(tree = tree_cardio_impurity_01, newdata = cardio_test) == cardio_test$clase)
+acc_cardio_impurity_0005 <- mean(predict(tree_cardio_impurity_0005, cardio_test) == cardio_test$clase)
+acc_cardio_impurity_001 <- mean(predict(tree_cardio_impurity_001, cardio_test) == cardio_test$clase)
+acc_cardio_impurity_01 <- mean(predict(tree_cardio_impurity_01, cardio_test) == cardio_test$clase)
 
 ```
 ```{r min-impurity-table-latex, eval=knitr::is_latex_output(),fig.pos='h'}
@@ -1455,9 +1456,9 @@ ggarrange(plot1, plot2, plot3, nrow = 1, common.legend = TRUE, legend = "right")
 ```
 
 ```{r palmer-penguins-weighted-split-html, eval=knitr::is_html_output(), fig.align='center', results='asis', fig.cap="Comparison of Equal, Balanced and Custom Weights by SVMODT on Palmerpenguins dataset. WHATS THE DIFFERENCE BETWEEN STREE AND NONE", fig.subcap=c('equal', 'balanced', 'custom'), out.width = '30%'}
-knitr::include_graphics(path = "analysis/results/class-weights/none/tour-none.gif")
-knitr::include_graphics(path = "analysis/results/class-weights/balanced/tour-balanced.gif")
-knitr::include_graphics(path = "analysis/results/class-weights/custom/tour-balanced-sub.gif")
+knitr::include_graphics(path = "figures/class-weights/tour-none.gif")
+knitr::include_graphics(path = "figures/class-weights/tour-balanced.gif")
+knitr::include_graphics(path = "figures/class-weights/tour-custom.gif")
 ```
 
 Figure `r knitr::asis_output(ifelse(knitr::is_html_output(), '\\@ref(fig:palmer-penguins-weighted-split-html)', '\\@ref(fig:palmer-penguins-weighted-split-latex)'))` illustrates the effect of alternative class weighting schemes on the decision boundaries produced by SVMODT. In the first panel, equal weights are assigned to all classes. In the second panel, balanced weights are used, whereby class weights are set inversely proportional to the number of observations belonging to each class at the node. In the final panel, a custom weighting scheme is imposed for illustrative purposes, with weights specified as Adelie = 2, Gentoo = 1, and Chinstrap = 5.

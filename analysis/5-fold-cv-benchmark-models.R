@@ -9,6 +9,7 @@ library(aorsf)
 library(nnet)
 library(PPtreeExt)
 library(kableExtra)
+source("analysis/stree-code.R")
 
 # <U+2500><U+2500> Python <U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500>
 stree <- import("stree")
@@ -16,34 +17,34 @@ sklearn_svm <- import("sklearn.svm")
 
 # <U+2500><U+2500> Datasets <U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500>
 ctg3 <- read.table("data/cardiotocography-3clases_R.dat")
-ctg3[, -ncol(ctg3)] <- lapply(ctg3[, -ncol(ctg3)], svmodt:::standard_scaler)
+ctg3[, -ncol(ctg3)] <- lapply(ctg3[, -ncol(ctg3)], standard_scaler)
 
 ctg10 <- read.table("data/cardiotocography-10clases_R.dat")
-ctg10[, -ncol(ctg10)] <- lapply(ctg10[, -ncol(ctg10)], svmodt:::standard_scaler)
+ctg10[, -ncol(ctg10)] <- lapply(ctg10[, -ncol(ctg10)], standard_scaler)
 
 australian_credit <- read.table("data/statlog-australian-credit_R.dat")
-australian_credit[, -ncol(australian_credit)] <- lapply(australian_credit[, -ncol(australian_credit)], svmodt:::standard_scaler)
+australian_credit[, -ncol(australian_credit)] <- lapply(australian_credit[, -ncol(australian_credit)], standard_scaler)
 
 wdbc <- read.table("data/breast-cancer-wisc-diag_R.dat")
-wdbc[, -ncol(wdbc)] <- lapply(wdbc[, -ncol(wdbc)], svmodt:::standard_scaler)
+wdbc[, -ncol(wdbc)] <- lapply(wdbc[, -ncol(wdbc)], standard_scaler)
 
 iris <- read.table("data/iris_R.dat")
-iris[, -ncol(iris)] <- lapply(iris[, -ncol(iris)], svmodt:::standard_scaler)
+iris[, -ncol(iris)] <- lapply(iris[, -ncol(iris)], standard_scaler)
 
 echocardiogram <- read.table("data/echocardiogram_R.dat")
-echocardiogram[, -ncol(echocardiogram)] <- lapply(echocardiogram[, -ncol(echocardiogram)], svmodt:::standard_scaler)
+echocardiogram[, -ncol(echocardiogram)] <- lapply(echocardiogram[, -ncol(echocardiogram)], standard_scaler)
 
 fertility <- read.table("data/fertility_R.dat")
-fertility[, -ncol(fertility)] <- lapply(fertility[, -ncol(fertility)], svmodt:::standard_scaler)
+fertility[, -ncol(fertility)] <- lapply(fertility[, -ncol(fertility)], standard_scaler)
 
 wine <- read.table("data/wine_R.dat")
-wine[, -ncol(wine)] <- lapply(wine[, -ncol(wine)], svmodt:::standard_scaler)
+wine[, -ncol(wine)] <- lapply(wine[, -ncol(wine)], standard_scaler)
 
 ionosphere <- read.table("data/ionosphere_R.dat")
-ionosphere[, -ncol(ionosphere)] <- lapply(ionosphere[, -ncol(ionosphere)], svmodt:::standard_scaler)
+ionosphere[, -ncol(ionosphere)] <- lapply(ionosphere[, -ncol(ionosphere)], standard_scaler)
 
 dermatology <- read.table("data/dermatology_R.dat")
-dermatology[, -ncol(dermatology)] <- lapply(dermatology[, -ncol(dermatology)], svmodt:::standard_scaler)
+dermatology[, -ncol(dermatology)] <- lapply(dermatology[, -ncol(dermatology)], standard_scaler)
 
 datasets <- list(
   wdbc           = wdbc,

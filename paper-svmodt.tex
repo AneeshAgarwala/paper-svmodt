@@ -1,5 +1,5 @@
 % !TeX root = RJwrapper.tex
-\title{svmodt: An R Package for Linear SVM-Based Oblique Decision Trees}
+\title{Svmodt: An R Package for Linear SVM-Based Oblique Decision Trees}
 
 
 \author{by Aneesh Agarwal, Jack Jewson, and Erik Sverdrup}
@@ -91,7 +91,7 @@ The algorithm generates a binary tree recursively (see Algorithm \ref{alg:stree}
 
 When all instances at a node belong to more than two classes (\(k'>2\)), the approach generates multiple candidate binary splits: For each class label \(y_i\), it constructs a one-vs-rest binary problem: Class \(y_i\) vs.~all other classes. It trains an SVM for each of these \(k'\) problems, resulting in \(k'\) hyperplanes \(H_i\), \(i = 1, \ldots, K\). Each hyperplane partitions the data into \(T_i^+\) and \(T_i^-\). The algorithm computes the impurity (using Shannon entropy) of the class distribution within each partition. When only two classes remain, STree trains a single SVM to obtain the maximum‑margin hyperplane. Instances are then routed left or right based on the sign of their distance to this hyperplane. Stree's performance depends heavily on hyperparameter tuning, including kernel choice (linear, polynomial or Gaussian), gamma, polynomial degree, regularisation parameter C, and max iteration.
 
-\section{Contributed Methods}\label{contributed-methods}
+\section{Contributed methods}\label{contributed-methods}
 
 \subsection{STreeR}\label{streer}
 

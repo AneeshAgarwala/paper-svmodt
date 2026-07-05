@@ -1,0 +1,88 @@
+Initial check results: 
+
+SUCCESS: Submission has consistently named tex, bib, and R files
+ERROR: There are nested subdirectories. Please use at most two directory levels for the article.
+NOTE: Remove .log, .aux and .out files before submitting.
+SUCCESS: No problematic file found
+SUCCESS: Possible motivation letter found: motivation-letter, motivation-letter.pdf
+ERROR: Article title not in title case! Suggest title: Svmodt: An R Package for Linear SVM-Based Oblique Decision Trees.
+ERROR: Section Contributed Methods is not in sentence case!
+SUCCESS: Abstract formatted in plain text.
+Initial check results: 
+
+SUCCESS: Submission has consistently named tex, bib, and R files
+ERROR: There are nested subdirectories. Please use at most two directory levels for the article.
+NOTE: Remove .log, .aux and .out files before submitting.
+SUCCESS: No problematic file found
+SUCCESS: Possible motivation letter found: motivation-letter, motivation-letter.pdf
+ERROR: Article title not in title case! Suggest title: Svmodt: An R Package for Linear SVM-Based Oblique Decision Trees.
+ERROR: Section Contributed Methods is not in sentence case!
+SUCCESS: Abstract formatted in plain text.
+Initial check results: 
+
+SUCCESS: Submission has consistently named tex, bib, and R files
+ERROR: There are nested subdirectories. Please use at most two directory levels for the article.
+NOTE: Remove .log, .aux and .out files before submitting.
+SUCCESS: No problematic file found
+SUCCESS: Possible motivation letter found: motivation-letter, motivation-letter.pdf
+SUCCESS: Article title formatted in title case.
+SUCCESS: Section titles formatted in sentence case.
+SUCCESS: Abstract formatted in plain text.
+NOTE: A potential list of spelling to check: interpretability, svmodt, penalisation, interpretable, hyperplanes, multiclass, scikit, learn's, vectorised, generalises, prioritised, randomised, hypercubes, generalisation, optimisation, perceptron, predominatly, maximised, regularisation, quadratically, recurses, scalability, labelled, benchmarking, accuracies, svm, pre, behaviour, characterised, stochasticity, tourr, visualisation, coloured, underperforms, utilise, penalised, penalising, unpenalised, localised, underfits, underfitting, centre, comparators, optimise, favour, prioritise, adaptively, rpart, untuned, overfit, mtry, prioritises, scalable, parallelised, organisation, wdbc, echocardiogram, ctg
+SUCCESS: CRAN activities have been detected for package svmodt
+SUCCESS: No error with the use of \pkg markup.
+ERROR: 2 of 10 package(s) not available on CRAN: oblique.tree, PPtree
+WARNING: Citation should include a link to the reference, preferably a
+DOI, unless online resources cannot be found.
+References without DOI or URL: kelly2023uci, menze2011, mirko2019, skmohammadi2015, stree2021, friedman2006, kruskal1969, quinlan1993, frean1990, huan1998, cristianini2000, cortes1995, vapnik2013, dong2005, hsu2002, nanda2018, bala2011, Montanana2021, scikit2011, crammer2001.
+SUCCESS: No customised csl file used. Good!
+ERROR: Please use a fixed article's date in the format of `%Y-%m-%d`,
+e.g. 2023-10-05. The date should match the date when the article
+is submitted. Dynamic date can cause issues on issue rendering.
+
+SUCCESS: 9 | NOTE: 2 | WARNING: 1 | ERROR: 3
+
+Initial check results: 
+
+SUCCESS: Submission has consistently named tex, bib, and R files
+ERROR: There are nested subdirectories. Please use at most two directory levels for the article.
+NOTE: Remove .log, .aux and .out files before submitting.
+SUCCESS: No problematic file found
+SUCCESS: Possible motivation letter found: motivation-letter, motivation-letter.pdf
+SUCCESS: Article title formatted in title case.
+SUCCESS: Section titles formatted in sentence case.
+SUCCESS: Abstract formatted in plain text.
+NOTE: A potential list of spelling to check: interpretability, svmodt, penalisation, interpretable, hyperplanes, multiclass, scikit, learn's, vectorised, generalises, prioritised, randomised, hypercubes, generalisation, optimisation, perceptron, predominatly, maximised, regularisation, quadratically, recurses, scalability, labelled, benchmarking, accuracies, svm, pre, behaviour, characterised, stochasticity, tourr, visualisation, coloured, underperforms, utilise, penalised, penalising, unpenalised, localised, underfits, underfitting, centre, comparators, optimise, favour, prioritise, adaptively, rpart, untuned, overfit, mtry, prioritises, scalable, parallelised, organisation, wdbc, echocardiogram, ctg
+SUCCESS: CRAN activities have been detected for package svmodt
+SUCCESS: No error with the use of \pkg markup.
+ERROR: 2 of 10 package(s) not available on CRAN: oblique.tree, PPtree
+WARNING: Citation should include a link to the reference, preferably a
+DOI, unless online resources cannot be found.
+References without DOI or URL: frean1990.
+SUCCESS: No customised csl file used. Good!
+SUCCESS: Article date is set fixed at the article submission date.
+
+SUCCESS: 10 | NOTE: 2 | WARNING: 1 | ERROR: 2
+
+Initial check results: 
+
+SUCCESS: Submission has consistently named tex, bib, and R files
+ERROR: There are nested subdirectories. Please use at most two directory levels for the article.
+NOTE: Remove .log, .aux and .out files before submitting.
+SUCCESS: No problematic file found
+SUCCESS: Possible motivation letter found: motivation-letter, motivation-letter.pdf
+SUCCESS: Article title formatted in title case.
+SUCCESS: Section titles formatted in sentence case.
+SUCCESS: Abstract formatted in plain text.
+NOTE: A potential list of spelling to check: interpretability, svmodt, penalisation, interpretable, hyperplanes, multiclass, scikit, learn's, vectorised, generalises, prioritised, randomised, hypercubes, generalisation, optimisation, perceptron, predominatly, maximised, regularisation, quadratically, recurses, scalability, labelled, benchmarking, accuracies, svm, pre, behaviour, characterised, stochasticity, tourr, visualisation, coloured, underperforms, utilise, penalised, penalising, unpenalised, localised, underfits, underfitting, centre, comparators, optimise, favour, prioritise, adaptively, rpart, untuned, overfit, mtry, prioritises, scalable, parallelised, organisation, wdbc, echocardiogram, ctg
+SUCCESS: CRAN activities have been detected for package svmodt
+SUCCESS: No error with the use of \pkg markup.
+ERROR: 2 of 10 package(s) not available on CRAN: oblique.tree, PPtree
+WARNING: Citation should include a link to the reference, preferably a
+DOI, unless online resources cannot be found.
+References without DOI or URL: frean1990.
+SUCCESS: No customised csl file used. Good!
+SUCCESS: Article date is set fixed at the article submission date.
+
+SUCCESS: 10 | NOTE: 2 | WARNING: 1 | ERROR: 2
+

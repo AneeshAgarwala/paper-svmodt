@@ -4,10 +4,11 @@
 ## ----setup, include=FALSE-----------------------------------------------------
 knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE, fig.width = 5)
 knitr::opts_knit$set(latex_engine = "xelatex")
+
 library(kableExtra)
 library(dplyr)
-# devtools::install_github("AneeshAgarwala/svmodt")
-#install.packages("../project-svodt/", repos = NULL, type = "source")
+#install.packages("svmodt")
+source("analysis/stree-code.R")
 library(svmodt)
 library(palmerpenguins)
 library(rpart)
@@ -27,7 +28,7 @@ penguins_orsf <- penguins |> drop_na()
 
 penguins_orsf$flipper_length_mm <- as.numeric(penguins_orsf$flipper_length_mm)
 
-penguins_orsf <- penguins_orsf |> svmodt:::standard_scaler()
+penguins_orsf <- penguins_orsf |> standard_scaler()
 
 plot_decision_surface <- function(predictions,
                                   # title,
@@ -263,7 +264,7 @@ source(file = "analysis/plot-surface.R")
 penguins_orsf <- penguins |>
   select(-island, -sex, -year) |>
   drop_na() |>
-  svmodt:::standard_scaler()
+  standard_scaler()
   
 penguins_orsf$flipper_length_mm <- as.numeric(penguins_orsf$flipper_length_mm)
 
@@ -305,9 +306,9 @@ ggarrange(plot1, plot2, plot3, nrow = 1, common.legend = TRUE, legend = "right")
 
 
 ## ----palmer-penguins-max-feature-selection-html, eval=knitr::is_html_output(), fig.align='center', results='asis', fig.cap="Comparison of constant, decreasing, and random maximum feature selection strategies using SVMODT on the Palmer Penguins dataset.", fig.subcap=c('constant', 'decrease', 'random'), out.width = '30%'----
-# knitr::include_graphics(path = "analysis/results/max-feature-selection/constant/tour-constant.gif")
-# knitr::include_graphics(path = "analysis/results/max-feature-selection/decrease/tour-decrease.gif")
-# knitr::include_graphics(path = "analysis/results/max-feature-selection/random/tour-random.gif")
+# knitr::include_graphics(path = "figures/max-feature-selection/tour-constant.gif")
+# knitr::include_graphics(path = "figures/max-feature-selection/tour-decrease.gif")
+# knitr::include_graphics(path = "figures/max-feature-selection/tour-random.gif")
 
 
 ## ----svmodt-max-features-accuracy-score-table---------------------------------
@@ -435,9 +436,9 @@ ggarrange(plot1, plot2, plot3, nrow = 1, common.legend = TRUE, legend = "right")
 
 
 ## ----palmer-penguins-feature-selection-split-html, eval = knitr::is_html_output(), fig.align='center', results='asis', fig.cap="Comparison of random, mutual, and correlated feature selection methods using SVMODT on the Palmer Penguins dataset.", fig.subcap=c('random', 'mutual', 'correlation'), out.width = '30%'----
-# knitr::include_graphics(path = "analysis/results/feature-selection/random/tour-random.gif")
-# knitr::include_graphics(path = "analysis/results/feature-selection/mutual/tour-mutual.gif")
-# knitr::include_graphics(path = "analysis/results/feature-selection/corr/tour-corr.gif")
+# knitr::include_graphics(path = "figures/feature-selection/tour-random.gif")
+# knitr::include_graphics(path = "figures/feature-selection/tour-mutual.gif")
+# knitr::include_graphics(path = "figures/feature-selection/tour-corr.gif")
 
 
 ## ----svmodt-feature-selection-table-setup-------------------------------------
@@ -524,7 +525,7 @@ tbl_feature_bold |>
 
 ## ----wine-feature-penalty, fig.align='center', results='asis', fig.cap="Comparison of Low, Medium and High penalty on repeated features by SVMODT on Wine dataset.", fig.subcap=c('No Penalty', 'Low (0.2)', 'Medium (0.5)', 'High (0.8)'), out.width = '30%', fig.pos='h'----
 wine <- read.table("data/wine_R.dat") |>
-  mutate(clase = as.factor(clase)) |> svmodt:::standard_scaler()
+  mutate(clase = as.factor(clase)) |> standard_scaler()
 
 fit_no_penalty <- svm_split(
   data = wine,
@@ -726,8 +727,8 @@ tree_wdbc_min_10_sample <- svm_split(data = wdbc_train, response = "diagnosis", 
 tree_wdbc_min_50_sample <- svm_split(data = wdbc_train, response = "diagnosis", min_samples = 50, feature_method = "mutual", max_features_strategy = "random")
 
 
-acc_wdbc_10_sample <- mean(svm_predict_tree(tree = tree_wdbc_min_10_sample, newdata = wdbc_test) == wdbc_test$diagnosis)
-acc_wdbc_50_sample <- mean(svm_predict_tree(tree = tree_wdbc_min_50_sample, newdata = wdbc_test) == wdbc_test$diagnosis)
+acc_wdbc_10_sample <- mean(predict(tree_wdbc_min_10_sample, wdbc_test) == wdbc_test$diagnosis)
+acc_wdbc_50_sample <- mean(predict(tree_wdbc_min_50_sample, wdbc_test) == wdbc_test$diagnosis)
 
 min_sample_table <- cbind(rbind(`10` = count_tree_nodes(tree_wdbc_min_10_sample), 
             `50` = count_tree_nodes(tree_wdbc_min_50_sample)), 
@@ -768,7 +769,7 @@ min_sample_table |>
 
 ## ----max-depth-table-setup----------------------------------------------------
 cardiotocography <- read.table("data/cardiotocography-3clases_R.dat") |>
-  mutate(clase = as.factor(clase)) |> svmodt:::standard_scaler()
+  mutate(clase = as.factor(clase)) |> standard_scaler()
 
 set.seed(17)
 cardio_split <- initial_split(data = cardiotocography, prop = 0.8, strata = clase)
@@ -779,9 +780,9 @@ tree_cardio_depth_3 <- svm_split(data = cardio_train, response = "clase", max_de
 tree_cardio_depth_5 <- svm_split(data = cardio_train, response = "clase", max_depth = 5)
 tree_cardio_depth_7 <- svm_split(data = cardio_train, response = "clase", max_depth = 7)
 
-acc_cardio_depth_2 <- mean(svm_predict_tree(tree = tree_cardio_depth_3, newdata = cardio_test) == cardio_test$clase)
-acc_cardio_depth_5 <- mean(svm_predict_tree(tree = tree_cardio_depth_5, newdata = cardio_test) == cardio_test$clase)
-acc_cardio_depth_7 <- mean(svm_predict_tree(tree = tree_cardio_depth_7, newdata = cardio_test) == cardio_test$clase)
+acc_cardio_depth_2 <- mean(predict(tree_cardio_depth_3, cardio_test) == cardio_test$clase)
+acc_cardio_depth_5 <- mean(predict(tree_cardio_depth_5, cardio_test) == cardio_test$clase)
+acc_cardio_depth_7 <- mean(predict(tree_cardio_depth_7, cardio_test) == cardio_test$clase)
 
 
 
@@ -824,7 +825,7 @@ cbind(rbind(`3` = count_tree_nodes(tree_cardio_depth_3),
 
 ## ----min-impurity-table-setup-------------------------------------------------
 cardiotocography <- read.table("data/cardiotocography-3clases_R.dat") |>
-  mutate(clase = as.factor(clase)) |> svmodt:::standard_scaler()
+  mutate(clase = as.factor(clase)) |> standard_scaler()
 
 set.seed(17)
 cardio_split <- initial_split(data = cardiotocography, prop = 0.8, strata = clase)
@@ -838,9 +839,9 @@ tree_cardio_impurity_001 <- svm_split(data = cardio_train, response = "clase", m
 tree_cardio_impurity_01 <- svm_split(data = cardio_train, response = "clase", max_depth = 5, min_impurity_decrease = 0.1)
 
 
-acc_cardio_impurity_0005 <- mean(svm_predict_tree(tree = tree_cardio_impurity_0005, newdata = cardio_test) == cardio_test$clase)
-acc_cardio_impurity_001 <- mean(svm_predict_tree(tree = tree_cardio_impurity_001, newdata = cardio_test) == cardio_test$clase)
-acc_cardio_impurity_01 <- mean(svm_predict_tree(tree = tree_cardio_impurity_01, newdata = cardio_test) == cardio_test$clase)
+acc_cardio_impurity_0005 <- mean(predict(tree_cardio_impurity_0005, cardio_test) == cardio_test$clase)
+acc_cardio_impurity_001 <- mean(predict(tree_cardio_impurity_001, cardio_test) == cardio_test$clase)
+acc_cardio_impurity_01 <- mean(predict(tree_cardio_impurity_01, cardio_test) == cardio_test$clase)
 
 
 ## ----min-impurity-table-latex, eval=knitr::is_latex_output(),fig.pos='h'------
@@ -919,9 +920,9 @@ ggarrange(plot1, plot2, plot3, nrow = 1, common.legend = TRUE, legend = "right")
 
 
 ## ----palmer-penguins-weighted-split-html, eval=knitr::is_html_output(), fig.align='center', results='asis', fig.cap="Comparison of Equal, Balanced and Custom Weights by SVMODT on Palmerpenguins dataset. WHATS THE DIFFERENCE BETWEEN STREE AND NONE", fig.subcap=c('equal', 'balanced', 'custom'), out.width = '30%'----
-# knitr::include_graphics(path = "analysis/results/class-weights/none/tour-none.gif")
-# knitr::include_graphics(path = "analysis/results/class-weights/balanced/tour-balanced.gif")
-# knitr::include_graphics(path = "analysis/results/class-weights/custom/tour-balanced-sub.gif")
+# knitr::include_graphics(path = "figures/class-weights/tour-none.gif")
+# knitr::include_graphics(path = "figures/class-weights/tour-balanced.gif")
+# knitr::include_graphics(path = "figures/class-weights/tour-custom.gif")
 
 
 ## ----svmodt-class-weight-f1-score-table---------------------------------------

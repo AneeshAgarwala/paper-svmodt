@@ -55,7 +55,7 @@ fit_random <- svm_split(
   max_features = 3
 )
 
-preds_random <- svm_predict_tree(tree = fit_random, newdata = mass_points)
+preds_random <- predict(fit_random, mass_points)
 preds_random <- as.factor(preds_random)
 
 
@@ -68,7 +68,7 @@ render_gif(
     center = FALSE,
     half_range = 2.5
   ),
-  gif_file = "analysis/results/feature-selection/random/tour-random.gif"
+  gif_file = "figures/feature-selection/tour-random.gif"
 )
 
 ## Mutual Features
@@ -81,7 +81,7 @@ fit_mutual <- svm_split(
   feature_method = "mutual"
 )
 
-preds_mutual <- svm_predict_tree(tree = fit_mutual, newdata = mass_points)
+preds_mutual <- predict(fit_mutual, mass_points)
 preds_mutual <- as.factor(preds_mutual)
 
 render_gif(
@@ -93,7 +93,7 @@ render_gif(
     center = FALSE,
     half_range = 2.5
   ),
-  gif_file = "analysis/results/feature-selection/mutual/tour-mutual.gif"
+  gif_file = "figures/feature-selection/tour-mutual.gif"
 )
 
 
@@ -107,7 +107,7 @@ fit_cor <- svm_split(
   feature_method = "cor"
 )
 
-preds_corr <- svm_predict_tree(tree = fit_cor, newdata = mass_points)
+preds_corr <- predict(fit_cor, mass_points)
 preds_corr <- as.factor(preds_corr)
 
 render_gif(
@@ -119,7 +119,7 @@ render_gif(
     center = FALSE,
     half_range = 2.5
   ),
-  gif_file = "analysis/results/feature-selection/corr/tour-corr.gif"
+  gif_file = "figures/feature-selection/tour-corr.gif"
 )
 
 ####### CLASS WEIGHTS #########
@@ -134,7 +134,7 @@ fit_none <- svm_split(
   max_features = 3, class_weights = "none"
 )
 
-preds_none <- svm_predict_tree(tree = fit_none, newdata = mass_points)
+preds_none <- predict(fit_none, mass_points)
 preds_none <- as.factor(preds_none)
 
 render_gif(
@@ -146,7 +146,7 @@ render_gif(
     center = FALSE,
     half_range = 2.5
   ),
-  gif_file = "analysis/results/class-weights/none/tour-none.gif"
+  gif_file = "figures/class-weights/tour-none.gif"
 )
 
 ## BALANCED ##
@@ -159,7 +159,7 @@ fit_balanced <- svm_split(
   max_features = 3, class_weights = "balanced"
 )
 
-preds_balanced <- svm_predict_tree(tree = fit_balanced, newdata = mass_points)
+preds_balanced <- predict(fit_balanced, mass_points)
 preds_balanced <- as.factor(preds_balanced)
 
 render_gif(
@@ -171,7 +171,7 @@ render_gif(
     center = FALSE,
     half_range = 2.5
   ),
-  gif_file = "analysis/results/class-weights/balanced/tour-balanced.gif"
+  gif_file = "figures/class-weights/tour-balanced.gif"
 )
 
 
@@ -188,7 +188,7 @@ fit_custom <- svm_split(
 )
 
 
-preds_custom <- svm_predict_tree(tree = fit_custom, newdata = mass_points)
+preds_custom <- predict(fit_custom, mass_points)
 preds_custom <- as.factor(preds_custom)
 
 render_gif(
@@ -200,7 +200,7 @@ render_gif(
     center = FALSE,
     half_range = 2.5
   ),
-  gif_file = "analysis/results/class-weights/custom/tour-balanced-sub.gif"
+  gif_file = "figures/class-weights/tour-custom.gif"
 )
 
 ####### MAX FEATURE SELECTION #########
@@ -215,7 +215,7 @@ fit_constant <- svm_split(
   max_features_strategy = "constant"
 )
 
-preds_constant <- svm_predict_tree(tree = fit_constant, newdata = mass_points)
+preds_constant <- predict(fit_constant, mass_points)
 preds_constant <- as.factor(preds_constant)
 
 render_gif(
@@ -227,7 +227,7 @@ render_gif(
     center = FALSE,
     half_range = 2.5
   ),
-  gif_file = "analysis/results/max-feature-selection/constant/tour-constant.gif"
+  gif_file = "figures/max-feature-selection/tour-constant.gif"
 )
 
 
@@ -242,7 +242,7 @@ fit_decrease <- svm_split(
   max_features_decrease_rate = 0.5
 )
 
-preds_decrease <- svm_predict_tree(tree = fit_decrease, newdata = mass_points)
+preds_decrease <- predict(fit_decrease, mass_points)
 preds_decrease <- as.factor(preds_decrease)
 
 render_gif(
@@ -254,7 +254,7 @@ render_gif(
     center = FALSE,
     half_range = 2.5
   ),
-  gif_file = "analysis/results/max-feature-selection/decrease/tour-decrease.gif"
+  gif_file = "figures/max-feature-selection/tour-decrease.gif"
 )
 
 
@@ -269,7 +269,7 @@ fit_max_random <- svm_split(
   max_features_random_range = c(0.5, 0.8)
 )
 
-preds_max_random <- svm_predict_tree(tree = fit_random, newdata = mass_points)
+preds_max_random <- predict(fit_random, mass_points)
 preds_max_random <- as.factor(preds_max_random)
 
 render_gif(
@@ -281,7 +281,7 @@ render_gif(
     center = FALSE,
     half_range = 2.5
   ),
-  gif_file = "analysis/results/max-feature-selection/random/tour-random.gif"
+  gif_file = "figures/max-feature-selection/tour-random.gif"
 )
 
 
@@ -299,7 +299,7 @@ fit_no_penalty <- svm_split(
   penalize_used_features = FALSE
 )
 
-preds_no_penalty <- svm_predict_tree(tree = fit_no_penalty, newdata = mass_points)
+preds_no_penalty <- predict(fit_no_penalty, mass_points)
 preds_no_penalty <- as.factor(preds_no_penalty)
 
 render_gif(
@@ -311,7 +311,7 @@ render_gif(
     center = FALSE,
     half_range = 2.5
   ),
-  gif_file = "analysis/results/feature_penalty/tour-no-penalty.gif"
+  gif_file = "figures/feature_penalty/tour-no-penalty.gif"
 )
 
 ## Low Penalty
@@ -326,7 +326,7 @@ fit_low_penalty <- svm_split(
   feature_penalty_weight = 0.2
 )
 
-preds_low_penalty <- svm_predict_tree(tree = fit_low_penalty, newdata = mass_points)
+preds_low_penalty <- predict(fit_low_penalty, mass_points)
 preds_low_penalty <- as.factor(preds_low_penalty)
 
 render_gif(
@@ -338,7 +338,7 @@ render_gif(
     center = FALSE,
     half_range = 2.5
   ),
-  gif_file = "analysis/results/feature_penalty/tour-low-penalty.gif"
+  gif_file = "figures/feature_penalty/tour-low-penalty.gif"
 )
 
 ## Medium Penalty
@@ -353,7 +353,7 @@ fit_medium_penalty <- svm_split(
   feature_penalty_weight = 0.5
 )
 
-preds_medium_penalty <- svm_predict_tree(tree = fit_medium_penalty, newdata = mass_points)
+preds_medium_penalty <- predict(fit_medium_penalty, mass_points)
 preds_medium_penalty <- as.factor(preds_medium_penalty)
 
 render_gif(
@@ -365,7 +365,7 @@ render_gif(
     center = FALSE,
     half_range = 2.5
   ),
-  gif_file = "analysis/results/feature_penalty/tour-medium-penalty.gif"
+  gif_file = "figures/feature_penalty/tour-medium-penalty.gif"
 )
 
 
@@ -381,7 +381,7 @@ fit_high_penalty <- svm_split(
   feature_penalty_weight = 0.8
 )
 
-preds_high_penalty <- svm_predict_tree(tree = fit_high_penalty, newdata = mass_points)
+preds_high_penalty <- predict(fit_high_penalty, mass_points)
 preds_high_penalty <- as.factor(preds_high_penalty)
 
 render_gif(
@@ -393,5 +393,5 @@ render_gif(
     center = FALSE,
     half_range = 2.5
   ),
-  gif_file = "analysis/results/feature_penalty/tour-high-penalty.gif"
+  gif_file = "figures/feature_penalty/tour-high-penalty.gif"
 )

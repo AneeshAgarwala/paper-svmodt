@@ -4,6 +4,7 @@ library(dplyr)
 library(purrr)
 library(reticulate)
 library(svmodt)
+source("analysis/stree-code.R")
 
 # install.packages("../project-svodt/", repos = NULL, type = "source")
 
@@ -83,7 +84,7 @@ seed_list <- c(57, 31, 1714, 17, 23, 79, 83, 97, 7, 1)
 
 # <U+2500><U+2500> Shared Prediction Functions <U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500>
 predict_svmodt <- function(model, newdata, ...) {
-  svm_predict_tree(model, newdata)
+  predict(model, newdata)
 }
 
 predict_stree <- function(model, newdata, ...) {
