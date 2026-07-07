@@ -28,3 +28,10 @@ Aneesh Agarwal
 Department of Econometrics and Business Statistics, Monash University 
 Melbourne, Australia  
 aneesh.agarwal@monash.edu 
+
+---
+## RjTools' Automatic Check Results
+
+SUCCESS: 13 | NOTE: 2 | WARNING: 0 | ERROR: 0  
+-   NOTE: Remove .log, .aux and .out files before submitting.  
+-   NOTE: A potential list of spelling to check: interpretability, svmodt, penalisation, interpretable, hyperplanes, multiclass, scikit, learn's, vectorised, generalises, prioritised, randomised, hypercubes, generalisation, optimisation, perceptron, predominatly, maximised, regularisation, quadratically, recurses, scalability, labelled, benchmarking, accuracies, svm, pre, behaviour, characterised, stochasticity, tourr, visualisation, coloured, underperforms, utilise, penalised, penalising, unpenalised, localised, underfits, underfitting, centre, auditable, visualises, comparators, optimise, favour, prioritise, adaptively, rpart, untuned, overfit, mtry, prioritises, scalable, parallelised, organisation, wdbc, echocardiogram, ctg

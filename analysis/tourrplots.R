@@ -68,7 +68,7 @@ render_gif(
     center = FALSE,
     half_range = 2.5
   ),
-  gif_file = "figures/feature-selection/tour-random.gif"
+  gif_file = "figures/tour-random.gif"
 )
 
 ## Mutual Features
@@ -93,7 +93,7 @@ render_gif(
     center = FALSE,
     half_range = 2.5
   ),
-  gif_file = "figures/feature-selection/tour-mutual.gif"
+  gif_file = "figures/tour-mutual.gif"
 )
 
 
@@ -119,7 +119,7 @@ render_gif(
     center = FALSE,
     half_range = 2.5
   ),
-  gif_file = "figures/feature-selection/tour-corr.gif"
+  gif_file = "figures/tour-corr.gif"
 )
 
 ####### CLASS WEIGHTS #########
@@ -146,7 +146,7 @@ render_gif(
     center = FALSE,
     half_range = 2.5
   ),
-  gif_file = "figures/class-weights/tour-none.gif"
+  gif_file = "figures/tour-none.gif"
 )
 
 ## BALANCED ##
@@ -171,7 +171,7 @@ render_gif(
     center = FALSE,
     half_range = 2.5
   ),
-  gif_file = "figures/class-weights/tour-balanced.gif"
+  gif_file = "figures/tour-balanced.gif"
 )
 
 
@@ -200,7 +200,7 @@ render_gif(
     center = FALSE,
     half_range = 2.5
   ),
-  gif_file = "figures/class-weights/tour-custom.gif"
+  gif_file = "figures/tour-custom.gif"
 )
 
 ####### MAX FEATURE SELECTION #########
@@ -227,7 +227,7 @@ render_gif(
     center = FALSE,
     half_range = 2.5
   ),
-  gif_file = "figures/max-feature-selection/tour-constant.gif"
+  gif_file = "figures/tour-constant.gif"
 )
 
 
@@ -254,7 +254,7 @@ render_gif(
     center = FALSE,
     half_range = 2.5
   ),
-  gif_file = "figures/max-feature-selection/tour-decrease.gif"
+  gif_file = "figures/tour-decrease.gif"
 )
 
 
@@ -281,7 +281,7 @@ render_gif(
     center = FALSE,
     half_range = 2.5
   ),
-  gif_file = "figures/max-feature-selection/tour-random.gif"
+  gif_file = "figures/tour-random-maxfeat.gif"
 )
 
 
@@ -311,7 +311,7 @@ render_gif(
     center = FALSE,
     half_range = 2.5
   ),
-  gif_file = "figures/feature_penalty/tour-no-penalty.gif"
+  gif_file = "figures/tour-no-penalty.gif"
 )
 
 ## Low Penalty
@@ -338,7 +338,7 @@ render_gif(
     center = FALSE,
     half_range = 2.5
   ),
-  gif_file = "figures/feature_penalty/tour-low-penalty.gif"
+  gif_file = "figures/tour-low-penalty.gif"
 )
 
 ## Medium Penalty
@@ -365,7 +365,7 @@ render_gif(
     center = FALSE,
     half_range = 2.5
   ),
-  gif_file = "figures/feature_penalty/tour-medium-penalty.gif"
+  gif_file = "figures/tour-medium-penalty.gif"
 )
 
 
@@ -393,5 +393,5 @@ render_gif(
     center = FALSE,
     half_range = 2.5
   ),
-  gif_file = "figures/feature_penalty/tour-high-penalty.gif"
+  gif_file = "figures/tour-high-penalty.gif"
 )

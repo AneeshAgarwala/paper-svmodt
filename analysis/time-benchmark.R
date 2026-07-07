@@ -168,4 +168,4 @@ bench::mark(
 
 time_bench <- rbind(wdbc_run, iris_run, echocardiogram_run, fertility_run, wine_run, ctg3_run, ctg10_run, ionosphere_run, dermatology_run, australian_credit_run)
 colnames(time_bench) <- c("StreeR", "SVMODT", "Stree")
-time_bench |> saveRDS(file = "analysis/results/time-benchmark.rds")
+time_bench |> saveRDS(file = "analysis/time-benchmark.rds")

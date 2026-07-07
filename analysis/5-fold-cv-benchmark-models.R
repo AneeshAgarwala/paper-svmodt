@@ -11,11 +11,11 @@ library(PPtreeExt)
 library(kableExtra)
 source("analysis/stree-code.R")
 
-# <U+2500><U+2500> Python <U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500>
+#  Python 
 stree <- import("stree")
 sklearn_svm <- import("sklearn.svm")
 
-# <U+2500><U+2500> Datasets <U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500>
+#  Datasets 
 ctg3 <- read.table("data/cardiotocography-3clases_R.dat")
 ctg3[, -ncol(ctg3)] <- lapply(ctg3[, -ncol(ctg3)], standard_scaler)
 
@@ -70,7 +70,7 @@ data_num_observations <- c(569, 150, 131, 100, 178, 2126, 2126, 351, 366)
 data_num_features <- c(30, 4, 10, 9, 12, 21, 21, 33, 34)
 data_num_classes <- c(2, 3, 2, 2, 3, 3, 10, 2, 6)
 
-# <U+2500><U+2500> Python STree best configurations per dataset <U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500>
+#  Python STree best configurations per dataset 
 stree_best_args <- list(
   wdbc = list(C = 0.2, max_iter = 1e4L, kernel = "linear"),
   iris = list(max_iter = 10000000L, kernel = "linear"),
@@ -96,7 +96,7 @@ stree_best_args <- list(
   )
 )
 
-# <U+2500><U+2500> Training Functions <U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500>
+#  Training Functions 
 
 train_rpart_shallow <- function(data, response) {
   data[[response]] <- as.factor(data[[response]])
@@ -178,7 +178,7 @@ train_python_stree_best <- function(data, response, dataset_name) {
   py_model
 }
 
-# <U+2500><U+2500> rpart Grid <U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500>
+#  rpart Grid 
 rpart_param_grid <- expand.grid(
   maxdepth = c(2, 3, 5, 8, 15, 30),
   cp = c(0.1, 0.01, 0.001, 0.0001),
@@ -238,7 +238,7 @@ train_rpart_grid <- function(data, response, k_inner = 3) {
   )
 }
 
-# <U+2500><U+2500> Prediction Functions <U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500>
+#  Prediction Functions 
 
 predict_rpart <- function(model, newdata, response) {
   as.character(predict(model, newdata, type = "class"))
@@ -302,7 +302,7 @@ predict_python_stree_best <- function(model, test_data, response) {
   as.character(py_to_r(preds))
 }
 
-# <U+2500><U+2500> Benchmark Runner <U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500>
+#  Benchmark Runner 
 run_benchmark <- function(datasets, seed_list, n_iter = 10) {
   model_names <- c(
     "rpart_grid",
@@ -386,38 +386,38 @@ run_benchmark <- function(datasets, seed_list, n_iter = 10) {
   return(results)
 }
 
-# <U+2500><U+2500> Run <U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500>
+#  Run 
 cat("\n====== BENCHMARK: Multiple Classifiers ======\n")
 benchmark_results <- run_benchmark(datasets, seed_list, n_iter = 10)
 
-# <U+2500><U+2500> Convert to Matrices <U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500>
+#  Convert to Matrices 
 benchmark_matrices <- map(benchmark_results, function(res) {
   mat <- do.call(cbind, res)
   colnames(mat) <- dataset_col_names
   mat
 })
 
-# <U+2500><U+2500> Save <U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500>
+#  Save 
 iwalk(benchmark_matrices, function(mat, name) {
-  saveRDS(mat, paste0("analysis/results/benchmark_", name, ".rds"))
+  saveRDS(mat, paste0("analysis/benchmark_", name, ".rds"))
 })
 
 cat("\nSaved", length(benchmark_matrices), "result matrices.\n")
 
-# <U+2500><U+2500> Summary Table <U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500>
-# <U+2500><U+2500> Load all results <U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500>
-r_svmodt_star <- readRDS("analysis/results/r_svmodt_star.rds")[, 1:9]
-r_svmodt <- readRDS("analysis/results/r_svmodt.rds")[, 1:9]
-logreg <- readRDS("analysis/results/benchmark_logreg.rds")[, 1:9]
-rpart_shallow <- readRDS("analysis/results/benchmark_rpart_shallow.rds")[, 1:9]
-rpart_grid <- readRDS("analysis/results/benchmark_rpart_grid.rds")
-aorsf <- readRDS("analysis/results/benchmark_aorsf.rds")
-pptree <- readRDS("analysis/results/benchmark_pptree.rds")[, 1:9]
-rpart_deep <- readRDS("analysis/results/benchmark_rpart_deep.rds")[, 1:9]
-svm_linear <- readRDS("analysis/results/benchmark_svm_linear.rds")[, 1:9]
-py_stree_best <- readRDS("analysis/results/benchmark_py_stree_best.rds")[, 1:9]
+#  Summary Table 
+#  Load all results 
+r_svmodt_star <- readRDS("analysis/r_svmodt_star.rds")[, 1:9]
+r_svmodt <- readRDS("analysis/r_svmodt.rds")[, 1:9]
+logreg <- readRDS("analysis/benchmark_logreg.rds")[, 1:9]
+rpart_shallow <- readRDS("analysis/benchmark_rpart_shallow.rds")[, 1:9]
+rpart_grid <- readRDS("analysis/benchmark_rpart_grid.rds")
+aorsf <- readRDS("analysis/benchmark_aorsf.rds")
+pptree <- readRDS("analysis/benchmark_pptree.rds")[, 1:9]
+rpart_deep <- readRDS("analysis/benchmark_rpart_deep.rds")[, 1:9]
+svm_linear <- readRDS("analysis/benchmark_svm_linear.rds")[, 1:9]
+py_stree_best <- readRDS("analysis/benchmark_py_stree_best.rds")[, 1:9]
 
-# <U+2500><U+2500> Summary Table <U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500>
+#  Summary Table 
 mean_sd <- function(x, digits = 3) {
   x <- as.numeric(x)
   sprintf(
@@ -444,7 +444,7 @@ tbl_benchmark <- data.frame(
   stringsAsFactors = FALSE
 )
 
-# <U+2500><U+2500> Bold best per row <U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500>
+#  Bold best per row 
 model_cols <- 5:ncol(tbl_benchmark)
 
 tbl_benchmark_bold <- tbl_benchmark
@@ -458,7 +458,6 @@ tbl_benchmark_bold[model_cols] <- t(apply(tbl_benchmark[model_cols], 1, function
 tbl_benchmark_bold %>%
   kable(escape = FALSE, align = "c") %>%
   kable_styling(full_width = TRUE) %>%
-  save_kable("analysis/results/benchmark_summary_table.html")
-# <U+2500><U+2500> Render table <U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500>
-saveRDS(tbl_benchmark, "analysis/results/benchmark_summary_table.rds")
-
+  save_kable("analysis/benchmark_summary_table.html")
+#  Render table 
+saveRDS(tbl_benchmark, "analysis/benchmark_summary_table.rds")

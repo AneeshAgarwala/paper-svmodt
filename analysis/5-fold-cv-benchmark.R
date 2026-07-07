@@ -21,7 +21,7 @@ stree_args <- list(
   max_depth = 10
 )
 
-# <U+2500><U+2500> Datasets <U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500>
+#  Datasets
 ctg3 <- read.table("data/cardiotocography-3clases_R.dat") |>
   mutate(clase = as.factor(clase)) |>
   standard_scaler()
@@ -82,7 +82,7 @@ datasets <- list(
 dataset_col_names <- paste0("stat_", names(datasets))
 seed_list <- c(57, 31, 1714, 17, 23, 79, 83, 97, 7, 1)
 
-# <U+2500><U+2500> Shared Prediction Functions <U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500>
+#  Shared Prediction Functions
 predict_svmodt <- function(model, newdata, ...) {
   predict(model, newdata)
 }
@@ -97,13 +97,13 @@ predict_python_stree <- function(model, test_data, response) {
   py_to_r(preds)
 }
 
-# <U+2500><U+2500> Base SVMODT args (fixed across ALL experiments) <U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500>
+#  Base SVMODT args (fixed across ALL experiments)
 base_svmodt_args <- list(
   max_depth             = 15,
   verbose               = FALSE
 )
 
-# <U+2500><U+2500> Training Function Factory <U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500>
+#  Training Function Factory
 make_train_svmodt <- function(extra_args) {
   function(data, response) {
     do.call(
@@ -117,8 +117,8 @@ make_train_svmodt <- function(extra_args) {
   }
 }
 
-# <U+2500><U+2500> Generic Experiment Runner <U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500>
-# <U+2500><U+2500> Helper: Class distribution <U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500>
+#  Generic Experiment Runner
+#  Helper: Class distribution
 get_class_counts <- function(data, response) {
   counts <- table(data[[response]])
   tibble(
@@ -135,7 +135,7 @@ walk2(names(datasets), datasets, function(name, dat) {
   walk2(cc$class, cc$n, ~ cat("    class", .x, ":", .y, "observations\n"))
 })
 
-# <U+2500><U+2500> Helper: Multiclass F1 (macro) <U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500>
+#  Helper: Multiclass F1 (macro)
 compute_f1_macro <- function(preds, truth) {
   classes <- levels(as.factor(truth))
   f1s <- map_dbl(classes, function(cls) {
@@ -162,7 +162,7 @@ compute_f1_per_class <- function(preds, truth) {
   setNames(f1s, classes)
 }
 
-# <U+2500><U+2500> Updated Generic Experiment Runner <U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500>
+#  Updated Generic Experiment Runner
 run_experiment <- function(variants, datasets, seed_list,
                            dataset_max_features = NULL,
                            compute_f1 = FALSE,
@@ -260,7 +260,7 @@ run_experiment <- function(variants, datasets, seed_list,
   return(out)
 }
 
-# <U+2500><U+2500> Updated to_matrices <U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500>
+#  Updated to_matrices
 to_matrices <- function(results, col_names) {
   # Unwrap nested structure from compute_f1 = TRUE output
   if ("accuracy" %in% names(results)) results <- results$accuracy
@@ -298,9 +298,9 @@ to_matrices <- function(results, col_names) {
   })
 }
 
-# ==============================================================================
+
 # EXPERIMENT 1: Benchmark (R STree, SVMODT default, Python STree)
-# ==============================================================================
+
 cat("\n====== EXPERIMENT 1: Benchmark ======\n")
 
 results_bench <- list(r_stree = list(), r_svmodt = list(), py_stree = list())
@@ -375,13 +375,13 @@ colnames(r_svmodt) <- dataset_col_names
 py_stree <- do.call(cbind, results_bench$py_stree)
 colnames(py_stree) <- dataset_col_names
 
-r_stree |> saveRDS("analysis/results/r_stree.rds")
-r_svmodt |> saveRDS("analysis/results/r_svmodt.rds")
-py_stree |> saveRDS("analysis/results/py_stree.rds")
+r_stree |> saveRDS("analysis/r_stree.rds")
+r_svmodt |> saveRDS("analysis/r_svmodt.rds")
+py_stree |> saveRDS("analysis/py_stree.rds")
 
-# ==============================================================================
+
 # EXPERIMENT 1b: Benchmark F1 Scores (R STree, SVMODT default, Python STree)
-# ==============================================================================
+
 cat("\n====== EXPERIMENT 1b: Benchmark F1 ======\n")
 
 results_bench_f1 <- list(
@@ -466,15 +466,15 @@ colnames(r_svmodt_f1) <- dataset_col_names
 py_stree_f1 <- do.call(cbind, results_bench_f1$py_stree)
 colnames(py_stree_f1) <- dataset_col_names
 
-r_stree_f1 |> saveRDS("analysis/results/r_stree_f1.rds")
-r_svmodt_f1 |> saveRDS("analysis/results/r_svmodt_f1.rds")
-py_stree_f1 |> saveRDS("analysis/results/py_stree_f1.rds")
+r_stree_f1 |> saveRDS("analysis/r_stree_f1.rds")
+r_svmodt_f1 |> saveRDS("analysis/r_svmodt_f1.rds")
+py_stree_f1 |> saveRDS("analysis/py_stree_f1.rds")
 
-# ==============================================================================
+
 # EXPERIMENT 2: Feature Selection Method
 # max_features = 3 (constant), max_features_strategy = "constant" [FIXED]
 # Varies: feature_method
-# ==============================================================================
+
 cat("\n====== EXPERIMENT 2: Feature Selection Method ======\n")
 
 feature_method_variants <- list(
@@ -486,15 +486,15 @@ feature_method_variants <- list(
 results_feature <- run_experiment(feature_method_variants, datasets, seed_list)
 matrices_feature <- to_matrices(results_feature, dataset_col_names)
 
-matrices_feature$random |> saveRDS("analysis/results/svmodt_feature_random.rds")
-matrices_feature$mutual |> saveRDS("analysis/results/svmodt_feature_mutual.rds")
-matrices_feature$cor |> saveRDS("analysis/results/svmodt_feature_cor.rds")
+matrices_feature$random |> saveRDS("analysis/svmodt_feature_random.rds")
+matrices_feature$mutual |> saveRDS("analysis/svmodt_feature_mutual.rds")
+matrices_feature$cor |> saveRDS("analysis/svmodt_feature_cor.rds")
 
-# ==============================================================================
+
 # EXPERIMENT 3: Max Features Strategy
 # feature_method = "mutual" [FIXED]
 # Varies: max_features_strategy (and max_features / range accordingly)
-# ==============================================================================
+
 cat("\n====== EXPERIMENT 3: Max Features Strategy ======\n")
 
 mf_strategy_variants <- list(
@@ -517,13 +517,13 @@ mf_strategy_variants <- list(
 results_mf <- run_experiment(mf_strategy_variants, datasets, seed_list)
 matrices_mf <- to_matrices(results_mf, dataset_col_names)
 
-matrices_mf$constant |> saveRDS("analysis/results/svmodt_mf_constant.rds")
-matrices_mf$decrease |> saveRDS("analysis/results/svmodt_mf_decrease.rds")
-matrices_mf$random |> saveRDS("analysis/results/svmodt_mf_random.rds")
+matrices_mf$constant |> saveRDS("analysis/svmodt_mf_constant.rds")
+matrices_mf$decrease |> saveRDS("analysis/svmodt_mf_decrease.rds")
+matrices_mf$random |> saveRDS("analysis/svmodt_mf_random.rds")
 
-# ==============================================================================
+
 # EXPERIMENT 4: Class Weights  (accuracy + F1 + class counts)
-# ==============================================================================
+
 cat("\n====== EXPERIMENT 4: Class Weights ======\n")
 
 # Class counts per dataset
@@ -535,7 +535,7 @@ class_counts <- map_df(names(datasets), function(dataset_name) {
 
 cat("\nClass counts:\n")
 print(class_counts)
-saveRDS(class_counts, "analysis/results/class_counts.rds")
+saveRDS(class_counts, "analysis/class_counts.rds")
 
 class_weight_variants <- list(
   none               = list(feature_method = "mutual", class_weights = "none"),
@@ -553,21 +553,21 @@ results_weights <- run_experiment(
 
 # Accuracy matrices
 matrices_weights_acc <- to_matrices(results_weights$accuracy, dataset_col_names)
-matrices_weights_acc$none |> saveRDS("analysis/results/svmodt_weights_none_acc.rds")
-matrices_weights_acc$balanced |> saveRDS("analysis/results/svmodt_weights_balanced_acc.rds")
-matrices_weights_acc$balanced_subsample |> saveRDS("analysis/results/svmodt_weights_balanced_subsample_acc.rds")
+matrices_weights_acc$none |> saveRDS("analysis/svmodt_weights_none_acc.rds")
+matrices_weights_acc$balanced |> saveRDS("analysis/svmodt_weights_balanced_acc.rds")
+matrices_weights_acc$balanced_subsample |> saveRDS("analysis/svmodt_weights_balanced_subsample_acc.rds")
 
 # F1 matrices
 matrices_weights_f1 <- to_matrices(results_weights$f1, dataset_col_names)
-matrices_weights_f1$none |> saveRDS("analysis/results/svmodt_weights_none_f1.rds")
-matrices_weights_f1$balanced |> saveRDS("analysis/results/svmodt_weights_balanced_f1.rds")
-matrices_weights_f1$balanced_subsample |> saveRDS("analysis/results/svmodt_weights_balanced_subsample_f1.rds")
+matrices_weights_f1$none |> saveRDS("analysis/svmodt_weights_none_f1.rds")
+matrices_weights_f1$balanced |> saveRDS("analysis/svmodt_weights_balanced_f1.rds")
+matrices_weights_f1$balanced_subsample |> saveRDS("analysis/svmodt_weights_balanced_subsample_f1.rds")
 
-# ==============================================================================
+
 # EXPERIMENT 5: Feature Penalisation
 # max_features = 3 (constant), feature_method = "mutual" [FIXED]
 # Varies: penalize_used_features, feature_penalty_weight
-# ==============================================================================
+
 cat("\n====== EXPERIMENT 5: Feature Penalisation ======\n")
 
 penalise_variants <- list(
@@ -611,7 +611,7 @@ svmodt_penalty_low <- mats$penalty_low
 svmodt_penalty_medium <- mats$penalty_medium
 svmodt_penalty_high <- mats$penalty_high
 
-svmodt_penalty_none |> saveRDS("analysis/results/svmodt_penalty_none.rds")
-svmodt_penalty_low |> saveRDS("analysis/results/svmodt_penalty_low.rds")
-svmodt_penalty_medium |> saveRDS("analysis/results/svmodt_penalty_medium.rds")
-svmodt_penalty_high |> saveRDS("analysis/results/svmodt_penalty_high.rds")
+svmodt_penalty_none |> saveRDS("analysis/svmodt_penalty_none.rds")
+svmodt_penalty_low |> saveRDS("analysis/svmodt_penalty_low.rds")
+svmodt_penalty_medium |> saveRDS("analysis/svmodt_penalty_medium.rds")
+svmodt_penalty_high |> saveRDS("analysis/svmodt_penalty_high.rds")

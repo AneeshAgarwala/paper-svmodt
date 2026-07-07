@@ -7,7 +7,7 @@ knitr::opts_knit$set(latex_engine = "xelatex")
 
 library(kableExtra)
 library(dplyr)
-#install.packages("svmodt")
+# install.packages("svmodt")
 source("analysis/stree-code.R")
 library(svmodt)
 library(palmerpenguins)
@@ -122,18 +122,22 @@ plots <- map(preds, plot_decision_surface, grid = grid)
 ggarrange(plots[[1]], plots[[2]], ncol = 2, common.legend = TRUE, legend = "right")
 
 
-## ----table-benchmark-streer-latex, eval= knitr::is_latex_output()-------------
-r_stree <- readRDS("analysis/results/r_stree.rds")
-py_stree <- readRDS("analysis/results/py_stree.rds")
-time_bench <- readRDS("analysis/results/time-benchmark.rds")
+## ----alg-streer-html, echo=FALSE, results='asis', eval=knitr::is_html_output(), fig.cap='STreeR: Multi-class OVR SVM-based oblique decision tree', out.width='120%'----
+# knitr::include_graphics("figures/algo-1.png")
 
-r_stree <- r_stree[,1:9]
-py_stree <- py_stree[,1:9]
-time_bench <- time_bench[1:9,]
+
+## ----table-benchmark-streer-latex, eval= knitr::is_latex_output()-------------
+r_stree <- readRDS("analysis/r_stree.rds")
+py_stree <- readRDS("analysis/py_stree.rds")
+time_bench <- readRDS("analysis/time-benchmark.rds")
+
+r_stree <- r_stree[, 1:9]
+py_stree <- py_stree[, 1:9]
+time_bench <- time_bench[1:9, ]
 
 
 time_bench <- time_bench[, -2]
-# readRDS("analysis/results/optimised_r_stree.rds")
+# readRDS("analysis/optimised_r_stree.rds")
 
 data_names <- c("WDBC Diagnosis", "Iris", "Echocardiogram", "Fertility", "Wine", "Cardiotocography-3", "Cardiotocography-10", "Ionosphere", "Dermatology")
 data_num_observations <- c(569, 150, 131, 100, 178, 2126, 2126, 351, 366)
@@ -193,9 +197,9 @@ tbl_bold |>
 
 
 ## ----table-benchmark-streer-html, eval= knitr::is_html_output()---------------
-# r_stree <- readRDS("analysis/results/r_stree.rds")
-# py_stree <- readRDS("analysis/results/py_stree.rds")
-# time_bench <- readRDS("analysis/results/time-benchmark.rds")
+# r_stree <- readRDS("analysis/r_stree.rds")
+# py_stree <- readRDS("analysis/py_stree.rds")
+# time_bench <- readRDS("analysis/time-benchmark.rds")
 # 
 # r_stree <- r_stree[, 1:9]
 # py_stree <- py_stree[, 1:9]
@@ -243,10 +247,10 @@ tbl_bold |>
 # }))
 # 
 # kbl(tbl_bold,
-#     col.names = c("Dataset", "N", "X", "L", "STreeR", "STree", "STreeR (Med)", "Stree (Med)"),
-#     align = "lccccccc",
-#     escape = FALSE,
-#     caption = "Comparison of mean prediction accuracy and median training time for STreeR and STree. Here, \\(N\\) denotes the number of observations, \\(X\\) the number of features, and \\(L\\) the number of classes."
+#   col.names = c("Dataset", "N", "X", "L", "STreeR", "STree", "STreeR (Med)", "Stree (Med)"),
+#   align = "lccccccc",
+#   escape = FALSE,
+#   caption = "Comparison of mean prediction accuracy and median training time for STreeR and STree. Here, \\(N\\) denotes the number of observations, \\(X\\) the number of features, and \\(L\\) the number of classes."
 # ) |>
 #   kable_styling(
 #     bootstrap_options = c("striped", "hover", "condensed"),
@@ -260,12 +264,20 @@ tbl_bold |>
 source(file = "analysis/plot-surface.R")
 
 
+## ----alg-binary-split-html, echo=FALSE, results='asis', eval=knitr::is_html_output(), fig.cap='Binary Classification Split', out.width='120%'----
+# knitr::include_graphics("figures/algo-2.png")
+
+
+## ----alg-multi-split-html, echo=FALSE, results='asis', eval=knitr::is_html_output(), fig.cap='Multiclass One-vs-Rest Split', out.width='120%'----
+# knitr::include_graphics("figures/algo-3.png")
+
+
 ## ----palmer-penguins-max-feature-selection-latex, eval=knitr::is_latex_output(), fig.align='center', results='asis', fig.cap="Comparison of constant, decreasing, and random maximum feature selection strategies using SVMODT on the Palmer Penguins dataset.", fig.subcap=c('constant', 'decrease', 'random'), fig.width = 6----
 penguins_orsf <- penguins |>
   select(-island, -sex, -year) |>
   drop_na() |>
   standard_scaler()
-  
+
 penguins_orsf$flipper_length_mm <- as.numeric(penguins_orsf$flipper_length_mm)
 
 fit_constant <- svm_split(
@@ -306,23 +318,23 @@ ggarrange(plot1, plot2, plot3, nrow = 1, common.legend = TRUE, legend = "right")
 
 
 ## ----palmer-penguins-max-feature-selection-html, eval=knitr::is_html_output(), fig.align='center', results='asis', fig.cap="Comparison of constant, decreasing, and random maximum feature selection strategies using SVMODT on the Palmer Penguins dataset.", fig.subcap=c('constant', 'decrease', 'random'), out.width = '30%'----
-# knitr::include_graphics(path = "figures/max-feature-selection/tour-constant.gif")
-# knitr::include_graphics(path = "figures/max-feature-selection/tour-decrease.gif")
-# knitr::include_graphics(path = "figures/max-feature-selection/tour-random.gif")
+# knitr::include_graphics(path = "figures/tour-constant.gif")
+# knitr::include_graphics(path = "figures/tour-decrease.gif")
+# knitr::include_graphics(path = "figures/tour-random-maxfeat.gif")
 
 
 ## ----svmodt-max-features-accuracy-score-table---------------------------------
 # Load results
-svmodt_max_features_constant <- readRDS("analysis/results/svmodt_mf_constant.rds")
-svmodt_max_features_decrease <- readRDS("analysis/results/svmodt_mf_decrease.rds")
-svmodt_max_features_random <- readRDS("analysis/results/svmodt_mf_random.rds")
-py_stree <- readRDS("analysis/results/py_stree.rds")
+svmodt_max_features_constant <- readRDS("analysis/svmodt_mf_constant.rds")
+svmodt_max_features_decrease <- readRDS("analysis/svmodt_mf_decrease.rds")
+svmodt_max_features_random <- readRDS("analysis/svmodt_mf_random.rds")
+py_stree <- readRDS("analysis/py_stree.rds")
 
 
-svmodt_max_features_random <- svmodt_max_features_random[,1:9]
-svmodt_max_features_constant <- svmodt_max_features_constant[,1:9]
-svmodt_max_features_decrease <- svmodt_max_features_decrease[,1:9]
-py_stree <- py_stree[,1:9]
+svmodt_max_features_random <- svmodt_max_features_random[, 1:9]
+svmodt_max_features_constant <- svmodt_max_features_constant[, 1:9]
+svmodt_max_features_decrease <- svmodt_max_features_decrease[, 1:9]
+py_stree <- py_stree[, 1:9]
 
 
 tbl_max_features <- data.frame(
@@ -360,7 +372,7 @@ tbl_max_features_bold |>
     align = "lccccccc",
     escape = FALSE,
     caption = paste0(
-  "Comparison of mean prediction accuracy (mean \\(\\pm\\) standard deviation) across maximum feature selection strategies for SVMODT, with results benchmarked against the Python STree implementation All SVMODT models were trained using maximum depth parameter (\\(d_{\\max}=15\\)), mutual-information feature ranking, and adaptive feature selection. The constant strategy uses a fixed number of candidate features at each node; the decrease strategy progressively reduces the number of available features with tree depth (\\(\\alpha\\) = 0.5); the random strategy samples the candidate feature proportion uniformly from the interval \\(l_{\\min}=0.5\\) to \\(l_{\\max}=0.8\\) at each split. Bold values indicate the highest prediction accuracy for each dataset."
+      "Comparison of mean prediction accuracy (mean \\(\\pm\\) standard deviation) across maximum feature selection strategies for SVMODT, with results benchmarked against the Python STree implementation All SVMODT models were trained using maximum depth parameter (\\(d_{\\max}=15\\)), mutual-information feature ranking, and adaptive feature selection. The constant strategy uses a fixed number of candidate features at each node; the decrease strategy progressively reduces the number of available features with tree depth (\\(\\alpha\\) = 0.5); the random strategy samples the candidate feature proportion uniformly from the interval \\(l_{\\min}=0.5\\) to \\(l_{\\max}=0.8\\) at each split. Bold values indicate the highest prediction accuracy for each dataset."
     )
   ) |>
   kable_styling(
@@ -382,7 +394,7 @@ tbl_max_features_bold |>
 #     escape = FALSE,
 #     caption = paste0(
 #       "Comparison of mean prediction accuracy (mean \\(\\pm\\) standard deviation) across maximum feature selection strategies for SVMODT, with results benchmarked against the Python STree implementation All SVMODT models were trained using maximum depth parameter (\\(d_{\\max}=15\\)), mutual-information feature ranking, and adaptive feature selection. The constant strategy uses a fixed number of candidate features at each node; the decrease strategy progressively reduces the number of available features with tree depth (\\(\\alpha\\) = 0.5); the random strategy samples the candidate feature proportion uniformly from the interval \\(l_{\\min}=0.5\\) to \\(l_{\\max}=0.8\\) at each split. Bold values indicate the highest prediction accuracy for each dataset."
-# )
+#     )
 #   ) |>
 #   kable_styling(
 #     bootstrap_options = c("striped", "hover", "condensed"),
@@ -436,23 +448,23 @@ ggarrange(plot1, plot2, plot3, nrow = 1, common.legend = TRUE, legend = "right")
 
 
 ## ----palmer-penguins-feature-selection-split-html, eval = knitr::is_html_output(), fig.align='center', results='asis', fig.cap="Comparison of random, mutual, and correlated feature selection methods using SVMODT on the Palmer Penguins dataset.", fig.subcap=c('random', 'mutual', 'correlation'), out.width = '30%'----
-# knitr::include_graphics(path = "figures/feature-selection/tour-random.gif")
-# knitr::include_graphics(path = "figures/feature-selection/tour-mutual.gif")
-# knitr::include_graphics(path = "figures/feature-selection/tour-corr.gif")
+# knitr::include_graphics(path = "figures/tour-random.gif")
+# knitr::include_graphics(path = "figures/tour-mutual.gif")
+# knitr::include_graphics(path = "figures/tour-corr.gif")
 
 
 ## ----svmodt-feature-selection-table-setup-------------------------------------
 # Load results
-svmodt_random <- readRDS("analysis/results/svmodt_feature_random.rds")
-svmodt_mutual <- readRDS("analysis/results/svmodt_feature_mutual.rds")
-svmodt_cor <- readRDS("analysis/results/svmodt_feature_cor.rds")
-py_stree <- readRDS("analysis/results/py_stree.rds")
+svmodt_random <- readRDS("analysis/svmodt_feature_random.rds")
+svmodt_mutual <- readRDS("analysis/svmodt_feature_mutual.rds")
+svmodt_cor <- readRDS("analysis/svmodt_feature_cor.rds")
+py_stree <- readRDS("analysis/py_stree.rds")
 
 
-svmodt_random <- svmodt_random[,1:9]
-svmodt_mutual <- svmodt_mutual[,1:9]
-svmodt_cor <- svmodt_cor[,1:9]
-py_stree <- py_stree[,1:9]
+svmodt_random <- svmodt_random[, 1:9]
+svmodt_mutual <- svmodt_mutual[, 1:9]
+svmodt_cor <- svmodt_cor[, 1:9]
+py_stree <- py_stree[, 1:9]
 
 # ── Table 1: Feature Selection ────────────────────────────────────────────────
 tbl_feature <- data.frame(
@@ -490,8 +502,8 @@ tbl_feature_bold |>
     align = "lcccccccc",
     escape = FALSE,
     caption = paste0(
-  "Comparison of mean prediction accuracy across feature selection strategies for SVMODT, benchmarked against the Python STree implementation. All SVMODT models were trained using \\(d_{\\max}=15\\). The random strategy selects candidate predictors using random subset sampling \\(n_{\\text{subsets}} = 10\\); the mutual information strategy ranks predictors according to their dependency with the response variable; the correlation strategy ranks predictors using absolute correlation with the response. STree does not employ an explicit pre-split feature ranking mechanism, instead optimising the node classifier directly on the available predictors. Bold values indicate the highest prediction accuracy for each dataset."
-)
+      "Comparison of mean prediction accuracy across feature selection strategies for SVMODT, benchmarked against the Python STree implementation. All SVMODT models were trained using \\(d_{\\max}=15\\). The random strategy selects candidate predictors using random subset sampling \\(n_{\\text{subsets}} = 10\\); the mutual information strategy ranks predictors according to their dependency with the response variable; the correlation strategy ranks predictors using absolute correlation with the response. STree does not employ an explicit pre-split feature ranking mechanism, instead optimising the node classifier directly on the available predictors. Bold values indicate the highest prediction accuracy for each dataset."
+    )
   ) |>
   kable_styling(
     full_width = FALSE,
@@ -511,8 +523,8 @@ tbl_feature_bold |>
 #     align = "lcccccccc",
 #     escape = FALSE,
 #     caption = paste0(
-#   "Comparison of mean prediction accuracy across feature selection strategies for SVMODT, benchmarked against the Python STree implementation. All SVMODT models were trained using \\(d_{\\max}=15\\). The random strategy selects candidate predictors using random subset sampling \\(n_{\\text{subsets}}=10\\); the mutual information strategy ranks predictors according to their dependency with the response variable; the correlation strategy ranks predictors using absolute correlation with the response. STree does not employ an explicit pre-split feature ranking mechanism, instead optimising the node classifier directly on the available predictors. Bold values indicate the highest prediction accuracy for each dataset."
-# )
+#       "Comparison of mean prediction accuracy across feature selection strategies for SVMODT, benchmarked against the Python STree implementation. All SVMODT models were trained using \\(d_{\\max}=15\\). The random strategy selects candidate predictors using random subset sampling \\(n_{\\text{subsets}}=10\\); the mutual information strategy ranks predictors according to their dependency with the response variable; the correlation strategy ranks predictors using absolute correlation with the response. STree does not employ an explicit pre-split feature ranking mechanism, instead optimising the node classifier directly on the available predictors. Bold values indicate the highest prediction accuracy for each dataset."
+#     )
 #   ) |>
 #   kable_styling(
 #     bootstrap_options = c("striped", "hover", "condensed"),
@@ -520,12 +532,12 @@ tbl_feature_bold |>
 #     position = "center",
 #     font_size = 8
 #   )
-# 
 
 
 ## ----wine-feature-penalty, fig.align='center', results='asis', fig.cap="Comparison of Low, Medium and High penalty on repeated features by SVMODT on Wine dataset.", fig.subcap=c('No Penalty', 'Low (0.2)', 'Medium (0.5)', 'High (0.8)'), out.width = '30%', fig.pos='h'----
 wine <- read.table("data/wine_R.dat") |>
-  mutate(clase = as.factor(clase)) |> standard_scaler()
+  mutate(clase = as.factor(clase)) |>
+  standard_scaler()
 
 fit_no_penalty <- svm_split(
   data = wine,
@@ -533,7 +545,7 @@ fit_no_penalty <- svm_split(
   max_depth = 8,
   min_samples = 5,
   max_features = 4,
-  feature_method = "mutual", 
+  feature_method = "mutual",
   penalize_used_features = FALSE
 )
 
@@ -544,7 +556,7 @@ fit_low_penalty <- svm_split(
   min_samples = 5,
   max_features = 4,
   feature_method = "mutual",
-  penalize_used_features = TRUE, 
+  penalize_used_features = TRUE,
   feature_penalty_weight = 0.2
 )
 
@@ -577,59 +589,58 @@ low_pen_feature_usage <- summarise_feature_usage(tree = fit_low_penalty)
 medium_pen_feature_usage <- summarise_feature_usage(tree = fit_medium_penalty)
 high_pen_feature_usage <- summarise_feature_usage(tree = fit_high_penalty)
 
-#Side-by-side comparison plot
+# Side-by-side comparison plot
 plot_penalty_comparison <- function(tree_none, tree_penalised,
                                     label_none = "No Penalty",
-                                    label_pen  = "Penalised") {
-  
+                                    label_pen = "Penalised") {
   usage_none <- summarise_feature_usage(tree_none) |>
     mutate(model = label_none)
-  
-  usage_pen  <- summarise_feature_usage(tree_penalised) |>
+
+  usage_pen <- summarise_feature_usage(tree_penalised) |>
     mutate(model = label_pen)
-  
+
   bind_rows(usage_none, usage_pen) |>
     mutate(model = factor(model, levels = c(label_none, label_pen))) |>
     ggplot(aes(x = reorder(feature, count), y = count, fill = model)) +
     geom_col(position = "dodge", width = 0.7) +
     geom_text(aes(label = count),
-              position = position_dodge(width = 0.7),
-              hjust = -0.3, size = 3) +
+      position = position_dodge(width = 0.7),
+      hjust = -0.3, size = 3
+    ) +
     coord_flip() +
     scale_fill_manual(values = c("#4E79A7", "#F28E2B")) +
     labs(
-      #title    = "Feature Usage: Penalised vs No Penalty",
-      #subtitle = "Lower reuse of repeated features indicates effective penalisation",
+      # title    = "Feature Usage: Penalised vs No Penalty",
+      # subtitle = "Lower reuse of repeated features indicates effective penalisation",
       x        = "Feature",
       y        = "Node Count",
       fill     = NULL
     ) +
     theme_minimal() +
     theme(
-      plot.title    = element_text(face = "bold"),
+      plot.title = element_text(face = "bold"),
       legend.position = "top",
-      axis.text.y   = element_text(size = 9)
+      axis.text.y = element_text(size = 9)
     )
 }
 
 plot_penalty_comparison(tree_none = fit_no_penalty, tree_penalised = fit_low_penalty, label_pen = "Low Penalty")
-plot_penalty_comparison(tree_none = fit_no_penalty, tree_penalised = fit_medium_penalty,  label_pen = "Medium Penalty")
-plot_penalty_comparison(tree_none = fit_no_penalty, tree_penalised = fit_high_penalty, label_pen =  "High Penalty")
-
+plot_penalty_comparison(tree_none = fit_no_penalty, tree_penalised = fit_medium_penalty, label_pen = "Medium Penalty")
+plot_penalty_comparison(tree_none = fit_no_penalty, tree_penalised = fit_high_penalty, label_pen = "High Penalty")
 
 
 ## ----svmodt-features-penalty-score-table-setup--------------------------------
-svmodt_penalty_none   <- readRDS("analysis/results/svmodt_penalty_none.rds")
-svmodt_penalty_low    <- readRDS("analysis/results/svmodt_penalty_low.rds")
-svmodt_penalty_medium <- readRDS("analysis/results/svmodt_penalty_medium.rds")
-svmodt_penalty_high   <- readRDS("analysis/results/svmodt_penalty_high.rds")
-py_stree              <- readRDS("analysis/results/py_stree.rds")
+svmodt_penalty_none <- readRDS("analysis/svmodt_penalty_none.rds")
+svmodt_penalty_low <- readRDS("analysis/svmodt_penalty_low.rds")
+svmodt_penalty_medium <- readRDS("analysis/svmodt_penalty_medium.rds")
+svmodt_penalty_high <- readRDS("analysis/svmodt_penalty_high.rds")
+py_stree <- readRDS("analysis/py_stree.rds")
 
 
-svmodt_penalty_none <- svmodt_penalty_none[,1:9]
-svmodt_penalty_low <- svmodt_penalty_low[,1:9]
-svmodt_penalty_medium <- svmodt_penalty_medium[,1:9]
-svmodt_penalty_high <- svmodt_penalty_high[,1:9]
+svmodt_penalty_none <- svmodt_penalty_none[, 1:9]
+svmodt_penalty_low <- svmodt_penalty_low[, 1:9]
+svmodt_penalty_medium <- svmodt_penalty_medium[, 1:9]
+svmodt_penalty_high <- svmodt_penalty_high[, 1:9]
 
 
 tbl_penalty <- data.frame(
@@ -637,10 +648,10 @@ tbl_penalty <- data.frame(
   data_num_observations,
   data_num_features,
   data_num_classes,
-  apply(as.matrix(svmodt_penalty_none),   2, mean_sd),
-  apply(as.matrix(svmodt_penalty_low),    2, mean_sd),
+  apply(as.matrix(svmodt_penalty_none), 2, mean_sd),
+  apply(as.matrix(svmodt_penalty_low), 2, mean_sd),
   apply(as.matrix(svmodt_penalty_medium), 2, mean_sd),
-  apply(as.matrix(svmodt_penalty_high),   2, mean_sd),
+  apply(as.matrix(svmodt_penalty_high), 2, mean_sd),
   stringsAsFactors = FALSE
 )
 
@@ -648,7 +659,7 @@ model_cols_penalty <- 5:8
 
 tbl_penalty_bold <- tbl_penalty
 tbl_penalty_bold[model_cols_penalty] <- t(apply(tbl_penalty[model_cols_penalty], 1, function(row) {
-  means   <- as.numeric(sub(" \u00B1.*", "", row))
+  means <- as.numeric(sub(" \u00B1.*", "", row))
   max_idx <- which(means == max(means, na.rm = TRUE))
   out <- row
   out[max_idx] <- cell_spec(out[max_idx], bold = TRUE)
@@ -663,7 +674,7 @@ tbl_penalty_bold |>
     col.names = c(
       "Dataset", "N", "X", "L", "None (Benchmark)", "Low", "Medium", "High"
     ),
-    align  = "lccccccc",
+    align = "lccccccc",
     escape = FALSE,
     caption = paste0(
       "Comparison of mean prediction accuracy (mean \\(\\pm\\) standard deviation) across feature penalisation strategies for SVMODT. All models were trained using \\(d_{\\max}=15\\), mutual-information feature ranking, and adaptive maximum feature selection. No penalisation corresponds to reuse of previously selected features being unrestricted. Low, medium, and high penalisation correspond to feature penalty weights of \\(\\lambda\\) = 0.2, \\(\\lambda\\) = 0.5, and \\(\\lambda\\) = 0.8, respectively. Bold values indicate the highest accuracy for each dataset."
@@ -683,7 +694,7 @@ tbl_penalty_bold |>
 #     col.names = c(
 #       "Dataset", "N", "X", "L", "None (Benchmark)", "Low", "Medium", "High"
 #     ),
-#     align  = "lccccccc",
+#     align = "lccccccc",
 #     escape = FALSE,
 #     caption = paste0(
 #       "Comparison of mean prediction accuracy (mean \\(\\pm\\) standard deviation) across feature penalisation strategies for SVMODT. All models were trained using \\(d_{\\max}=15\\), mutual-information feature ranking, and adaptive maximum feature selection. No penalisation corresponds to reuse of previously selected features being unrestricted. Low, medium, and high penalisation correspond to feature penalty weights of \\(\\lambda\\) = 0.2, \\(\\lambda\\) = 0.5, and \\(\\lambda\\) = 0.8, respectively. Bold values indicate the highest accuracy for each dataset."
@@ -699,18 +710,23 @@ tbl_penalty_bold |>
 
 ## ----min-split-table-setup----------------------------------------------------
 count_tree_nodes <- function(tree) {
-  
   splits <- function(node) {
-    if (is.null(node) || isTRUE(node$is_leaf)) return(0L)
+    if (is.null(node) || isTRUE(node$is_leaf)) {
+      return(0L)
+    }
     1L + splits(node$left) + splits(node$right)
   }
-  
+
   leaves <- function(node) {
-    if (is.null(node)) return(0L)
-    if (isTRUE(node$is_leaf)) return(1L)
+    if (is.null(node)) {
+      return(0L)
+    }
+    if (isTRUE(node$is_leaf)) {
+      return(1L)
+    }
     leaves(node$left) + leaves(node$right)
   }
-  
+
   c(
     splits = splits(tree),
     leaves = leaves(tree),
@@ -719,7 +735,7 @@ count_tree_nodes <- function(tree) {
 }
 
 set.seed(17)
-wdbc_split <- initial_split(data = wdbc, prop = 0.8, strata =  diagnosis)
+wdbc_split <- initial_split(data = wdbc, prop = 0.8, strata = diagnosis)
 wdbc_train <- training(wdbc_split)
 wdbc_test <- testing(wdbc_split)
 
@@ -730,35 +746,28 @@ tree_wdbc_min_50_sample <- svm_split(data = wdbc_train, response = "diagnosis", 
 acc_wdbc_10_sample <- mean(predict(tree_wdbc_min_10_sample, wdbc_test) == wdbc_test$diagnosis)
 acc_wdbc_50_sample <- mean(predict(tree_wdbc_min_50_sample, wdbc_test) == wdbc_test$diagnosis)
 
-min_sample_table <- cbind(rbind(`10` = count_tree_nodes(tree_wdbc_min_10_sample), 
-            `50` = count_tree_nodes(tree_wdbc_min_50_sample)), 
-      round(rbind(acc_wdbc_10_sample, 
-                  acc_wdbc_50_sample), 4)) 
-
-
-## ----min-split-table-latex, eval=knitr::is_latex_output(),fig.pos='h'---------
-min_sample_table |>
-  as.data.frame() |>
-  tibble::rownames_to_column(var = "Min Samples") |>
-  kable(col.names = c("Min Samples", "Splits", "Leaves", "Total Nodes", "Accuracy"),
-        align = "lcccc",
-        row.names = FALSE,
-        caption = "Comparison of tree structure and predictive accuracy across minimum sample thresholds on the WDBC dataset. All SVMODT models were trained using the random maximum feature strategy and mutual information feature ranking. Higher minimum sample thresholds restrict further node splitting and therefore produce shallower tree structures.") |>
-  kable_styling(
-    full_width = FALSE,
-    position = "center",
-    font_size = 8
-  )
+min_sample_table <- cbind(
+  rbind(
+    `10` = count_tree_nodes(tree_wdbc_min_10_sample),
+    `50` = count_tree_nodes(tree_wdbc_min_50_sample)
+  ),
+  round(rbind(
+    acc_wdbc_10_sample,
+    acc_wdbc_50_sample
+  ), 4)
+)
 
 
 ## ----min-split-table-html, eval=knitr::is_html_output()-----------------------
 # min_sample_table |>
 #   as.data.frame() |>
 #   tibble::rownames_to_column(var = "Min Samples") |>
-#   kable(col.names = c("Min Samples", "Splits", "Leaves", "Total Nodes", "Accuracy"),
-#         align = "ccccc",
-#         escape = FALSE,
-#         caption = "Comparison of tree structure and predictive accuracy across minimum sample thresholds on the WDBC dataset. All SVMODT models were trained using the random maximum feature strategy and mutual information feature ranking. Higher minimum sample thresholds restrict further node splitting and therefore produce shallower tree structures.") |>
+#   kbl(
+#     col.names = c("Min Samples", "Splits", "Leaves", "Total Nodes", "Accuracy"),
+#     align = "ccccc",
+#     escape = FALSE,
+#     caption = "Comparison of tree structure and predictive accuracy across minimum sample thresholds on the WDBC dataset. All SVMODT models were trained using the random maximum feature strategy and mutual information feature ranking. Higher minimum sample thresholds restrict further node splitting and therefore produce shallower tree structures."
+#   ) |>
 #   kable_styling(
 #     bootstrap_options = c("striped", "hover", "condensed"),
 #     full_width = FALSE,
@@ -766,10 +775,27 @@ min_sample_table |>
 #     font_size = 8
 #   )
 
+## ----min-split-table-latex, eval=knitr::is_latex_output(), fig.pos='h'--------
+min_sample_table |>
+  as.data.frame() |>
+  tibble::rownames_to_column(var = "Min Samples") |>
+  kable(
+    col.names = c("Min Samples", "Splits", "Leaves", "Total Nodes", "Accuracy"),
+    align = "lcccc",
+    row.names = FALSE,
+    caption = "Comparison of tree structure and predictive accuracy across minimum sample thresholds on the WDBC dataset. All SVMODT models were trained using the random maximum feature strategy and mutual information feature ranking. Higher minimum sample thresholds restrict further node splitting and therefore produce shallower tree structures."
+  ) |>
+  kable_styling(
+    full_width = FALSE,
+    position = "center",
+    font_size = 8
+  )
+
 
 ## ----max-depth-table-setup----------------------------------------------------
 cardiotocography <- read.table("data/cardiotocography-3clases_R.dat") |>
-  mutate(clase = as.factor(clase)) |> standard_scaler()
+  mutate(clase = as.factor(clase)) |>
+  standard_scaler()
 
 set.seed(17)
 cardio_split <- initial_split(data = cardiotocography, prop = 0.8, strata = clase)
@@ -785,36 +811,50 @@ acc_cardio_depth_5 <- mean(predict(tree_cardio_depth_5, cardio_test) == cardio_t
 acc_cardio_depth_7 <- mean(predict(tree_cardio_depth_7, cardio_test) == cardio_test$clase)
 
 
-
 ## ----max-depth-table-latex, eval=knitr::is_latex_output(), fig.pos='h'--------
-cbind(rbind(`3` = count_tree_nodes(tree_cardio_depth_3), 
-            `5` = count_tree_nodes(tree_cardio_depth_5), 
-            `7` = count_tree_nodes(tree_cardio_depth_7)),
-      round(rbind(acc_cardio_depth_2, acc_cardio_depth_5, acc_cardio_depth_7),4)) |>
+cbind(
+  rbind(
+    `3` = count_tree_nodes(tree_cardio_depth_3),
+    `5` = count_tree_nodes(tree_cardio_depth_5),
+    `7` = count_tree_nodes(tree_cardio_depth_7)
+  ),
+  round(rbind(acc_cardio_depth_2, acc_cardio_depth_5, acc_cardio_depth_7), 4)
+) |>
   as.data.frame() |>
   tibble::rownames_to_column(var = "Max Depth") |>
-  kable(col.names = c("Max Depth", "Splits", "Leaves", "Total Nodes", "Accuracy"),
-        align = "lcccc",
-        caption = paste0(
-  "Comparison of tree structure and accuracy across different maximum tree depths on the Cardiotocography dataset.")) |>
+  kable(
+    col.names = c("Max Depth", "Splits", "Leaves", "Total Nodes", "Accuracy"),
+    align = "lcccc",
+    caption = paste0(
+      "Comparison of tree structure and accuracy across different maximum tree depths on the Cardiotocography dataset."
+    )
+  ) |>
   kable_styling(
     full_width = FALSE,
     position = "center",
-    font_size = 8)
+    font_size = 8
+  )
 
 
 ## ----max-depth-table-html, eval=knitr::is_html_output()-----------------------
-# cbind(rbind(`3` = count_tree_nodes(tree_cardio_depth_3),
-#             `5` = count_tree_nodes(tree_cardio_depth_5),
-#             `7` = count_tree_nodes(tree_cardio_depth_7)),
-#       round(rbind(acc_cardio_depth_2, acc_cardio_depth_5, acc_cardio_depth_7),4)) |>
+# cbind(
+#   rbind(
+#     `3` = count_tree_nodes(tree_cardio_depth_3),
+#     `5` = count_tree_nodes(tree_cardio_depth_5),
+#     `7` = count_tree_nodes(tree_cardio_depth_7)
+#   ),
+#   round(rbind(acc_cardio_depth_2, acc_cardio_depth_5, acc_cardio_depth_7), 4)
+# ) |>
 #   as.data.frame() |>
 #   tibble::rownames_to_column(var = "Max Depth") |>
-#   kable(col.names = c("Max Depth", "Splits", "Leaves", "Total Nodes", "Accuracy"),
-#         align = "lcccc",
-#         escape = FALSE,
-#         caption = paste0(
-#   "Comparison of tree structure and accuracy across different maximum tree depths on the Cardiotocography dataset.")) |>
+#   kbl(
+#     col.names = c("Max Depth", "Splits", "Leaves", "Total Nodes", "Accuracy"),
+#     align = "lcccc",
+#     escape = FALSE,
+#     caption = paste0(
+#       "Comparison of tree structure and accuracy across different maximum tree depths on the Cardiotocography dataset."
+#     )
+#   ) |>
 #   kable_styling(
 #     bootstrap_options = c("striped", "hover", "condensed"),
 #     full_width = FALSE,
@@ -825,7 +865,8 @@ cbind(rbind(`3` = count_tree_nodes(tree_cardio_depth_3),
 
 ## ----min-impurity-table-setup-------------------------------------------------
 cardiotocography <- read.table("data/cardiotocography-3clases_R.dat") |>
-  mutate(clase = as.factor(clase)) |> standard_scaler()
+  mutate(clase = as.factor(clase)) |>
+  standard_scaler()
 
 set.seed(17)
 cardio_split <- initial_split(data = cardiotocography, prop = 0.8, strata = clase)
@@ -843,37 +884,51 @@ acc_cardio_impurity_0005 <- mean(predict(tree_cardio_impurity_0005, cardio_test)
 acc_cardio_impurity_001 <- mean(predict(tree_cardio_impurity_001, cardio_test) == cardio_test$clase)
 acc_cardio_impurity_01 <- mean(predict(tree_cardio_impurity_01, cardio_test) == cardio_test$clase)
 
-
 ## ----min-impurity-table-latex, eval=knitr::is_latex_output(),fig.pos='h'------
-cbind(rbind(`0.005` = count_tree_nodes(tree_cardio_impurity_0005), 
-            `0.01` = count_tree_nodes(tree_cardio_impurity_001), 
-            `0.1` = count_tree_nodes(tree_cardio_impurity_01)),
-      round(rbind(acc_cardio_impurity_0005, acc_cardio_impurity_001, acc_cardio_impurity_01),4)) |>
+cbind(
+  rbind(
+    `0.005` = count_tree_nodes(tree_cardio_impurity_0005),
+    `0.01` = count_tree_nodes(tree_cardio_impurity_001),
+    `0.1` = count_tree_nodes(tree_cardio_impurity_01)
+  ),
+  round(rbind(acc_cardio_impurity_0005, acc_cardio_impurity_001, acc_cardio_impurity_01), 4)
+) |>
   as.data.frame() |>
   tibble::rownames_to_column(var = "Impurity Threshold") |>
-  kable(col.names = c("Impurity Threshold", "Splits", "Leaves", "Total Nodes", "Accuracy"),
-        align = "lcccc",
-        escape = FALSE,
-        caption = paste0(
-  "Comparison of tree structure and accuracy across different minimum impurity threshold values on the Cardiotocography dataset.")) |>
+  kable(
+    col.names = c("Impurity Threshold", "Splits", "Leaves", "Total Nodes", "Accuracy"),
+    align = "lcccc",
+    escape = FALSE,
+    caption = paste0(
+      "Comparison of tree structure and accuracy across different minimum impurity threshold values on the Cardiotocography dataset."
+    )
+  ) |>
   kable_styling(
     full_width = FALSE,
     position = "center",
-    font_size = 8)
+    font_size = 8
+  )
 
 
 ## ----min-impurity-table-html, eval=knitr::is_html_output()--------------------
-# cbind(rbind(`0.005` = count_tree_nodes(tree_cardio_impurity_0005),
-#             `0.01` = count_tree_nodes(tree_cardio_impurity_001),
-#             `0.1` = count_tree_nodes(tree_cardio_impurity_01)),
-#       round(rbind(acc_cardio_impurity_0005, acc_cardio_impurity_001, acc_cardio_impurity_01),4)) |>
+# cbind(
+#   rbind(
+#     `0.005` = count_tree_nodes(tree_cardio_impurity_0005),
+#     `0.01` = count_tree_nodes(tree_cardio_impurity_001),
+#     `0.1` = count_tree_nodes(tree_cardio_impurity_01)
+#   ),
+#   round(rbind(acc_cardio_impurity_0005, acc_cardio_impurity_001, acc_cardio_impurity_01), 4)
+# ) |>
 #   as.data.frame() |>
 #   tibble::rownames_to_column(var = "Impurity Threshold") |>
-#   kable(col.names = c("Impurity Threshold", "Splits", "Leaves", "Total Nodes", "Accuracy"),
-#         align = "lcccc",
-#         escape = FALSE,
-#         caption = paste0(
-#   "Comparison of tree structure and accuracy across different minimum impurity threshold values on the Cardiotocography dataset.")) |>
+#   kbl(
+#     col.names = c("Impurity Threshold", "Splits", "Leaves", "Total Nodes", "Accuracy"),
+#     align = "lcccc",
+#     escape = FALSE,
+#     caption = paste0(
+#       "Comparison of tree structure and accuracy across different minimum impurity threshold values on the Cardiotocography dataset."
+#     )
+#   ) |>
 #   kable_styling(
 #     bootstrap_options = c("striped", "hover", "condensed"),
 #     full_width = FALSE,
@@ -919,22 +974,22 @@ plot3 <- plot_svmodt_surface(fit_custom, penguins_orsf, "species")
 ggarrange(plot1, plot2, plot3, nrow = 1, common.legend = TRUE, legend = "right")
 
 
-## ----palmer-penguins-weighted-split-html, eval=knitr::is_html_output(), fig.align='center', results='asis', fig.cap="Comparison of Equal, Balanced and Custom Weights by SVMODT on Palmerpenguins dataset. WHATS THE DIFFERENCE BETWEEN STREE AND NONE", fig.subcap=c('equal', 'balanced', 'custom'), out.width = '30%'----
-# knitr::include_graphics(path = "figures/class-weights/tour-none.gif")
-# knitr::include_graphics(path = "figures/class-weights/tour-balanced.gif")
-# knitr::include_graphics(path = "figures/class-weights/tour-custom.gif")
+## ----palmer-penguins-weighted-split-html, eval=knitr::is_html_output(), fig.align='center', results='asis', fig.cap="Comparison of Equal, Balanced and Custom Weights by SVMODT on Palmerpenguins dataset.", fig.subcap=c('equal', 'balanced', 'custom'), out.width = '30%'----
+# knitr::include_graphics(path = "figures/tour-none.gif")
+# knitr::include_graphics(path = "figures/tour-balanced.gif")
+# knitr::include_graphics(path = "figures/tour-custom.gif")
 
 
 ## ----svmodt-class-weight-f1-score-table---------------------------------------
 # Load F1 results
-svmodt_weights_none_f1 <- readRDS("analysis/results/svmodt_weights_none_f1.rds")
-svmodt_weights_balanced_f1 <- readRDS("analysis/results/svmodt_weights_balanced_f1.rds")
-py_stree <- readRDS("analysis/results/py_stree_f1.rds")
-class_imbalance_ratio <- readRDS("analysis/results/class-imbalance-ratio.RDS")
+svmodt_weights_none_f1 <- readRDS("analysis/svmodt_weights_none_f1.rds")
+svmodt_weights_balanced_f1 <- readRDS("analysis/svmodt_weights_balanced_f1.rds")
+py_stree <- readRDS("analysis/py_stree_f1.rds")
+class_imbalance_ratio <- readRDS("analysis/class-imbalance-ratio.RDS")
 
-svmodt_weights_none_f1 <- svmodt_weights_none_f1[,1:9]
-svmodt_weights_balanced_f1 <- svmodt_weights_balanced_f1[,1:9]
-py_stree <- py_stree[,1:9]
+svmodt_weights_none_f1 <- svmodt_weights_none_f1[, 1:9]
+svmodt_weights_balanced_f1 <- svmodt_weights_balanced_f1[, 1:9]
+py_stree <- py_stree[, 1:9]
 class_imbalance_ratio <- class_imbalance_ratio[1:9]
 
 tbl_weights_f1 <- data.frame(
@@ -961,7 +1016,6 @@ tbl_weights_f1_bold[model_cols_f1] <- t(apply(tbl_weights_f1[model_cols_f1], 1, 
 }))
 
 
-
 ## ----svmodt-class-weight-f1-score-table-latex, eval=knitr::is_latex_output()----
 tbl_weights_f1_bold |>
   kable(
@@ -973,8 +1027,8 @@ tbl_weights_f1_bold |>
     align = "lccccccc",
     escape = FALSE,
     caption = paste0(
-  "Comparison of macro-averaged F1 score (mean \\(\\pm\\) sd) across class weighting strategies. All SVMODT models are trained with \\(d_{\\max}=15\\), \\(\\mathrm{strat}_{m}=\\texttt{\"mutual\"}\\). None: \\(\\mathrm{strat}_{w}=\\texttt{\"none\"}\\); Balanced: \\(\\mathrm{strat}_{w}=\\texttt{\"balanced\"}\\). Bold values denote the highest F1 score for each dataset."
-)
+      "Comparison of macro-averaged F1 score (mean \\(\\pm\\) sd) across class weighting strategies. All SVMODT models are trained with \\(d_{\\max}=15\\), \\(\\mathrm{strat}_{m}=\\texttt{\"mutual\"}\\). None: \\(\\mathrm{strat}_{w}=\\texttt{\"none\"}\\); Balanced: \\(\\mathrm{strat}_{w}=\\texttt{\"balanced\"}\\). Bold values denote the highest F1 score for each dataset."
+    )
   ) |>
   kable_styling(
     full_width = FALSE,
@@ -994,8 +1048,8 @@ tbl_weights_f1_bold |>
 #     align = "lccccccc",
 #     escape = FALSE,
 #     caption = paste0(
-#   "Comparison of macro-averaged F1 score (mean \\(\\pm\\) sd) across class weighting strategies. All SVMODT models are trained with \\(d_{\\max}=15\\), \\(\\mathrm{strat}_{m}=\\texttt{\"mutual\"}\\). None: \\(\\mathrm{strat}_{w}=\\texttt{\"none\"}\\); Balanced: \\(\\mathrm{strat}_{w}=\\texttt{\"balanced\"}\\). Bold values denote the highest F1 score for each dataset."
-# )
+#       "Comparison of macro-averaged F1 score (mean \\(\\pm\\) sd) across class weighting strategies. All SVMODT models are trained with \\(d_{\\max}=15\\), \\(\\mathrm{strat}_{m}=\\texttt{\"mutual\"}\\). None: \\(\\mathrm{strat}_{w}=\\texttt{\"none\"}\\); Balanced: \\(\\mathrm{strat}_{w}=\\texttt{\"balanced\"}\\). Bold values denote the highest F1 score for each dataset."
+#     )
 #   ) |>
 #   kable_styling(
 #     bootstrap_options = c("striped", "hover", "condensed"),
@@ -1005,14 +1059,57 @@ tbl_weights_f1_bold |>
 #   )
 
 
+## ----alg-svmodt-html, echo=FALSE, results='asis', eval=knitr::is_html_output(), fig.cap='Multiclass One-vs-Rest Split', out.width='120%'----
+# knitr::include_graphics("figures/algo-4.png")
+
+
+## ----workflow-install, eval = FALSE, echo = TRUE------------------------------
+# install.packages("svmodt")
+# library(svmodt)
+
+
+## ----workflow-fit, echo = TRUE------------------------------------------------
+penguins_clean <- penguins |>
+  select(-island, -sex, -year) |>
+  drop_na() |>
+  standard_scaler()
+
+set.seed(101)
+split <- initial_split(penguins_clean, prop = 0.8, strata = species)
+penguins_train <- training(split)
+penguins_test <- testing(split)
+
+fit <- svm_split(
+  data = penguins_train,
+  response = "species",
+  max_depth = 4,
+  min_samples = 5,
+  feature_method = "mutual",
+  max_features_strategy = "constant"
+)
+
+
+## ----workflow-predict, echo = TRUE--------------------------------------------
+preds <- predict(fit, penguins_test)
+mean(preds == penguins_test$species)
+
+
+## ----workflow-trace, echo = TRUE----------------------------------------------
+trace_path(object = fit, sample_data = penguins_test, sample_idx = 2)
+
+
+## ----workflow-plot, fig.align='center', echo = TRUE, fig.cap = "Decision surface of a fitted SVMODT model on the Palmer Penguins dataset.", out.width = "60%"----
+plot(fit, data = penguins_train, response = "species")
+
+
 ## ----tbl-benchmark-model-setup------------------------------------------------
-benchmark_summary_table <- readRDS("analysis/results/benchmark_summary_table.rds")
-benchmark_summary_table <- benchmark_summary_table[,-6:-7]  
+benchmark_summary_table <- readRDS("analysis/benchmark_summary_table.rds")
+benchmark_summary_table <- benchmark_summary_table[, -6:-7]
 models <- 5:12
 
 bold_benchmark_summary_table <- benchmark_summary_table
 bold_benchmark_summary_table[models] <- t(apply(benchmark_summary_table[models], 1, function(row) {
-  means   <- as.numeric(sub(" \u00B1.*", "", row))
+  means <- as.numeric(sub(" \u00B1.*", "", row))
   max_idx <- which(means == max(means, na.rm = TRUE))
   out <- row
   out[max_idx] <- cell_spec(out[max_idx], bold = TRUE)
@@ -1034,7 +1131,7 @@ table_a |>
       "AORSF",
       "Log. Reg."
     ),
-    align  = paste0("l", paste(rep("c", ncol(table_a) - 1), collapse = "")),
+    align = paste0("l", paste(rep("c", ncol(table_a) - 1), collapse = "")),
     escape = FALSE,
     caption = paste0(
       "Comparison of Mean Prediction Accuracy (mean \\(\\pm\\) sd) across classifiers (Part 1). ",
@@ -1059,7 +1156,7 @@ table_b |>
       "SVMODT (Default)",
       "SVMODT*"
     ),
-    align  = paste0("l", paste(rep("c", ncol(table_b) - 1), collapse = "")),
+    align = paste0("l", paste(rep("c", ncol(table_b) - 1), collapse = "")),
     escape = FALSE,
     caption = paste0(
       "Comparison of Mean Prediction Accuracy (mean \\(\\pm\\) sd) across classifiers (Part 2). ",
@@ -1090,7 +1187,7 @@ table_b |>
 #       "SVMODT (Default)",
 #       "SVMODT*"
 #     ),
-#     align  = paste0("l", paste(rep("c", ncol(bold_benchmark_summary_table) - 1), collapse = "")),
+#     align = paste0("l", paste(rep("c", ncol(bold_benchmark_summary_table) - 1), collapse = "")),
 #     escape = FALSE,
 #     caption = paste0(
 #       "Comparison of Mean Prediction Accuracy (mean \\(\\pm\\) sd) across classifiers. ",
@@ -1107,30 +1204,36 @@ table_b |>
 #   )
 
 
-## ----table-best-param-grid-setup----------------------------------------------
-best_param <- readRDS(file = "analysis/results/grid_search_best_params.rds")
+## ----alg-stree-html, echo=FALSE, results='asis', eval=knitr::is_html_output(), fig.cap='Multiclass One-vs-Rest Split', out.width='120%'----
+# knitr::include_graphics("figures/algo-5.png")
 
-best_param <- best_param[1:9,1:8]
+
+## ----table-best-param-grid-setup----------------------------------------------
+best_param <- readRDS(file = "analysis/grid_search_best_params.rds")
+
+best_param <- best_param[1:9, 1:8]
 
 
 ## ----table-best-param-grid-latex, eval=knitr::is_latex_output(), fig.pos='h'----
-best_param |> kable(
-  caption = "Hyperparameters Selected through the Grid Search Procedure.",
-  col.names = c("Dataset", "Max Depth", "Feature Selection Method", "Class Weight Strategy", "Max Feature Strategy", "Penalize Used Features", "Feature Penalty Weight", "Impurity Decrease") 
-) |>
+best_param |>
+  kable(
+    caption = "Hyperparameters Selected through the Grid Search Procedure.",
+    col.names = c("Dataset", "Max Depth", "Feature Selection Method", "Class Weight Strategy", "Max Feature Strategy", "Penalize Used Features", "Feature Penalty Weight", "Impurity Decrease")
+  ) |>
   kable_styling(
     full_width = FALSE,
-    position   = "center",
-    font_size  = 4,
+    position = "center",
+    font_size = 4,
     latex_options = "hold_position"
   )
 
 ## ----table-best-param-grid-html, eval=knitr::is_html_output()-----------------
-# best_param |> kbl(
-#   caption = "Hyperparameters Selected through the Grid Search Procedure.",
-#   col.names = c("Dataset", "Max Depth", "Feature Selection Method", "Class Weight Strategy", "Max Feature Strategy", "Penalize Used Features", "Feature Penalty Weight", "Impurity Decrease"),
-#   escape = FALSE
-# ) |>
+# best_param |>
+#   kbl(
+#     caption = "Hyperparameters Selected through the Grid Search Procedure.",
+#     col.names = c("Dataset", "Max Depth", "Feature Selection Method", "Class Weight Strategy", "Max Feature Strategy", "Penalize Used Features", "Feature Penalty Weight", "Impurity Decrease"),
+#     escape = FALSE
+#   ) |>
 #   kable_styling(
 #     bootstrap_options = c("striped", "hover", "condensed"),
 #     full_width = FALSE,

@@ -4,7 +4,7 @@ library(purrr)
 library(svmodt)
 
 
-# ── Datasets ──────────────────────────────────────────────────────────────────
+# Datasets
 ctg3 <- read.table("data/cardiotocography-3clases_R.dat") |>
   mutate(clase = as.factor(clase)) |>
   standard_scaler()
@@ -68,4 +68,4 @@ for (name in names(datasets)) {
   class_imbalance_ratio[name] <- min(class_freq) / max(class_freq)
 }
 
-class_imbalance_ratio |> saveRDS("analysis/results/class-imbalance-ratio.RDS")
+class_imbalance_ratio |> saveRDS("analysis/class-imbalance-ratio.RDS")

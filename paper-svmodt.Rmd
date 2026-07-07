@@ -2,30 +2,32 @@
 title: "Svmodt: An R Package for Linear SVM-Based Oblique Decision Trees"
 date: "2026-07-05"
 abstract: >
-  Decision trees are widely used for classification tasks due to their representational power and interpretability, but traditional trees with axis-aligned splits often need many splits in order to approximate complex decision boundaries. Oblique decision trees split according to a linear combination of variables, providing greater flexibility, but deciding how and where to split becomes challenging. We consider linear Support Vector Machines (SVM) as a principled and computationally convenient method to learn node specified oblique splits. We provide STreeR, the first fully native R implementation of the STree algorithm implementing SVM-based oblique decision trees that use linear Support Vector Machines at each node to create multivariate splits, and validate it against the original Python implementation. We then introduce svmodt, an R package extending STree to support dynamic feature selection strategies, node-specific class weighting for handling imbalanced data, and feature diversity mechanisms through penalisation. We demonstrate that SVMODT outperforms axis-parallel decision trees while also maintaining more similar tree structures. The package includes detailed documentation, and is available on [GitHub](https://github.com/AneeshAgarwala/project-svodt).
+  Decision trees are widely used for classification tasks due to their representational power and interpretability, but traditional trees with axis-aligned splits often need many splits in order to approximate complex decision boundaries. Oblique decision trees split according to a linear combination of variables, providing greater flexibility, but deciding how and where to split becomes challenging. We consider linear Support Vector Machines (SVM) as a principled and computationally convenient method to learn node specified oblique splits. We provide STreeR, the first fully native R implementation of the STree algorithm implementing SVM-based oblique decision trees that use linear Support Vector Machines at each node to create multivariate splits, and validate it against the original Python implementation. We then introduce svmodt, an R package extending STree to support dynamic feature selection strategies, node-specific class weighting for handling imbalanced data, and feature diversity mechanisms through penalisation. We demonstrate that SVMODT outperforms axis-parallel decision trees while also maintaining more similar tree structures.
 draft: true
 author:  
   - name: Aneesh Agarwal
     affiliation: Monash University
-    email:  aaga0022@student.monash.edu
+    email:  aneesh.agarwal@monash.edu
   - name: Jack Jewson
     affiliation:
     - Monash University
     address:
     - Department of Econometrics and Business Statistics, Monash University, Australia 
     email: Jack.Jewson@monash.edu
+    orcid: 0000-0003-2703-7180
   - name: Erik Sverdrup
     affiliation:
     - Monash University
     address:
     - Department of Econometrics and Business Statistics, Monash University, Australia 
     email: Erik.Sverdrup@monash.edu
+    orcid: 0000-0001-6093-1390
 type: package
 output: 
-  rjtools::rjournal_pdf_article:
-    toc: no
   rjtools::rjournal_web_article:
     self_contained: yes
+    toc: no
+  rjtools::rjournal_pdf_article:
     toc: no
 header-includes:
   \usepackage{amsmath}
@@ -45,7 +47,7 @@ knitr::opts_knit$set(latex_engine = "xelatex")
 
 library(kableExtra)
 library(dplyr)
-#install.packages("svmodt")
+# install.packages("svmodt")
 source("analysis/stree-code.R")
 library(svmodt)
 library(palmerpenguins)
@@ -61,34 +63,12 @@ library(gridExtra)
 library(ggpubr)
 ```
 
+
 # Introduction
 
-<!-- + Decision trees are cool -->
-
-<!-- + Are there exists lots of nice R software for implementing them  -->
-
-<!-- + However, decision trees struggle with oblique boundaries (lets have a figure early that shows a decision tree trying to estimate an oblique boundary (say in the penguins data) and our method doing it better) -->
-
-<!-- + Summaries ODT methods and particular focus on R software -->
-
-<!-- + However there are difficulties with current ODt methodology -->
-
-<!-- + SVM has emerged as one method to operationalise ODT  -->
-
-<!-- + Mention STree in python -->
-
-<!-- + We make two contributions -->
-
-<!--   1) provide an R implementation of STree without calling any Python functions -->
-
-<!--   2) propose SVM-ODT which contains several extensions to the STree algorithm to improve performance (hopefully) -->
-
 Decision trees remain widely used in machine learning because they are interpretable, straightforward to apply, and can accommodate both categorical and numerical predictors with minimal preprocessing. Classical algorithms such as Classification and Regression Trees (CART, [@breiman1984]) and C4.5 [@quinlan1993] employ axis-aligned (univariate) splits that partition the feature space along coordinate axes, thereby preserving transparency in the resulting decision rules. Consider a supervised classification task where we wish to predict  $y\in \{1, \ldots, K\}$, where $K$ is the number of classes, from $d$-predictor variables $x \in \mathcal{X}\subseteq \mathbb{R}^d$. In this setting an axis parallel split constitutes selecting one feature $j \in \{1, \ldots, d\}$ and a splitting value $\theta\in\mathbb{R}$ and splits according to the test $x_j \leq \theta$. 
-<!---
-Throughout this work, we focus exclusively on the supervised learning problem of predicting $y$ from $d$-dimensional predictors $x$, where the goal is to learn a decision function that maps $x \in \mathbb{R}^d \quad \longrightarrow \quad y$.
---->
 
-In R, traditional decision trees are readily implemented via packages such as \CRANpkg{rpart}, \CRANpkg{tree}, and \CRANpkg{party}. However, the simple split structure of axis-parallel decision trees can promote overfitting, producing duplicated subtrees and repeated evaluations of the same predictor, which reduces efficiency and weakens generalisation [@pagallo1990]. Oblique decision trees mitigate these limitations by permitting splits on linear combinations of features; for example, a single oblique split of the form $\sum_{j=1}^d w_jx_j \leq \theta$, where $w = (w_1, \ldots, w_d)\in\mathbb{R}^d$, can often replace multiple axis-aligned dplits, producing more compact and geometrically simpler partitions of the feature space. Oblique trees are available in R through packages such as \CRANpkg{ODRF}, \CRANpkg{aorsf}, and \CRANpkg{oblique.tree}. Empirical studies across diverse data sets show that oblique decision trees often achieve higher accuracy and yield more compact models than axis‑parallel trees, though with a modest reduction in interpretability [@MurthyKS94; @canete]. 
+In R, traditional decision trees are readily implemented via packages such as \CRANpkg{rpart} [@rpart2025], \CRANpkg{tree} [@tree2025], and \CRANpkg{party} [@party2025]. However, the simple split structure of axis-parallel decision trees can promote overfitting, producing duplicated subtrees and repeated evaluations of the same predictor, which reduces efficiency and weakens generalisation [@pagallo1990]. Oblique decision trees mitigate these limitations by permitting splits on linear combinations of features; for example, a single oblique split of the form $\sum_{j=1}^d w_jx_j \leq \theta$, where $w = (w_1, \ldots, w_d)\in\mathbb{R}^d$, can often replace multiple axis-aligned dplits, producing more compact and geometrically simpler partitions of the feature space. Oblique trees are available in R through packages such as \CRANpkg{ODRF} [@ordf2025] and \CRANpkg{aorsf} [@aorsf2025]. Empirical studies across diverse data sets show that oblique decision trees often achieve higher accuracy and yield more compact models than axis‑parallel trees, though with a modest reduction in interpretability [@MurthyKS94; @canete]. 
 
 ```{r palmer-penguins-introduction-split, fig.align='center', results='asis', fig.cap="Comparison of axis-parallel and axis-oblique decision boundaries on the Palmerpenguins dataset using bill length (mm) and flipper length (mm) as predictor variables.", fig.subcap=c('axis-parallel split', 'axis-oblique split'), out.width = '80%', cache=TRUE}
 penguins_orsf <- penguins |> drop_na()
@@ -189,13 +169,11 @@ plots <- map(preds, plot_decision_surface, grid = grid)
 ggarrange(plots[[1]], plots[[2]], ncol = 2, common.legend = TRUE, legend = "right")
 ```
 
-Figure \@ref(fig:palmer-penguins-introduction-split) contrasts an axis-parallel decision tree with an axis-oblique decision tree. The axis-parallel tree (left panel) fits an overly complex boundary, particular between the orange (circles) and purple (triangle) classes, and still has a high rate of training misclassification, reflecting its inability to capture interactions among predictors that determine class membership. In contrast, the oblique tree (right panel) yields geometrically simpler decision boundaries and substantially fewer misclassifications on the training set, indicating a better fit to the underlying multivariate relationships. <!--  Together, these panels illustrate how oblique splits can more effectively represent linear combinations of features and thereby reduce spurious complexity and error in tree-based classifiers. -->
+Figure \@ref(fig:palmer-penguins-introduction-split) contrasts an axis-parallel decision tree with an axis-oblique decision tree. The axis-parallel tree (left panel) fits an overly complex boundary, particular between the orange (circles) and purple (triangle) classes, and still has a high rate of training misclassification, reflecting its inability to capture interactions among predictors that determine class membership. In contrast, the oblique tree (right panel) yields geometrically simpler decision boundaries and substantially fewer misclassifications on the training set, indicating a better fit to the underlying multivariate relationships.
 
+A challenge with oblique decision trees, however, is deciding upon suitable oblique splits. The simplicity of axis-parallel trees allows algorithms such as CART [@breiman1984] to consider all possible splits, as for each $j$ there is a maximum of $n-1$ values of $\theta$ that would result in distinct splits. On the other hand, the added complexity of oblique increases the number of possible splits enormously, preventing exhaustive searches. Existing R packages address this by different means: \CRANpkg{ODRF} uses random subspace projections whereas \CRANpkg{aorsf} applies accelerated coordinate descent on the log-rank gradient.
 
-A challenge with oblique decision trees, however, is deciding upon suitable oblique splits. The simplicity of axis-parallel trees allows algorithms such as CART [@breiman1984] to consider all possible splits, as for each $j$ there is a maximum of $n-1$ values of $\theta$ that would result in distinct splits. On the other hand, the added complexity of oblique increases the number of possible splits enormously, preventing exhaustive searches. Existing R packages address this by different means: \CRANpkg{ODRF} uses random subspace projections, \CRANpkg{aorsf} applies accelerated coordinate descent on the log-rank gradient, and \CRANpkg{oblique.tree} employs linear discriminant functions as node classifiers. <!-- ANEESH to add a quick summary of how the cited packages find their oblique splits -->
-
-
-Support Vector Machines (SVMs), introduced by @cortes1995, provide a principled way to obtain oblique splits by finding margin‑maximizing hyperplanes that separate the data in each node of the tree. SVMs are robust and effective for many real world problems and allow for efficient estimation of coefficients. <!-- This margin-based approach enhances the generalisation ability of the model, making SVMs robust and effective for many real-world problems [@cristianini2000], and allows for efficient estimation via quadratic programming. Despite their appeal, SVMs introduce practical challenges-sensitive hyperparameter tuning, quadratic scaling with sample size due to the $n \times n$ kernel matrix, binary‑only formulation requiring decomposition for multiclass tasks, and sensitivity to class imbalance-which complicate their direct, large‑scale use [@nanda2018; @dong2005; @hsu2002; @cervantes2020]. --> The idea of fitting SVMs at tree nodes was formalized by @bennet1998 and extended to multiclass settings and other refinements in subsequent work [@takahashi2002; @bala2011; @ganaie2022]. Python’s STree implements SVM‑node oblique trees using scikit‑learn’s SVC [@Montanana2021; @scikit2011], while Java tools such as Weka offer components that can be adapted for hierarchical SVM trees [@menkovski2008]. However, fully featured, native R implementations does not exist.
+Support Vector Machines (SVMs), introduced by @cortes1995, provide a principled way to obtain oblique splits by finding margin‑maximizing hyperplanes that separate the data in each node of the tree. SVMs are robust and effective for many real world problems and allow for efficient estimation of coefficients. The idea of fitting SVMs at tree nodes was formalized by @bennet1998 and extended to multiclass settings and other refinements in subsequent work [@takahashi2002; @bala2011; @ganaie2022]. Python’s STree implements SVM‑node oblique trees using scikit‑learn’s SVC [@Montanana2021; @scikit2011], while Java tools such as Weka offer components that can be adapted for hierarchical SVM trees [@menkovski2008]. However, fully featured, native R implementations does not exist.
 
 We introduce STreeR, a fully native R implementation of an STree-style support vector machine oblique decision tree that operates independently of Python. This implementation provides a production-ready interface and leverages vectorised computation to ensure computational efficiency and seamless integration within the R ecosystem. Second, we develop SVMODT, an enhanced support vector machine-based oblique decision tree that extends the original STree framework through several practical innovations. These include feature subsetting, which enables the selection of only a subset of available predictors at each node. While later versions of STree introduced basic feature subsetting, SVMODT generalises this idea through additional strategies, including decreasing and random feature subsetting schemes that adapt the candidate feature space throughout the depth of the tree. SVMODT also incorporates embedded feature selection, allowing predictors to be prioritised using mutual information, correlation-based association measures, or randomised ranking procedures. In addition, SVMODT introduces a feature penalisation mechanism that discourages repeated reuse of the same predictors across successive splits, thereby promoting greater feature diversity throughout the tree structure. The framework further extends STree by incorporating explicit pruning and node-specific class weighting schemes, neither of which are available in the original STree implementation.
 
@@ -203,7 +181,7 @@ We introduce STreeR, a fully native R implementation of an STree-style support v
 
 ## Decision Trees
 
-Decision Trees (DTs) are interpretable classification models that represent their decision-making process through a hierarchical, tree-like structure. This structure comprises internal nodes containing splitting criteria that divide up the predictor space and terminal (leaf) nodes corresponding to predicted outcomes (class labels and probabilities). The nodes are connected by directed edges, each representing a possible True or False outcome of a splitting criterion for observations whose feature reach this node. <!-- Formally, a DT can be expressed as a rooted, directed tree $T = (G(V, E), v_1)$, where $V$ denotes the set of nodes, $E$ represents the set of edges linking these nodes, and $v_1$ is the root node. -->
+Decision Trees (DTs) are interpretable classification models that represent their decision-making process through a hierarchical, tree-like structure. This structure comprises internal nodes containing splitting criteria that divide up the predictor space and terminal (leaf) nodes corresponding to predicted outcomes (class labels and probabilities). The nodes are connected by directed edges, each representing a possible True or False outcome of a splitting criterion for observations whose feature reach this node.
 
 ```{=html}
 <!---
@@ -222,7 +200,7 @@ Decision tree algorithms can be categorized based on whether the same type of sp
 
 ### Axis-Parallel Decision Trees
 
-Axis-Parallel Decision trees divide the feature space into several disjoint axis-parallel hypercubes <!--The hypercube is a generalisation of a 3-cube to n dimensions, also called an n-cube or measure polytope.-->. Axis-parallel decision trees, such as CART and C4.5, represent two of the most widely used algorithms for classification tasks. The CART algorithm employs a binary recursive partitioning procedure that is capable of handling both continuous and categorical variables as predictors or targets. At each node, the algorithm systematically evaluates every available variable $j \in \{1, \ldots, d\}$ and all of its potential split points $\theta$ i.e. between any two observations, to determine the optimal partition [@breiman1984].
+Axis-Parallel Decision trees divide the feature space into several disjoint axis-parallel hypercubes. Axis-parallel decision trees, such as CART and C4.5, represent two of the most widely used algorithms for classification tasks. The CART algorithm employs a binary recursive partitioning procedure that is capable of handling both continuous and categorical variables as predictors or targets. At each node, the algorithm systematically evaluates every available variable $j \in \{1, \ldots, d\}$ and all of its potential split points $\theta$ i.e. between any two observations, to determine the optimal partition [@breiman1984].
 
 In contrast, **C4.5**, an extension of the earlier **ID3** algorithm [@quinlan1986], utilizing information theory measures such as **information gain** and **gain ratio** to select the most informative attribute for each split [@quinlan1993]. C4.5 also includes mechanisms to handle missing attribute values by weighting instances according to the proportion of known data and employs an **error-based pruning** to eliminate subtrees that fail to improve predictive performance beyond a threshold $(\alpha)$, thereby mitigating overfitting [@mingers1989; @schaffer1992].
 
@@ -232,15 +210,15 @@ Axis‑parallel decision trees offer strong interpretability but face inherent r
 
 Axis-oblique decision trees extends axis-parallel decision trees by allowing each internal node to perform splits based on linear or nonlinear combinations [@said2025] of multiple features. This flexibility enables the tree to form oblique decision boundaries that more accurately partition the instance space. For example, a single multivariate test such as $x + y < 8$ can replace multiple univariate splits needed to approximate the same boundary.
 
-The construction of Axis-oblique decision trees introduces several design considerations, including how to represent multivariate tests, determine their coefficients, select features to include, handle symbolic and missing data, and prune to avoid over-fitting [@brodley1995]. Various optimisation algorithms such as recursive least squares [@young1984], the pocket algorithm [@gallant1986], or thermal training [@frean1990] may be used to estimate the weights. However <!-- ?? (NOT SEEING CONNECTION - MOVIG ONTO LIMITATIONS) 26.04.26 AA - unsure whether to keep as it is or move to another section. -->, Axis-oblique decision trees trade interpretability <!---(COST OF)--> for representational power and often require additional mechanisms for **local feature selection**, such as *sequential forward selection* (SFS) or *sequential backward elimination* (SBE) [@kittler1986].
+The construction of Axis-oblique decision trees introduces several design considerations, including how to represent multivariate tests, determine their coefficients, select features to include, handle symbolic and missing data, and prune to avoid over-fitting [@brodley1995]. Various optimisation algorithms such as recursive least squares [@young1984], the pocket algorithm [@gallant1986], or thermal training [@frean1990] may be used to estimate the weights. However, Axis-oblique decision trees trade interpretability for representational power and often require additional mechanisms for **local feature selection**, such as *sequential forward selection* (SFS) or *sequential backward elimination* (SBE) [@kittler1986].
 
 Although oblique splits introduce additional complexity and reduce interpretability, oblique decision trees retain key advantages of standard decision trees such as sequential split criteria evaluation and transparent decision procedures while offering improved modeling flexibility for complex data sets [@kozial2009; @friedl1997; @huan1998].
 
 ## Alternate Approaches to Oblique Decision Boundaries
 
-Employing linear classifiers at internal nodes can yield decision trees that are both accurate and diverse. Because each node receives a different subset of the training data, the most suitable classification boundary may vary from node to node. For example, [@menze2011; @lemmond2010] use Linear Discriminant Analysis (LDA) to construct linear splits, though their approach is limited to binary classification. <!-- @zhangle2015 adopts Multisurface Proximal Support Vector Machine (MPSVM) to generate node‑wise linear separators, --> In contrast,  @Truong2009 introduced multiple logistic‑regression–based partitions (specifically $2^{K-1} - 1$ for $K$ classes) to select selects the split that best optimizes the impurity criterion.
+Employing linear classifiers at internal nodes can yield decision trees that are both accurate and diverse. Because each node receives a different subset of the training data, the most suitable classification boundary may vary from node to node. For example, [@menze2011; @lemmond2010] use Linear Discriminant Analysis (LDA) to construct linear splits, though their approach is limited to binary classification. In contrast,  @Truong2009 introduced multiple logistic‑regression–based partitions (specifically $2^{K-1} - 1$ for $K$ classes) to select selects the split that best optimizes the impurity criterion.
 
-Projection pursuit methods [@friedman2006; @kruskal1969] have also been used to identify low‑dimensional projections that expose structure in high‑dimensional data. The \CRANpkg{PPtree}[@pptree2013; @Silva2021] <!--(IS THERE ALSO A PAPER)--> algorithm extends this idea into a recursive partitioning framework by optimizing a class‑sensitive projection index at each node and then applying standard split rules to the resulting one‑dimensional projection. Similarly, @Bulo2014 introduce a randomized multi‑layer perceptron as a node‑level splitting function; however, determining an appropriate network complexity remained challenging, as overly flexible models risked substantial overfitting.
+Projection pursuit methods [@friedman2006; @kruskal1969] have also been used to identify low‑dimensional projections that expose structure in high‑dimensional data. The \CRANpkg{PPtreeExt}[@pptree2013; @Silva2021] algorithm extends this idea into a recursive partitioning framework by optimizing a class‑sensitive projection index at each node and then applying standard split rules to the resulting one‑dimensional projection. Similarly, @Bulo2014 introduce a randomized multi‑layer perceptron as a node‑level splitting function; however, determining an appropriate network complexity remained challenging, as overly flexible models risked substantial overfitting.
 
 ### Support Vector Machines (SVMs)
 
@@ -252,32 +230,16 @@ Although SVMs exhibit strong theoretical foundations and robust generalisation c
 
 ### Oblique Decision Trees with Support Vector Machines
 
-Support Vector Machine–based decision trees <!--(DTSVMs) ?? (DO WE NEED?)--> were first formalized by @bennet1998, who adapted Statistical Learning Theory and Structural Risk Minimization to construct binary decision trees in which each internal node is an SVM that partitions the data by an optimal hyperplane. This formulation enabled multivariate, margin-based decisions at every split. @takahashi2002 extended the idea to multiclass settings by using a recursive partitioning strategy: the root node isolates the most separable class or classes from the remainder, and the procedure recurses until each leaf contains a single class, thereby covering all classes. Subsequent studies have built upon this foundation to address scalability, optimisation, and generalisation issues. Optimal Decision Tree SVM (ODT-SVM) [@bala2011] introduced split-selection criteria based on Gini index, information gain, and scatter matrix separability to balance tree interpretability and margin-based precision. <!-- 26.04.26 AA - new citation found while reviewing pptree citations --> @Reynolds2019 further extended the framework by incorporating class-specific cost parameters through the assignment of weights to individual classes, improving performance in imbalanced classification settings. 
-
-<!--
-#### Oblique and Rotation-Based Extensions
-
-Recent research generalizes DTSVMs through oblique splits and rotation-based ensemble strategies. Oblique Double Random Forests with MPSVM (MPDRaF) [@ganaie2022] implement multivariate (oblique) node splits using Multi-Plane SVM (MPSVM) formulations [@Mangasarian2006], increasing the geometric flexibility of decision boundaries. These methods incorporate regularisation variants (Tikhonov, axis-parallel, null-space) to mitigate small-sample issues at deeper nodes and improve generalisation. Rotation-based Double Random Forests (DRaF) [@ganaie2022] apply PCA and LDA transforms at non-terminal nodes to generate diverse subspaces, enhancing ensemble diversity and stabilizing classification performance.
---->
+Support Vector Machine–based decision trees were first formalized by @bennet1998, who adapted Statistical Learning Theory and Structural Risk Minimization to construct binary decision trees in which each internal node is an SVM that partitions the data by an optimal hyperplane. This formulation enabled multivariate, margin-based decisions at every split. @takahashi2002 extended the idea to multiclass settings by using a recursive partitioning strategy: the root node isolates the most separable class or classes from the remainder, and the procedure recurses until each leaf contains a single class, thereby covering all classes. Subsequent studies have built upon this foundation to address scalability, optimisation, and generalisation issues. Optimal Decision Tree SVM (ODT-SVM) [@bala2011] introduced split-selection criteria based on Gini index, information gain, and scatter matrix separability to balance tree interpretability and margin-based precision. @Reynolds2019 further extended the framework by incorporating class-specific cost parameters through the assignment of weights to individual classes, improving performance in imbalanced classification settings. 
 
 ### STree
-<!-- WE NEED TO CITE [@montanana2025] somewhere - maybe in Discussion section  - 
-26.04.26 AA - added in Dicussion section.
+More recent approaches embed multiple SVM classifiers directly within each split to handle multi-class problems more efficiently. STree [@stree2021; @Montanana2021] is an oblique multi-class decision tree algorithm that integrates support vector machines (SVMs) to construct single margin‑based splits capable of handling multiclass problems. Unlike traditional multi-class tree methods that rely on clustering or ensembles of binary models, STree builds a single decision tree. Its central innovation lies in using SVM‑derived hyperplanes at each internal node, enabling more expressive splits than axis‑aligned trees while also being interpretable and computationally simple.
 
--->
-More recent approaches embed multiple SVM classifiers directly within each split to handle multi-class problems more efficiently. STree [@stree2021; @Montanana2021] <!-- 26.04.26 AA - CITE PYTHON PACKAGE --> is an oblique multi-class decision tree algorithm that integrates support vector machines (SVMs) to construct single margin‑based splits capable of handling multiclass problems. <!-- (CAN WE DIFFERENTIATE THIS BETTER FROM (ODT-SVM))--> Unlike traditional multi-class tree methods that rely on clustering or ensembles of binary models, STree builds a single decision tree. Its central innovation lies in using SVM‑derived hyperplanes at each internal node, enabling more expressive splits than axis‑aligned trees while also being interpretable and computationally simple.
-
-<!---
-#### Methodology
---->
-
-The algorithm generates a binary tree recursively (see Algorithm \@ref(alg:stree) in the Appendix). At each node:
+The algorithm generates a binary tree recursively (see `r knitr::asis_output(ifelse(knitr::is_latex_output(), 'Algorithm \\@ref(alg:stree)', 'Figure \\@ref(fig:alg-stree-html)'))` in the Appendix). At each node:
 
 1)  Stopping conditions are evaluated to check the depth of the tree and the class purity. If the stopping conditions are met, a leaf node is created, labelled with the most frequent class in the node.
 
 2)  If the stopping conditions haven't been met the algorithm then selects the best hyperplane to split the data into two partitions: $T^+$ (positive side) and $T^-$ (negative side).
-
-<!-- WE NEED TO SAY HOW IT SELECTS THE BEST HYPERPLANE 26.04.26 AA unsure of changes required as the next paragraph explains it -->
 
 When all instances at a node belong to more than two classes ($k'>2$), the approach generates multiple candidate binary splits: For each class label $y_i$, it constructs a one-vs-rest binary problem: Class $y_i$ vs. all other classes. It trains an SVM for each of these $k'$ problems, resulting in $k'$ hyperplanes $H_i$, $i = 1, \ldots, K$. Each hyperplane partitions the data into $T_i^+$ and $T_i^-$. The algorithm computes the impurity (using Shannon entropy) of the class distribution within each partition. When only two classes remain, STree trains a single SVM to obtain the maximum‑margin hyperplane. Instances are then routed left or right based on the sign of their distance to this hyperplane. Stree's performance depends heavily on hyperparameter tuning, including kernel choice (linear, polynomial or Gaussian), gamma, polynomial degree, regularisation parameter C, and max iteration.
 
@@ -285,17 +247,7 @@ When all instances at a node belong to more than two classes ($k'>2$), the appro
 
 ## STreeR
 
-<!-- DEFINE ONE VS REST (OVR)
-
-THIS IS AN ALGORITHM FOR ONE SPLIT NOT THE WHOLE TREE - we can say that the Tree then iterates this node splitting
-
-CAN WE BE MORE EXPLCIT ABOUT THE SVM, FITING THE MODEL IS JUST CALCULTING THE WEIGHTS, THEN THE DECISION IS EVALUATING THE $sign(w^\top x)$
-
-Calculate $w^{\ast}(y'_j (+) \textrm{ vs } rest)$ // Fit SVM
-
-Evaluate $i \in \mathcal{D}^{-}$ if $sign(w^{\ast}(y'_j (+) \textrm{ vs } rest)^\top x_i) = -1$ and $i \in \mathcal{D}^{+}$ otherwise -->
-
-We introduce STreeR, a R implementation of the STree algorithm. As no such implementation currently exists, we reconstruct the method in R using the \CRANpkg{e1071} package, which interfaces with the LIBSVM C++ backend. This reconstruction provides greater transparency into the algorithm’s internal workflow and enables fair benchmarking against competing approaches. <!--  The STree procedure constructs the decision tree recursively, where each internal node corresponds to a binary split induced by a support vector machine. At each node, a one-versus-rest strategy is employed: for each class $y'_j$, a binary SVM is trained to separate observations belonging to $y'_j$ from all remaining classes. Training the SVM corresponds to estimating the optimal weight vector $w_j^\ast$ that defines the separating hyperplane. The resulting decision rule assigns an observation $x_i$ to the positive or negative partition based on the sign of the decision function, that is, $sign((w_j^\ast)^\top x_i)$.  Among all candidate one-versus-rest classifiers, the split that maximises information gain is selected. If the maximum information gain is positive, the dataset is partitioned accordingly and the procedure is applied recursively to each subset. Otherwise, a leaf node is created, and the majority class is assigned. This recursive splitting continues until a stopping criterion is satisfied, thereby yielding a complete oblique decision tree. --> Algorithm \@ref(alg:streer) provides a concise summary of the recursive splitting underlying the STreeR implementation.
+We introduce STreeR, a R implementation of the STree algorithm. As no such implementation currently exists, we reconstruct the method in R using the \CRANpkg{e1071} package [@e10712024], which interfaces with the LIBSVM C++ backend. This reconstruction provides greater transparency into the algorithm’s internal workflow and enables fair benchmarking against competing approaches. `r knitr::asis_output(ifelse(knitr::is_latex_output(), 'Algorithm \\@ref(alg:streer)', 'Figure \\@ref(fig:alg-streer-html)'))` provides a concise summary of the recursive splitting underlying the STreeR implementation.
 
 
 ```{=latex}
@@ -342,30 +294,24 @@ We introduce STreeR, a R implementation of the STree algorithm. As no such imple
 \end{algorithm}
 ```
 
-<!-- DO WE NEED TO PROVIDE CODE TO SHOW HOW TO RUN THIS - CHECK OTHER R JOURNAL PAPERS
-
-SIMPLE REPREX EXAMPLE 
-
-##TO ADD REPREX EXAMPLE - as per submission in R Journal
-
-27.04.26 AA - Post-review - I found a few Rjournal papers showing package installation; no code for demonstration on how to run main() 
-
--->
+```{r alg-streer-html, echo=FALSE, results='asis', eval=knitr::is_html_output(), fig.cap='STreeR: Multi-class OVR SVM-based oblique decision tree', out.width='120%'}
+knitr::include_graphics("figures/algo-1.png")
+```
 
 To verify the accuracy of our R implementation of STree, we conducted a benchmarking comparison against the original Python version using a 5‑fold cross‑validation repeated 10 times with different seeds applied to 9 benchmark datasets from the UCI Machine Learning Repository [@kelly2023uci]. For comparability, both algorithms were run with the same default hyperparameters: cost‑complexity $C=1$, a linear kernel, a maximum of 1 x 10^7^ training iterations, and a maximum depth of 10. Prediction accuracies were averaged across all folds for each dataset.
 
 ```{r table-benchmark-streer-latex, eval= knitr::is_latex_output()}
-r_stree <- readRDS("analysis/results/r_stree.rds")
-py_stree <- readRDS("analysis/results/py_stree.rds")
-time_bench <- readRDS("analysis/results/time-benchmark.rds")
+r_stree <- readRDS("analysis/r_stree.rds")
+py_stree <- readRDS("analysis/py_stree.rds")
+time_bench <- readRDS("analysis/time-benchmark.rds")
 
-r_stree <- r_stree[,1:9]
-py_stree <- py_stree[,1:9]
-time_bench <- time_bench[1:9,]
+r_stree <- r_stree[, 1:9]
+py_stree <- py_stree[, 1:9]
+time_bench <- time_bench[1:9, ]
 
 
 time_bench <- time_bench[, -2]
-# readRDS("analysis/results/optimised_r_stree.rds")
+# readRDS("analysis/optimised_r_stree.rds")
 
 data_names <- c("WDBC Diagnosis", "Iris", "Echocardiogram", "Fertility", "Wine", "Cardiotocography-3", "Cardiotocography-10", "Ionosphere", "Dermatology")
 data_num_observations <- c(569, 150, 131, 100, 178, 2126, 2126, 351, 366)
@@ -425,9 +371,9 @@ tbl_bold |>
 ```
 
 ```{r table-benchmark-streer-html, eval= knitr::is_html_output()}
-r_stree <- readRDS("analysis/results/r_stree.rds")
-py_stree <- readRDS("analysis/results/py_stree.rds")
-time_bench <- readRDS("analysis/results/time-benchmark.rds")
+r_stree <- readRDS("analysis/r_stree.rds")
+py_stree <- readRDS("analysis/py_stree.rds")
+time_bench <- readRDS("analysis/time-benchmark.rds")
 
 r_stree <- r_stree[, 1:9]
 py_stree <- py_stree[, 1:9]
@@ -475,10 +421,10 @@ tbl_bold[model_cols] <- t(apply(tbl[model_cols], 1, function(row) {
 }))
 
 kbl(tbl_bold,
-    col.names = c("Dataset", "N", "X", "L", "STreeR", "STree", "STreeR (Med)", "Stree (Med)"),
-    align = "lccccccc",
-    escape = FALSE,
-    caption = "Comparison of mean prediction accuracy and median training time for STreeR and STree. Here, \\(N\\) denotes the number of observations, \\(X\\) the number of features, and \\(L\\) the number of classes."
+  col.names = c("Dataset", "N", "X", "L", "STreeR", "STree", "STreeR (Med)", "Stree (Med)"),
+  align = "lccccccc",
+  escape = FALSE,
+  caption = "Comparison of mean prediction accuracy and median training time for STreeR and STree. Here, \\(N\\) denotes the number of observations, \\(X\\) the number of features, and \\(L\\) the number of classes."
 ) |>
   kable_styling(
     bootstrap_options = c("striped", "hover", "condensed"),
@@ -487,35 +433,18 @@ kbl(tbl_bold,
     font_size = 8
   )
 ```
-<!---
-Given computational and scope constraints, our re‑implementation focuses only on the components of the STree algorithm that are directly relevant to our research objectives. 
---->
 
-Across most datasets, STreeR exhibits performance that is effectively identical to its Python counterpart (see Table `r knitr::asis_output(ifelse(knitr::is_html_output(), '\\@ref(tab:table-benchmark-streer-html)', '\\@ref(tab:table-benchmark-streer-latex)'))`) <!-- #Fixed: FORMAT ERROR -->. Although both implementations rely on the same underlying `LIBSVM` C++ library, Python through the `SVC` classifier and R through the `e1071::svm` interface, there exist subtle yet meaningful differences in how each framework invokes the underlying routines responsible for fitting the support vector machine decision boundary and applying scaling transformations during prediction. These implementation-level discrepancies are likely to contribute to the small observed variation in performance. To mitigate differences attributable to feature scaling, each dataset has been pre-processed in R using an implementation that replicates the behaviour of Python’s standard scaling procedure. 
+Across most datasets, STreeR exhibits performance that is effectively identical to its Python counterpart (see Table `r knitr::asis_output(ifelse(knitr::is_html_output(), '\\@ref(tab:table-benchmark-streer-html)', '\\@ref(tab:table-benchmark-streer-latex)'))`). Although both implementations rely on the same underlying `LIBSVM` C++ library, Python through the `SVC` classifier and R through the `e1071::svm` interface, there exist subtle yet meaningful differences in how each framework invokes the underlying routines responsible for fitting the support vector machine decision boundary and applying scaling transformations during prediction. These implementation-level discrepancies are likely to contribute to the small observed variation in performance. To mitigate differences attributable to feature scaling, each dataset has been pre-processed in R using an implementation that replicates the behaviour of Python’s standard scaling procedure. 
 
 We restrict our implementation of STree to the one‑vs‑rest (OVR) splitting strategy. The alternative one‑vs‑one scheme is not included, as it scales poorly with the number of classes: for problems with large $L$, the number of pairwise SVMs grows quadratically, substantially increasing training time without offering clear benefits for the aspects of the algorithm we aim to study. We also implement only a linear kernel, both to maintain the interpretability of the resulting tree structure and to avoid the considerable computational overhead associated with non‑linear kernels.
 
 ## Support Vector Machine based Oblique Decision Trees: SVMODT
 
-<!-- 3.5.26 AA The introduction to SVMODT also briefly discusses these differences betweeen Stree and SVMODT -->
+Support Vector Machine-based Oblique Decision Tree (SVMODT) extends the STree framework to incorporate feature subsetting, dynamic feature selection, pruning, feature penalisation, and class weighting. While several components, such as dynamic feature subsetting, are reconstructed from the original STree framework, we also refine existing mechanisms including feature subsetting and pruning to provide greater adaptability. We also introduce new controls for feature penalisation and node-specific class weighting. We further simplify the original STree structure by restricting node classifiers to linear kernels, thereby removing the need for multiple kernel-specific hyperparameters and improving interpretability, computational efficiency, and ease of inference.
 
-Support Vector Machine-based Oblique Decision Tree (SVMODT) extends the STree framework to incorporate feature subsetting, dynamic feature selection, pruning, feature penalisation, and class weighting.<!---
-The resulting method, termed the Support Vector Machine-based Oblique Decision Tree (SVMODT), constructs a binary classification tree in which each internal node $v$ at depth $d$ is associated with a locally fitted support vector machine.
---->While several components, such as dynamic feature subsetting, are reconstructed from the original STree framework, we also refine existing mechanisms including feature subsetting and pruning to provide greater adaptability. We also introduce new controls for feature penalisation and node-specific class weighting. We further simplify the original STree structure by restricting node classifiers to linear kernels, thereby removing the need for multiple kernel-specific hyperparameters and improving interpretability, computational efficiency, and ease of inference.
-
-At each node, the algorithm (see Algorithm \@ref(alg:svmodt)), implemented in R using the \CRANpkg{e1071} package interface to LIBSVM, performs the following operations. A subset of features is first selected according to a specified strategy, which may remain constant, decrease with tree depth, or be randomly sampled within a predefined range. Within this subset, features are then prioritised using a criterion such as mutual information, correlation, or random assignment. To encourage diversity across splits, a penalisation mechanism reduces the likelihood of repeatedly selecting features that have been used in previous nodes.
+At each node, the algorithm (see `r knitr::asis_output(ifelse(knitr::is_latex_output(), 'Algorithm \\@ref(alg:svmodt)', 'Figure \\@ref(fig:alg-svmodt-html)'))`), implemented in R using the \CRANpkg{e1071} package interface to LIBSVM, performs the following operations. A subset of features is first selected according to a specified strategy, which may remain constant, decrease with tree depth, or be randomly sampled within a predefined range. Within this subset, features are then prioritised using a criterion such as mutual information, correlation, or random assignment. To encourage diversity across splits, a penalisation mechanism reduces the likelihood of repeatedly selecting features that have been used in previous nodes.
 
 Given the selected feature set, a binary support vector machine is trained at node $v$, optionally incorporating class-specific weights to account for imbalance in the local data distribution. The fitted classifier defines a separating hyperplane characterised by a weight vector $w_v^\ast$, and observations are partitioned according to the sign of the decision function $\mathrm{sign}((w_v^\ast)^\top x)$. The resulting split is evaluated using an impurity-based criterion, and the procedure is recursively applied to the resulting child nodes until a stopping condition is satisfied. We now discuss the key features of SVMODT and how these differentiate it from the original STree framework.
-
-<!--
-
-## Regularisation/Pruning
-
-IS THE n_{min} PART A FEATURE THAT WE EXPLAIN BELOW, BECUASE IT IS SOMETHING DIFFERENT VS STREE 
-
-We now discuss the key features of ... and how this differentiates it form ...
-
--->
 
 ### Key Features
 
@@ -529,7 +458,7 @@ At each internal node of the tree, a Support Vector Machine (SVM) is trained to 
 
 ##### Binary Classification
 
-When the node contains exactly two classes ($k = 2$), a binary SVM classifier is trained (see Algorithm \@ref(alg:binary-split)) using the selected feature subset $\mathcal{F}_d$. Let $\mathbf{X}_{\text{scaled}}$ denote the standardized feature matrix at that node and $\mathcal{Y}$ the corresponding class labels.
+When the node contains exactly two classes ($k = 2$), a binary SVM classifier is trained (see `r knitr::asis_output(ifelse(knitr::is_latex_output(), 'Algorithm \\@ref(alg:binary-split)', 'Figure \\@ref(fig:alg-binary-split-html)'))`) using the selected feature subset $\mathcal{F}_d$. Let $\mathbf{X}_{\text{scaled}}$ denote the standardized feature matrix at that node and $\mathcal{Y}$ the corresponding class labels.
 
 ```{=latex}
 \begin{algorithm}[H]
@@ -559,10 +488,9 @@ When the node contains exactly two classes ($k = 2$), a binary SVM classifier is
 \end{algorithm}
 ```
 
-<!-- THE DISCUSSION BELOW IS NICE, BUIT THIS SI NOT THE FIRST TIME WE'VE SPLIT BASED ON AN SVM SO THIS SHOULD BE ADDED TO AN EARLIER SECTION. IS $c_{split}$ not always 0? 27.04.26 AA -  Yes, c_{split} is always 0; removed from Latex code. 
-
-27.04.26 AA - As we discuss this binary split in context of our tree it has hyper-parameters later used in main algorithm, not sure where can I place it before. 
--->
+```{r alg-binary-split-html, echo=FALSE, results='asis', eval=knitr::is_html_output(), fig.cap='Binary Classification Split', out.width='120%'}
+knitr::include_graphics("figures/algo-2.png")
+```
 
 The SVM learns a separating hyperplane of the form:
 $$
@@ -580,20 +508,11 @@ y_n\left(\boldsymbol{\beta}^{\top}\mathbf{x}_n\right)\geq 1-\xi_n,
 \end{aligned}
 $$
 
-<!-- $f({x}) = {\beta}^\top {x} + b$ --> where ${\beta}$ represents the weight vector and $\xi_n$ are slack variables that permit margin violations. The hyperplane partitions the data into two subsets according to the value of the decision function. Samples satisfying $f({x}) \leq 0$ are assigned to the left child node, while those with $f({x}) > 0$ are assigned to the right child node. Class weights may optionally be applied during SVM training to address class imbalance. These weights influence the optimisation process by increasing or decreasing the penalty associated with misclassification of observations from particular classes. The resulting partition indices $\mathcal{I}_L$ and $\mathcal{I}_R$ are then used to recursively construct the left and right subtrees.
-
-<!-- 
-THE $w$ NOTATION FOR THE CLASS WEIGHTS IS A BIT OVERLOADED, I SUGGEST WE USE SOMETHING ELSE. 27.04.26 AA - substituted with {\beta}
-
-I THINK IN THE APPENDIX WE SHOULD GIVE THE OPTIMISATION PROBLEM THAT THE SVM SOLVES, I.E. DEFINED fit_linear_svm as solving ...
-WHERE I'M PRETTY SURE THE CLASS WEIGHTS MULTIPLY THE $\xi$'s.
-
--->
-
+where ${\beta}$ represents the weight vector and $\xi_n$ are slack variables that permit margin violations. The hyperplane partitions the data into two subsets according to the value of the decision function. Samples satisfying $f({x}) \leq 0$ are assigned to the left child node, while those with $f({x}) > 0$ are assigned to the right child node. Class weights may optionally be applied during SVM training to address class imbalance. These weights influence the optimisation process by increasing or decreasing the penalty associated with misclassification of observations from particular classes. The resulting partition indices $\mathcal{I}_L$ and $\mathcal{I}_R$ are then used to recursively construct the left and right subtrees.
 
 ##### Multiclass Classification
 
-When more than two classes are present at the node ($k > 2$), a multiclass SVM strategy is employed (see Algorithm \@ref(alg:multiclass-split)) to generate a binary split. The algorithm evaluates candidate partitions of the class set in order to determine a split that maximizes impurity reduction. For each candidate split, the classes are divided into two groups, and a binary SVM is trained to separate the corresponding subsets of samples. The quality of the resulting partition is evaluated using an impurity reduction criterion such as information gain. Let $I(\mathcal{Y}_P)$ denote the impurity of the parent node and $I(\mathcal{Y}_L)$ and $I(\mathcal{Y}_R)$ denote the impurities of the resulting child nodes. The information gain is computed as
+When more than two classes are present at the node ($k > 2$), a multiclass SVM strategy is employed (see `r knitr::asis_output(ifelse(knitr::is_latex_output(), 'Algorithm \\@ref(alg:multiclass-split)', 'Figure \\@ref(fig:alg-multi-split-html)'))`) to generate a binary split. The algorithm evaluates candidate partitions of the class set in order to determine a split that maximizes impurity reduction. For each candidate split, the classes are divided into two groups, and a binary SVM is trained to separate the corresponding subsets of samples. The quality of the resulting partition is evaluated using an impurity reduction criterion such as information gain. Let $I(\mathcal{Y}_P)$ denote the impurity of the parent node and $I(\mathcal{Y}_L)$ and $I(\mathcal{Y}_R)$ denote the impurities of the resulting child nodes. The information gain is computed as
 
 $$
 \Delta I = I(\mathcal{Y}_P) -
@@ -668,21 +587,11 @@ where $n_P$ is the number of samples at the node. Candidate splits that produce 
 \end{algorithm}
 ```
 
-<!-- AGAIN THIS IS REALLY GREAT, BUT THIS IS NOT THE FIRST TIME WE HAVE SPOKEN ABOU THTIS, I THINK IT SHOULD BE EARLIER -->
-
-<!-- #### Oblique Decision Boundary
-
-ALSO SHOULD PROBABLY GO IN THE PREVIOUS SECTION
-
-Unlike axis-aligned decision trees, which split data based on a single feature, the SVM-based approach constructs oblique decision boundaries that depend on a linear combination of multiple features. This enables the model to capture more complex decision surfaces while preserving the hierarchical structure and interpretability of the decision tree.
-
-28.04.26 AA - Unsure, where to put due to redundancy
-
--->
+```{r alg-multi-split-html, echo=FALSE, results='asis', eval=knitr::is_html_output(), fig.cap='Multiclass One-vs-Rest Split', out.width='120%'}
+knitr::include_graphics("figures/algo-3.png")
+```
 
 #### Maximum Feature Selection
-
-<!-- I THINK WE SHOULD HAVE THIS BEFORE FEATURE SELECTION! -->
 
 To control model complexity and encourage feature diversity across tree nodes, the algorithm dynamically limits the number of candidate features considered during split generation. Let $p$ denote the total number of available predictors. At depth $d$ of the tree, the maximum number of features considered is denoted by $m_d$. The value of $m_d$ is determined using one of three configurable strategies:
 
@@ -697,20 +606,18 @@ $$
 
 In the **constant strategy**, the same number of candidate features $m_{\text{base}}$ is evaluated at every depth of the tree. This provides consistent computational cost across nodes.
 
-<!-- WHAT IS OUR MOTIVATION HERE? COMPUTATIONAL OR DIVERSITY? -->
-
 In the **decreasing strategy**, the number of candidate features gradually decreases as the tree depth increases. The parameter $\alpha \in (0,1]$ controls the rate of reduction. This approach allows early splits to explore a larger feature space while later splits focus on a smaller set of predictors.
 
 In the **random strategy**, the number of candidate features is sampled from a uniform distribution bounded by fractions $\ell_{\min}$ and $\ell_{\max}$ of the total feature count $p$. This introduces additional stochasticity into the tree construction process and may improve generalisation by reducing overfitting.
 
-Once $m_d$ is determined, up to $m_d$ features are selected using the specified feature selection method. The resulting subset is then used to train the SVM model responsible for generating the oblique split at the node. <!-- EASY TO CONNECT THIS PARAGRAPH WITH THE DISCUSISON ON FEATURE SELECTION, HAVE MAX FEATURES THEN FEATURE SEELCTION -->
+Once $m_d$ is determined, up to $m_d$ features are selected using the specified feature selection method. The resulting subset is then used to train the SVM model responsible for generating the oblique split at the node.
 
 ```{r palmer-penguins-max-feature-selection-latex, eval=knitr::is_latex_output(), fig.align='center', results='asis', fig.cap="Comparison of constant, decreasing, and random maximum feature selection strategies using SVMODT on the Palmer Penguins dataset.", fig.subcap=c('constant', 'decrease', 'random'), fig.width = 6}
 penguins_orsf <- penguins |>
   select(-island, -sex, -year) |>
   drop_na() |>
   standard_scaler()
-  
+
 penguins_orsf$flipper_length_mm <- as.numeric(penguins_orsf$flipper_length_mm)
 
 fit_constant <- svm_split(
@@ -750,35 +657,28 @@ plot3 <- plot_svmodt_surface(fit_random, penguins_orsf, "species")
 ggarrange(plot1, plot2, plot3, nrow = 1, common.legend = TRUE, legend = "right")
 ```
 
-Figure `r knitr::asis_output(ifelse(knitr::is_html_output(), '\\@ref(fig:palmer-penguins-max-feature-selection-html)', '\\@ref(fig:palmer-penguins-max-feature-selection-latex)'))` displays the decision surface of the fitted SVMODT model under alternative specifications of the maximum feature selection strategy (see the HTML version for the multidimensional `tourr`-based visualisation). The coloured regions represent the predicted class labels of the fitted tree evaluated over a grid of values, with the observed data points overlaid for reference. The first two selected features define the horizontal and vertical axes, while all remaining features are fixed at their median values.
+Figure `r knitr::asis_output(ifelse(knitr::is_html_output(), '\\@ref(fig:palmer-penguins-max-feature-selection-html)', '\\@ref(fig:palmer-penguins-max-feature-selection-latex)'))` displays the decision surface of the fitted SVMODT model under alternative specifications of the maximum feature selection strategy (see the HTML version for the multidimensional \CRANpkg{tourr} [@tourr2025] visualisation). The coloured regions represent the predicted class labels of the fitted tree evaluated over a grid of values, with the observed data points overlaid for reference. The first two selected features define the horizontal and vertical axes, while all remaining features are fixed at their median values.
 
 The figure illustrates how the maximum feature selection strategy influences the geometry of the induced decision boundaries. Under the constant strategy, the model retains the same number of candidate variables at each node, resulting in more pronounced oblique splits across the two plotted dimensions. Under the decreasing strategy, the number of available features declines with depth, and the separation between Adelie and Chinstrap becomes increasingly axis-parallel. Information loss in deeper nodes restricts the model’s ability to construct fully oblique partitions. Under the random strategy, the subset of candidate variables varies stochastically across nodes, producing some variation in the selected predictors. Nevertheless, the overall decision surface remains broadly similar to the previous two strategies, indicating a degree of structural robustness in the fitted tree.
 
-<!-- 
-MISSING DISCUSSION OF FIGURE. A) THE FIRST TWO SPITS BOTH USE `bill_length_mm` and `bill_depth_mm` WHILE B) doesn't use `bill_depth_mm` in the second split C) USES `FLIPPER_LENGTH_MM` INSTEAD
-
-FIGURE DON;T APPEAR TO USE STANDARDISED DATA? 
- 3.5.26 AA Fixed
--->
-
 ```{r palmer-penguins-max-feature-selection-html, eval=knitr::is_html_output(), fig.align='center', results='asis', fig.cap="Comparison of constant, decreasing, and random maximum feature selection strategies using SVMODT on the Palmer Penguins dataset.", fig.subcap=c('constant', 'decrease', 'random'), out.width = '30%'}
-knitr::include_graphics(path = "figures/max-feature-selection/tour-constant.gif")
-knitr::include_graphics(path = "figures/max-feature-selection/tour-decrease.gif")
-knitr::include_graphics(path = "figures/max-feature-selection/tour-random.gif")
+knitr::include_graphics(path = "figures/tour-constant.gif")
+knitr::include_graphics(path = "figures/tour-decrease.gif")
+knitr::include_graphics(path = "figures/tour-random-maxfeat.gif")
 ```
 
 ```{r svmodt-max-features-accuracy-score-table}
 # Load results
-svmodt_max_features_constant <- readRDS("analysis/results/svmodt_mf_constant.rds")
-svmodt_max_features_decrease <- readRDS("analysis/results/svmodt_mf_decrease.rds")
-svmodt_max_features_random <- readRDS("analysis/results/svmodt_mf_random.rds")
-py_stree <- readRDS("analysis/results/py_stree.rds")
+svmodt_max_features_constant <- readRDS("analysis/svmodt_mf_constant.rds")
+svmodt_max_features_decrease <- readRDS("analysis/svmodt_mf_decrease.rds")
+svmodt_max_features_random <- readRDS("analysis/svmodt_mf_random.rds")
+py_stree <- readRDS("analysis/py_stree.rds")
 
 
-svmodt_max_features_random <- svmodt_max_features_random[,1:9]
-svmodt_max_features_constant <- svmodt_max_features_constant[,1:9]
-svmodt_max_features_decrease <- svmodt_max_features_decrease[,1:9]
-py_stree <- py_stree[,1:9]
+svmodt_max_features_random <- svmodt_max_features_random[, 1:9]
+svmodt_max_features_constant <- svmodt_max_features_constant[, 1:9]
+svmodt_max_features_decrease <- svmodt_max_features_decrease[, 1:9]
+py_stree <- py_stree[, 1:9]
 
 
 tbl_max_features <- data.frame(
@@ -816,7 +716,7 @@ tbl_max_features_bold |>
     align = "lccccccc",
     escape = FALSE,
     caption = paste0(
-  "Comparison of mean prediction accuracy (mean \\(\\pm\\) standard deviation) across maximum feature selection strategies for SVMODT, with results benchmarked against the Python STree implementation All SVMODT models were trained using maximum depth parameter (\\(d_{\\max}=15\\)), mutual-information feature ranking, and adaptive feature selection. The constant strategy uses a fixed number of candidate features at each node; the decrease strategy progressively reduces the number of available features with tree depth (\\(\\alpha\\) = 0.5); the random strategy samples the candidate feature proportion uniformly from the interval \\(l_{\\min}=0.5\\) to \\(l_{\\max}=0.8\\) at each split. Bold values indicate the highest prediction accuracy for each dataset."
+      "Comparison of mean prediction accuracy (mean \\(\\pm\\) standard deviation) across maximum feature selection strategies for SVMODT, with results benchmarked against the Python STree implementation All SVMODT models were trained using maximum depth parameter (\\(d_{\\max}=15\\)), mutual-information feature ranking, and adaptive feature selection. The constant strategy uses a fixed number of candidate features at each node; the decrease strategy progressively reduces the number of available features with tree depth (\\(\\alpha\\) = 0.5); the random strategy samples the candidate feature proportion uniformly from the interval \\(l_{\\min}=0.5\\) to \\(l_{\\max}=0.8\\) at each split. Bold values indicate the highest prediction accuracy for each dataset."
     )
   ) |>
   kable_styling(
@@ -838,7 +738,7 @@ tbl_max_features_bold |>
     escape = FALSE,
     caption = paste0(
       "Comparison of mean prediction accuracy (mean \\(\\pm\\) standard deviation) across maximum feature selection strategies for SVMODT, with results benchmarked against the Python STree implementation All SVMODT models were trained using maximum depth parameter (\\(d_{\\max}=15\\)), mutual-information feature ranking, and adaptive feature selection. The constant strategy uses a fixed number of candidate features at each node; the decrease strategy progressively reduces the number of available features with tree depth (\\(\\alpha\\) = 0.5); the random strategy samples the candidate feature proportion uniformly from the interval \\(l_{\\min}=0.5\\) to \\(l_{\\max}=0.8\\) at each split. Bold values indicate the highest prediction accuracy for each dataset."
-)
+    )
   ) |>
   kable_styling(
     bootstrap_options = c("striped", "hover", "condensed"),
@@ -856,7 +756,7 @@ At each node of the tree, a subset of candidate features is selected from the fu
 
 -   **Random Selection:** A subset of features is sampled uniformly at random from the available feature set. This strategy introduces stochasticity into the tree construction process.
 
--   **Mutual Information Ranking:** Features are ranked based on their mutual information with the target variable. Mutual information measures the reduction in uncertainty about the class label obtained by observing a given feature. Features with higher mutual information are considered more informative for classification, and the top-ranked variables are selected for model training. This ranking is implemented using the \CRANpkg{FSelectorRcpp} package.
+-   **Mutual Information Ranking:** Features are ranked based on their mutual information with the target variable. Mutual information measures the reduction in uncertainty about the class label obtained by observing a given feature. Features with higher mutual information are considered more informative for classification, and the top-ranked variables are selected for model training. This ranking is implemented using the \CRANpkg{FSelectorRcpp} package [@fselector2024].
 
 -   **Correlation-Based Filtering:** Features are ranked using a univariate association measure between each predictor and the response variable. Predictors with larger association values are considered more relevant, and the highest-ranked features are retained for model fitting.
 
@@ -906,29 +806,25 @@ ggarrange(plot1, plot2, plot3, nrow = 1, common.legend = TRUE, legend = "right")
 ```
 
 ```{r palmer-penguins-feature-selection-split-html, eval = knitr::is_html_output(), fig.align='center', results='asis', fig.cap="Comparison of random, mutual, and correlated feature selection methods using SVMODT on the Palmer Penguins dataset.", fig.subcap=c('random', 'mutual', 'correlation'), out.width = '30%'}
-knitr::include_graphics(path = "figures/feature-selection/tour-random.gif")
-knitr::include_graphics(path = "figures/feature-selection/tour-mutual.gif")
-knitr::include_graphics(path = "figures/feature-selection/tour-corr.gif")
+knitr::include_graphics(path = "figures/tour-random.gif")
+knitr::include_graphics(path = "figures/tour-mutual.gif")
+knitr::include_graphics(path = "figures/tour-corr.gif")
 ```
 
 To further encourage diversity across tree nodes, the algorithm incorporates a feature reuse penalty mechanism. Previously selected features are tracked in the set $\mathcal{F}_{\text{used}}$, and a penalty parameter $\lambda_{\text{pen}}$ reduces the probability that these features are repeatedly chosen at deeper levels of the tree. After the candidate feature subset $\mathcal{F}_d$ is selected, the corresponding predictors are standardized at the node level. Features that become constant after preprocessing are removed. If no valid features remain, the node is converted into a leaf node. The selected feature subset is then used to train the SVM model responsible for generating the oblique decision boundary at the node. For strategies involving random feature subsets, multiple candidate subsets may be evaluated. For each candidate subset, a Support Vector Machine is fitted and the resulting split is assessed using an impurity based criterion such as information gain. The subset that produces the highest impurity reduction is selected for the node.
 
-<!--  I THINK WE NEED TO EXPAIN EXACTLY WHAT IS HAPPENING IN FIGURE 2, WHAT IS THE EXPERIEMTNAL SET-UP? 
-3.5.26 AA - Explained in the Maximum feature selection section
--->
-
 ```{r svmodt-feature-selection-table-setup}
 # Load results
-svmodt_random <- readRDS("analysis/results/svmodt_feature_random.rds")
-svmodt_mutual <- readRDS("analysis/results/svmodt_feature_mutual.rds")
-svmodt_cor <- readRDS("analysis/results/svmodt_feature_cor.rds")
-py_stree <- readRDS("analysis/results/py_stree.rds")
+svmodt_random <- readRDS("analysis/svmodt_feature_random.rds")
+svmodt_mutual <- readRDS("analysis/svmodt_feature_mutual.rds")
+svmodt_cor <- readRDS("analysis/svmodt_feature_cor.rds")
+py_stree <- readRDS("analysis/py_stree.rds")
 
 
-svmodt_random <- svmodt_random[,1:9]
-svmodt_mutual <- svmodt_mutual[,1:9]
-svmodt_cor <- svmodt_cor[,1:9]
-py_stree <- py_stree[,1:9]
+svmodt_random <- svmodt_random[, 1:9]
+svmodt_mutual <- svmodt_mutual[, 1:9]
+svmodt_cor <- svmodt_cor[, 1:9]
+py_stree <- py_stree[, 1:9]
 
 # ── Table 1: Feature Selection ────────────────────────────────────────────────
 tbl_feature <- data.frame(
@@ -966,8 +862,8 @@ tbl_feature_bold |>
     align = "lcccccccc",
     escape = FALSE,
     caption = paste0(
-  "Comparison of mean prediction accuracy across feature selection strategies for SVMODT, benchmarked against the Python STree implementation. All SVMODT models were trained using \\(d_{\\max}=15\\). The random strategy selects candidate predictors using random subset sampling \\(n_{\\text{subsets}} = 10\\); the mutual information strategy ranks predictors according to their dependency with the response variable; the correlation strategy ranks predictors using absolute correlation with the response. STree does not employ an explicit pre-split feature ranking mechanism, instead optimising the node classifier directly on the available predictors. Bold values indicate the highest prediction accuracy for each dataset."
-)
+      "Comparison of mean prediction accuracy across feature selection strategies for SVMODT, benchmarked against the Python STree implementation. All SVMODT models were trained using \\(d_{\\max}=15\\). The random strategy selects candidate predictors using random subset sampling \\(n_{\\text{subsets}} = 10\\); the mutual information strategy ranks predictors according to their dependency with the response variable; the correlation strategy ranks predictors using absolute correlation with the response. STree does not employ an explicit pre-split feature ranking mechanism, instead optimising the node classifier directly on the available predictors. Bold values indicate the highest prediction accuracy for each dataset."
+    )
   ) |>
   kable_styling(
     full_width = FALSE,
@@ -987,8 +883,8 @@ tbl_feature_bold |>
     align = "lcccccccc",
     escape = FALSE,
     caption = paste0(
-  "Comparison of mean prediction accuracy across feature selection strategies for SVMODT, benchmarked against the Python STree implementation. All SVMODT models were trained using \\(d_{\\max}=15\\). The random strategy selects candidate predictors using random subset sampling \\(n_{\\text{subsets}}=10\\); the mutual information strategy ranks predictors according to their dependency with the response variable; the correlation strategy ranks predictors using absolute correlation with the response. STree does not employ an explicit pre-split feature ranking mechanism, instead optimising the node classifier directly on the available predictors. Bold values indicate the highest prediction accuracy for each dataset."
-)
+      "Comparison of mean prediction accuracy across feature selection strategies for SVMODT, benchmarked against the Python STree implementation. All SVMODT models were trained using \\(d_{\\max}=15\\). The random strategy selects candidate predictors using random subset sampling \\(n_{\\text{subsets}}=10\\); the mutual information strategy ranks predictors according to their dependency with the response variable; the correlation strategy ranks predictors using absolute correlation with the response. STree does not employ an explicit pre-split feature ranking mechanism, instead optimising the node classifier directly on the available predictors. Bold values indicate the highest prediction accuracy for each dataset."
+    )
   ) |>
   kable_styling(
     bootstrap_options = c("striped", "hover", "condensed"),
@@ -996,7 +892,6 @@ tbl_feature_bold |>
     position = "center",
     font_size = 8
   )
-
 ```
 
 Table `r knitr::asis_output(ifelse(knitr::is_html_output(), '\\@ref(tab:svmodt-feature-selection-table-html)', '\\@ref(tab:svmodt-feature-selection-table-latex)'))` compares classification performance of different feature selection strategies evaluated across ten benchmark datasets. Across the datasets, the results indicate that all feature selection strategies achieve competitive performance, with relatively small differences in accuracy. The SVM based oblique splitting mechanism remains robust to the specific feature selection approach used at each node. Random feature selection performs consistently well and achieves accuracy values that are comparable to, and occasionally exceed, the benchmark model. Mutual Information and Correlation based methods provide slightly more stable performance on certain datasets where informative predictors might exhibit stronger statistical relationships with the target variable.
@@ -1007,7 +902,8 @@ Features that have already been selected in earlier splits receive a reduced rel
 
 ```{r wine-feature-penalty, fig.align='center', results='asis', fig.cap="Comparison of Low, Medium and High penalty on repeated features by SVMODT on Wine dataset.", fig.subcap=c('No Penalty', 'Low (0.2)', 'Medium (0.5)', 'High (0.8)'), out.width = '30%', fig.pos='h'}
 wine <- read.table("data/wine_R.dat") |>
-  mutate(clase = as.factor(clase)) |> standard_scaler()
+  mutate(clase = as.factor(clase)) |>
+  standard_scaler()
 
 fit_no_penalty <- svm_split(
   data = wine,
@@ -1015,7 +911,7 @@ fit_no_penalty <- svm_split(
   max_depth = 8,
   min_samples = 5,
   max_features = 4,
-  feature_method = "mutual", 
+  feature_method = "mutual",
   penalize_used_features = FALSE
 )
 
@@ -1026,7 +922,7 @@ fit_low_penalty <- svm_split(
   min_samples = 5,
   max_features = 4,
   feature_method = "mutual",
-  penalize_used_features = TRUE, 
+  penalize_used_features = TRUE,
   feature_penalty_weight = 0.2
 )
 
@@ -1059,59 +955,58 @@ low_pen_feature_usage <- summarise_feature_usage(tree = fit_low_penalty)
 medium_pen_feature_usage <- summarise_feature_usage(tree = fit_medium_penalty)
 high_pen_feature_usage <- summarise_feature_usage(tree = fit_high_penalty)
 
-#Side-by-side comparison plot
+# Side-by-side comparison plot
 plot_penalty_comparison <- function(tree_none, tree_penalised,
                                     label_none = "No Penalty",
-                                    label_pen  = "Penalised") {
-  
+                                    label_pen = "Penalised") {
   usage_none <- summarise_feature_usage(tree_none) |>
     mutate(model = label_none)
-  
-  usage_pen  <- summarise_feature_usage(tree_penalised) |>
+
+  usage_pen <- summarise_feature_usage(tree_penalised) |>
     mutate(model = label_pen)
-  
+
   bind_rows(usage_none, usage_pen) |>
     mutate(model = factor(model, levels = c(label_none, label_pen))) |>
     ggplot(aes(x = reorder(feature, count), y = count, fill = model)) +
     geom_col(position = "dodge", width = 0.7) +
     geom_text(aes(label = count),
-              position = position_dodge(width = 0.7),
-              hjust = -0.3, size = 3) +
+      position = position_dodge(width = 0.7),
+      hjust = -0.3, size = 3
+    ) +
     coord_flip() +
     scale_fill_manual(values = c("#4E79A7", "#F28E2B")) +
     labs(
-      #title    = "Feature Usage: Penalised vs No Penalty",
-      #subtitle = "Lower reuse of repeated features indicates effective penalisation",
+      # title    = "Feature Usage: Penalised vs No Penalty",
+      # subtitle = "Lower reuse of repeated features indicates effective penalisation",
       x        = "Feature",
       y        = "Node Count",
       fill     = NULL
     ) +
     theme_minimal() +
     theme(
-      plot.title    = element_text(face = "bold"),
+      plot.title = element_text(face = "bold"),
       legend.position = "top",
-      axis.text.y   = element_text(size = 9)
+      axis.text.y = element_text(size = 9)
     )
 }
 
 plot_penalty_comparison(tree_none = fit_no_penalty, tree_penalised = fit_low_penalty, label_pen = "Low Penalty")
-plot_penalty_comparison(tree_none = fit_no_penalty, tree_penalised = fit_medium_penalty,  label_pen = "Medium Penalty")
-plot_penalty_comparison(tree_none = fit_no_penalty, tree_penalised = fit_high_penalty, label_pen =  "High Penalty")
-
+plot_penalty_comparison(tree_none = fit_no_penalty, tree_penalised = fit_medium_penalty, label_pen = "Medium Penalty")
+plot_penalty_comparison(tree_none = fit_no_penalty, tree_penalised = fit_high_penalty, label_pen = "High Penalty")
 ```
 
 ```{r svmodt-features-penalty-score-table-setup}
-svmodt_penalty_none   <- readRDS("analysis/results/svmodt_penalty_none.rds")
-svmodt_penalty_low    <- readRDS("analysis/results/svmodt_penalty_low.rds")
-svmodt_penalty_medium <- readRDS("analysis/results/svmodt_penalty_medium.rds")
-svmodt_penalty_high   <- readRDS("analysis/results/svmodt_penalty_high.rds")
-py_stree              <- readRDS("analysis/results/py_stree.rds")
+svmodt_penalty_none <- readRDS("analysis/svmodt_penalty_none.rds")
+svmodt_penalty_low <- readRDS("analysis/svmodt_penalty_low.rds")
+svmodt_penalty_medium <- readRDS("analysis/svmodt_penalty_medium.rds")
+svmodt_penalty_high <- readRDS("analysis/svmodt_penalty_high.rds")
+py_stree <- readRDS("analysis/py_stree.rds")
 
 
-svmodt_penalty_none <- svmodt_penalty_none[,1:9]
-svmodt_penalty_low <- svmodt_penalty_low[,1:9]
-svmodt_penalty_medium <- svmodt_penalty_medium[,1:9]
-svmodt_penalty_high <- svmodt_penalty_high[,1:9]
+svmodt_penalty_none <- svmodt_penalty_none[, 1:9]
+svmodt_penalty_low <- svmodt_penalty_low[, 1:9]
+svmodt_penalty_medium <- svmodt_penalty_medium[, 1:9]
+svmodt_penalty_high <- svmodt_penalty_high[, 1:9]
 
 
 tbl_penalty <- data.frame(
@@ -1119,10 +1014,10 @@ tbl_penalty <- data.frame(
   data_num_observations,
   data_num_features,
   data_num_classes,
-  apply(as.matrix(svmodt_penalty_none),   2, mean_sd),
-  apply(as.matrix(svmodt_penalty_low),    2, mean_sd),
+  apply(as.matrix(svmodt_penalty_none), 2, mean_sd),
+  apply(as.matrix(svmodt_penalty_low), 2, mean_sd),
   apply(as.matrix(svmodt_penalty_medium), 2, mean_sd),
-  apply(as.matrix(svmodt_penalty_high),   2, mean_sd),
+  apply(as.matrix(svmodt_penalty_high), 2, mean_sd),
   stringsAsFactors = FALSE
 )
 
@@ -1130,7 +1025,7 @@ model_cols_penalty <- 5:8
 
 tbl_penalty_bold <- tbl_penalty
 tbl_penalty_bold[model_cols_penalty] <- t(apply(tbl_penalty[model_cols_penalty], 1, function(row) {
-  means   <- as.numeric(sub(" \u00B1.*", "", row))
+  means <- as.numeric(sub(" \u00B1.*", "", row))
   max_idx <- which(means == max(means, na.rm = TRUE))
   out <- row
   out[max_idx] <- cell_spec(out[max_idx], bold = TRUE)
@@ -1157,8 +1052,6 @@ After selecting the feature subset $\mathcal{F}_d$ at depth $d$, the set of prev
 $$
 \mathcal{F}_{\text{used}}^{\,\prime} = \mathcal{F}_{\text{used}} \cup \mathcal{F}_d.
 $$
-<!-- IDEALLY HAVE THIS STRAIGHT AFTER DISCUSSION OF FEATURE SELECTION METHODS 4.5.26 AA - Done! -->
-
 ```{r svmodt-features-penalty-score-table-latex, eval=knitr::is_latex_output(), fig.pos='h'}
 tbl_penalty_bold |>
   kable(
@@ -1166,7 +1059,7 @@ tbl_penalty_bold |>
     col.names = c(
       "Dataset", "N", "X", "L", "None (Benchmark)", "Low", "Medium", "High"
     ),
-    align  = "lccccccc",
+    align = "lccccccc",
     escape = FALSE,
     caption = paste0(
       "Comparison of mean prediction accuracy (mean \\(\\pm\\) standard deviation) across feature penalisation strategies for SVMODT. All models were trained using \\(d_{\\max}=15\\), mutual-information feature ranking, and adaptive maximum feature selection. No penalisation corresponds to reuse of previously selected features being unrestricted. Low, medium, and high penalisation correspond to feature penalty weights of \\(\\lambda\\) = 0.2, \\(\\lambda\\) = 0.5, and \\(\\lambda\\) = 0.8, respectively. Bold values indicate the highest accuracy for each dataset."
@@ -1186,7 +1079,7 @@ tbl_penalty_bold |>
     col.names = c(
       "Dataset", "N", "X", "L", "None (Benchmark)", "Low", "Medium", "High"
     ),
-    align  = "lccccccc",
+    align = "lccccccc",
     escape = FALSE,
     caption = paste0(
       "Comparison of mean prediction accuracy (mean \\(\\pm\\) standard deviation) across feature penalisation strategies for SVMODT. All models were trained using \\(d_{\\max}=15\\), mutual-information feature ranking, and adaptive maximum feature selection. No penalisation corresponds to reuse of previously selected features being unrestricted. Low, medium, and high penalisation correspond to feature penalty weights of \\(\\lambda\\) = 0.2, \\(\\lambda\\) = 0.5, and \\(\\lambda\\) = 0.8, respectively. Bold values indicate the highest accuracy for each dataset."
@@ -1204,28 +1097,29 @@ Table `r knitr::asis_output(ifelse(knitr::is_html_output(), '\\@ref(tab:svmodt-f
 
 #### Pruning
 
-<!-- 03.05.26 AA move into later sections for better connect 
-     03.05.26 AA Done!
--->
-
 Pruning in SVMODT operates at both the node level and the global tree level to control model complexity, reduce overfitting, and improve generalisation. Unlike conventional decision trees that rely solely on pruning after tree construction, SVMODT incorporates pre-split pruning mechanisms that govern whether additional partitions should be created during training.
 
 A primary control is the minimum node size parameter, denoted ${min_n}$, which specifies the minimum number of observations required for a node to be eligible for further splitting. If the number of observations at node $v$ falls below this threshold, the node is converted into a terminal leaf. This prevents unstable support vector machine fits in very small partitions and reduces the likelihood of learning decision boundaries driven by sampling noise. From Table `r knitr::asis_output(ifelse(knitr::is_html_output(), '\\@ref(tab:min-split-table-html)', '\\@ref(tab:min-split-table-latex)'))`, increase in the minimum sample threshold, $min_n$, produces shallower tree structures by restricting further splits in smaller nodes. This reduction in tree complexity can mitigate overfitting and, in several cases, improve out-of-sample predictive accuracy.
 
 ```{r min-split-table-setup}
 count_tree_nodes <- function(tree) {
-  
   splits <- function(node) {
-    if (is.null(node) || isTRUE(node$is_leaf)) return(0L)
+    if (is.null(node) || isTRUE(node$is_leaf)) {
+      return(0L)
+    }
     1L + splits(node$left) + splits(node$right)
   }
-  
+
   leaves <- function(node) {
-    if (is.null(node)) return(0L)
-    if (isTRUE(node$is_leaf)) return(1L)
+    if (is.null(node)) {
+      return(0L)
+    }
+    if (isTRUE(node$is_leaf)) {
+      return(1L)
+    }
     leaves(node$left) + leaves(node$right)
   }
-  
+
   c(
     splits = splits(tree),
     leaves = leaves(tree),
@@ -1234,7 +1128,7 @@ count_tree_nodes <- function(tree) {
 }
 
 set.seed(17)
-wdbc_split <- initial_split(data = wdbc, prop = 0.8, strata =  diagnosis)
+wdbc_split <- initial_split(data = wdbc, prop = 0.8, strata = diagnosis)
 wdbc_train <- training(wdbc_split)
 wdbc_test <- testing(wdbc_split)
 
@@ -1245,37 +1139,46 @@ tree_wdbc_min_50_sample <- svm_split(data = wdbc_train, response = "diagnosis", 
 acc_wdbc_10_sample <- mean(predict(tree_wdbc_min_10_sample, wdbc_test) == wdbc_test$diagnosis)
 acc_wdbc_50_sample <- mean(predict(tree_wdbc_min_50_sample, wdbc_test) == wdbc_test$diagnosis)
 
-min_sample_table <- cbind(rbind(`10` = count_tree_nodes(tree_wdbc_min_10_sample), 
-            `50` = count_tree_nodes(tree_wdbc_min_50_sample)), 
-      round(rbind(acc_wdbc_10_sample, 
-                  acc_wdbc_50_sample), 4)) 
-```
-
-```{r min-split-table-latex, eval=knitr::is_latex_output(),fig.pos='h'}
-min_sample_table |>
-  as.data.frame() |>
-  tibble::rownames_to_column(var = "Min Samples") |>
-  kable(col.names = c("Min Samples", "Splits", "Leaves", "Total Nodes", "Accuracy"),
-        align = "lcccc",
-        row.names = FALSE,
-        caption = "Comparison of tree structure and predictive accuracy across minimum sample thresholds on the WDBC dataset. All SVMODT models were trained using the random maximum feature strategy and mutual information feature ranking. Higher minimum sample thresholds restrict further node splitting and therefore produce shallower tree structures.") |>
-  kable_styling(
-    full_width = FALSE,
-    position = "center",
-    font_size = 8
-  )
+min_sample_table <- cbind(
+  rbind(
+    `10` = count_tree_nodes(tree_wdbc_min_10_sample),
+    `50` = count_tree_nodes(tree_wdbc_min_50_sample)
+  ),
+  round(rbind(
+    acc_wdbc_10_sample,
+    acc_wdbc_50_sample
+  ), 4)
+)
 ```
 
 ```{r min-split-table-html, eval=knitr::is_html_output()}
 min_sample_table |>
   as.data.frame() |>
   tibble::rownames_to_column(var = "Min Samples") |>
-  kable(col.names = c("Min Samples", "Splits", "Leaves", "Total Nodes", "Accuracy"), 
-        align = "ccccc",
-        escape = FALSE,
-        caption = "Comparison of tree structure and predictive accuracy across minimum sample thresholds on the WDBC dataset. All SVMODT models were trained using the random maximum feature strategy and mutual information feature ranking. Higher minimum sample thresholds restrict further node splitting and therefore produce shallower tree structures.") |>
+  kbl(
+    col.names = c("Min Samples", "Splits", "Leaves", "Total Nodes", "Accuracy"),
+    align = "ccccc",
+    escape = FALSE,
+    caption = "Comparison of tree structure and predictive accuracy across minimum sample thresholds on the WDBC dataset. All SVMODT models were trained using the random maximum feature strategy and mutual information feature ranking. Higher minimum sample thresholds restrict further node splitting and therefore produce shallower tree structures."
+  ) |>
   kable_styling(
     bootstrap_options = c("striped", "hover", "condensed"),
+    full_width = FALSE,
+    position = "center",
+    font_size = 8
+  )
+```
+```{r min-split-table-latex, eval=knitr::is_latex_output(), fig.pos='h'}
+min_sample_table |>
+  as.data.frame() |>
+  tibble::rownames_to_column(var = "Min Samples") |>
+  kable(
+    col.names = c("Min Samples", "Splits", "Leaves", "Total Nodes", "Accuracy"),
+    align = "lcccc",
+    row.names = FALSE,
+    caption = "Comparison of tree structure and predictive accuracy across minimum sample thresholds on the WDBC dataset. All SVMODT models were trained using the random maximum feature strategy and mutual information feature ranking. Higher minimum sample thresholds restrict further node splitting and therefore produce shallower tree structures."
+  ) |>
+  kable_styling(
     full_width = FALSE,
     position = "center",
     font_size = 8
@@ -1288,7 +1191,8 @@ Table `r knitr::asis_output(ifelse(knitr::is_html_output(), '\\@ref(tab:max-dept
 
 ```{r max-depth-table-setup}
 cardiotocography <- read.table("data/cardiotocography-3clases_R.dat") |>
-  mutate(clase = as.factor(clase)) |> standard_scaler()
+  mutate(clase = as.factor(clase)) |>
+  standard_scaler()
 
 set.seed(17)
 cardio_split <- initial_split(data = cardiotocography, prop = 0.8, strata = clase)
@@ -1302,38 +1206,52 @@ tree_cardio_depth_7 <- svm_split(data = cardio_train, response = "clase", max_de
 acc_cardio_depth_2 <- mean(predict(tree_cardio_depth_3, cardio_test) == cardio_test$clase)
 acc_cardio_depth_5 <- mean(predict(tree_cardio_depth_5, cardio_test) == cardio_test$clase)
 acc_cardio_depth_7 <- mean(predict(tree_cardio_depth_7, cardio_test) == cardio_test$clase)
-
 ```
 
 ```{r max-depth-table-latex, eval=knitr::is_latex_output(), fig.pos='h'}
-cbind(rbind(`3` = count_tree_nodes(tree_cardio_depth_3), 
-            `5` = count_tree_nodes(tree_cardio_depth_5), 
-            `7` = count_tree_nodes(tree_cardio_depth_7)),
-      round(rbind(acc_cardio_depth_2, acc_cardio_depth_5, acc_cardio_depth_7),4)) |>
+cbind(
+  rbind(
+    `3` = count_tree_nodes(tree_cardio_depth_3),
+    `5` = count_tree_nodes(tree_cardio_depth_5),
+    `7` = count_tree_nodes(tree_cardio_depth_7)
+  ),
+  round(rbind(acc_cardio_depth_2, acc_cardio_depth_5, acc_cardio_depth_7), 4)
+) |>
   as.data.frame() |>
   tibble::rownames_to_column(var = "Max Depth") |>
-  kable(col.names = c("Max Depth", "Splits", "Leaves", "Total Nodes", "Accuracy"),
-        align = "lcccc",
-        caption = paste0(
-  "Comparison of tree structure and accuracy across different maximum tree depths on the Cardiotocography dataset.")) |>
+  kable(
+    col.names = c("Max Depth", "Splits", "Leaves", "Total Nodes", "Accuracy"),
+    align = "lcccc",
+    caption = paste0(
+      "Comparison of tree structure and accuracy across different maximum tree depths on the Cardiotocography dataset."
+    )
+  ) |>
   kable_styling(
     full_width = FALSE,
     position = "center",
-    font_size = 8)
+    font_size = 8
+  )
 ```
 
 ```{r max-depth-table-html, eval=knitr::is_html_output()}
-cbind(rbind(`3` = count_tree_nodes(tree_cardio_depth_3), 
-            `5` = count_tree_nodes(tree_cardio_depth_5), 
-            `7` = count_tree_nodes(tree_cardio_depth_7)),
-      round(rbind(acc_cardio_depth_2, acc_cardio_depth_5, acc_cardio_depth_7),4)) |>
+cbind(
+  rbind(
+    `3` = count_tree_nodes(tree_cardio_depth_3),
+    `5` = count_tree_nodes(tree_cardio_depth_5),
+    `7` = count_tree_nodes(tree_cardio_depth_7)
+  ),
+  round(rbind(acc_cardio_depth_2, acc_cardio_depth_5, acc_cardio_depth_7), 4)
+) |>
   as.data.frame() |>
   tibble::rownames_to_column(var = "Max Depth") |>
-  kable(col.names = c("Max Depth", "Splits", "Leaves", "Total Nodes", "Accuracy"),
-        align = "lcccc",
-        escape = FALSE,
-        caption = paste0(
-  "Comparison of tree structure and accuracy across different maximum tree depths on the Cardiotocography dataset.")) |>
+  kbl(
+    col.names = c("Max Depth", "Splits", "Leaves", "Total Nodes", "Accuracy"),
+    align = "lcccc",
+    escape = FALSE,
+    caption = paste0(
+      "Comparison of tree structure and accuracy across different maximum tree depths on the Cardiotocography dataset."
+    )
+  ) |>
   kable_styling(
     bootstrap_options = c("striped", "hover", "condensed"),
     full_width = FALSE,
@@ -1348,7 +1266,8 @@ Table `r knitr::asis_output(ifelse(knitr::is_html_output(), '\\@ref(tab:min-impu
 
 ```{r min-impurity-table-setup}
 cardiotocography <- read.table("data/cardiotocography-3clases_R.dat") |>
-  mutate(clase = as.factor(clase)) |> standard_scaler()
+  mutate(clase = as.factor(clase)) |>
+  standard_scaler()
 
 set.seed(17)
 cardio_split <- initial_split(data = cardiotocography, prop = 0.8, strata = clase)
@@ -1365,38 +1284,52 @@ tree_cardio_impurity_01 <- svm_split(data = cardio_train, response = "clase", ma
 acc_cardio_impurity_0005 <- mean(predict(tree_cardio_impurity_0005, cardio_test) == cardio_test$clase)
 acc_cardio_impurity_001 <- mean(predict(tree_cardio_impurity_001, cardio_test) == cardio_test$clase)
 acc_cardio_impurity_01 <- mean(predict(tree_cardio_impurity_01, cardio_test) == cardio_test$clase)
-
 ```
 ```{r min-impurity-table-latex, eval=knitr::is_latex_output(),fig.pos='h'}
-cbind(rbind(`0.005` = count_tree_nodes(tree_cardio_impurity_0005), 
-            `0.01` = count_tree_nodes(tree_cardio_impurity_001), 
-            `0.1` = count_tree_nodes(tree_cardio_impurity_01)),
-      round(rbind(acc_cardio_impurity_0005, acc_cardio_impurity_001, acc_cardio_impurity_01),4)) |>
+cbind(
+  rbind(
+    `0.005` = count_tree_nodes(tree_cardio_impurity_0005),
+    `0.01` = count_tree_nodes(tree_cardio_impurity_001),
+    `0.1` = count_tree_nodes(tree_cardio_impurity_01)
+  ),
+  round(rbind(acc_cardio_impurity_0005, acc_cardio_impurity_001, acc_cardio_impurity_01), 4)
+) |>
   as.data.frame() |>
   tibble::rownames_to_column(var = "Impurity Threshold") |>
-  kable(col.names = c("Impurity Threshold", "Splits", "Leaves", "Total Nodes", "Accuracy"),
-        align = "lcccc",
-        escape = FALSE,
-        caption = paste0(
-  "Comparison of tree structure and accuracy across different minimum impurity threshold values on the Cardiotocography dataset.")) |>
+  kable(
+    col.names = c("Impurity Threshold", "Splits", "Leaves", "Total Nodes", "Accuracy"),
+    align = "lcccc",
+    escape = FALSE,
+    caption = paste0(
+      "Comparison of tree structure and accuracy across different minimum impurity threshold values on the Cardiotocography dataset."
+    )
+  ) |>
   kable_styling(
     full_width = FALSE,
     position = "center",
-    font_size = 8)
+    font_size = 8
+  )
 ```
 
 ```{r min-impurity-table-html, eval=knitr::is_html_output()}
-cbind(rbind(`0.005` = count_tree_nodes(tree_cardio_impurity_0005), 
-            `0.01` = count_tree_nodes(tree_cardio_impurity_001), 
-            `0.1` = count_tree_nodes(tree_cardio_impurity_01)),
-      round(rbind(acc_cardio_impurity_0005, acc_cardio_impurity_001, acc_cardio_impurity_01),4)) |>
+cbind(
+  rbind(
+    `0.005` = count_tree_nodes(tree_cardio_impurity_0005),
+    `0.01` = count_tree_nodes(tree_cardio_impurity_001),
+    `0.1` = count_tree_nodes(tree_cardio_impurity_01)
+  ),
+  round(rbind(acc_cardio_impurity_0005, acc_cardio_impurity_001, acc_cardio_impurity_01), 4)
+) |>
   as.data.frame() |>
   tibble::rownames_to_column(var = "Impurity Threshold") |>
-  kable(col.names = c("Impurity Threshold", "Splits", "Leaves", "Total Nodes", "Accuracy"),
-        align = "lcccc",
-        escape = FALSE,
-        caption = paste0(
-  "Comparison of tree structure and accuracy across different minimum impurity threshold values on the Cardiotocography dataset.")) |>
+  kbl(
+    col.names = c("Impurity Threshold", "Splits", "Leaves", "Total Nodes", "Accuracy"),
+    align = "lcccc",
+    escape = FALSE,
+    caption = paste0(
+      "Comparison of tree structure and accuracy across different minimum impurity threshold values on the Cardiotocography dataset."
+    )
+  ) |>
   kable_styling(
     bootstrap_options = c("striped", "hover", "condensed"),
     full_width = FALSE,
@@ -1455,10 +1388,10 @@ plot3 <- plot_svmodt_surface(fit_custom, penguins_orsf, "species")
 ggarrange(plot1, plot2, plot3, nrow = 1, common.legend = TRUE, legend = "right")
 ```
 
-```{r palmer-penguins-weighted-split-html, eval=knitr::is_html_output(), fig.align='center', results='asis', fig.cap="Comparison of Equal, Balanced and Custom Weights by SVMODT on Palmerpenguins dataset. WHATS THE DIFFERENCE BETWEEN STREE AND NONE", fig.subcap=c('equal', 'balanced', 'custom'), out.width = '30%'}
-knitr::include_graphics(path = "figures/class-weights/tour-none.gif")
-knitr::include_graphics(path = "figures/class-weights/tour-balanced.gif")
-knitr::include_graphics(path = "figures/class-weights/tour-custom.gif")
+```{r palmer-penguins-weighted-split-html, eval=knitr::is_html_output(), fig.align='center', results='asis', fig.cap="Comparison of Equal, Balanced and Custom Weights by SVMODT on Palmerpenguins dataset.", fig.subcap=c('equal', 'balanced', 'custom'), out.width = '30%'}
+knitr::include_graphics(path = "figures/tour-none.gif")
+knitr::include_graphics(path = "figures/tour-balanced.gif")
+knitr::include_graphics(path = "figures/tour-custom.gif")
 ```
 
 Figure `r knitr::asis_output(ifelse(knitr::is_html_output(), '\\@ref(fig:palmer-penguins-weighted-split-html)', '\\@ref(fig:palmer-penguins-weighted-split-latex)'))` illustrates the effect of alternative class weighting schemes on the decision boundaries produced by SVMODT. In the first panel, equal weights are assigned to all classes. In the second panel, balanced weights are used, whereby class weights are set inversely proportional to the number of observations belonging to each class at the node. In the final panel, a custom weighting scheme is imposed for illustrative purposes, with weights specified as Adelie = 2, Gentoo = 1, and Chinstrap = 5.
@@ -1467,14 +1400,14 @@ Under balanced weighting, the resulting decision boundaries remain broadly simil
 
 ```{r svmodt-class-weight-f1-score-table}
 # Load F1 results
-svmodt_weights_none_f1 <- readRDS("analysis/results/svmodt_weights_none_f1.rds")
-svmodt_weights_balanced_f1 <- readRDS("analysis/results/svmodt_weights_balanced_f1.rds")
-py_stree <- readRDS("analysis/results/py_stree_f1.rds")
-class_imbalance_ratio <- readRDS("analysis/results/class-imbalance-ratio.RDS")
+svmodt_weights_none_f1 <- readRDS("analysis/svmodt_weights_none_f1.rds")
+svmodt_weights_balanced_f1 <- readRDS("analysis/svmodt_weights_balanced_f1.rds")
+py_stree <- readRDS("analysis/py_stree_f1.rds")
+class_imbalance_ratio <- readRDS("analysis/class-imbalance-ratio.RDS")
 
-svmodt_weights_none_f1 <- svmodt_weights_none_f1[,1:9]
-svmodt_weights_balanced_f1 <- svmodt_weights_balanced_f1[,1:9]
-py_stree <- py_stree[,1:9]
+svmodt_weights_none_f1 <- svmodt_weights_none_f1[, 1:9]
+svmodt_weights_balanced_f1 <- svmodt_weights_balanced_f1[, 1:9]
+py_stree <- py_stree[, 1:9]
 class_imbalance_ratio <- class_imbalance_ratio[1:9]
 
 tbl_weights_f1 <- data.frame(
@@ -1499,7 +1432,6 @@ tbl_weights_f1_bold[model_cols_f1] <- t(apply(tbl_weights_f1[model_cols_f1], 1, 
   out[max_idx] <- cell_spec(out[max_idx], bold = TRUE)
   out
 }))
-
 ```
 
 ```{r svmodt-class-weight-f1-score-table-latex, eval=knitr::is_latex_output()}
@@ -1513,8 +1445,8 @@ tbl_weights_f1_bold |>
     align = "lccccccc",
     escape = FALSE,
     caption = paste0(
-  "Comparison of macro-averaged F1 score (mean \\(\\pm\\) sd) across class weighting strategies. All SVMODT models are trained with \\(d_{\\max}=15\\), \\(\\mathrm{strat}_{m}=\\texttt{\"mutual\"}\\). None: \\(\\mathrm{strat}_{w}=\\texttt{\"none\"}\\); Balanced: \\(\\mathrm{strat}_{w}=\\texttt{\"balanced\"}\\). Bold values denote the highest F1 score for each dataset."
-)
+      "Comparison of macro-averaged F1 score (mean \\(\\pm\\) sd) across class weighting strategies. All SVMODT models are trained with \\(d_{\\max}=15\\), \\(\\mathrm{strat}_{m}=\\texttt{\"mutual\"}\\). None: \\(\\mathrm{strat}_{w}=\\texttt{\"none\"}\\); Balanced: \\(\\mathrm{strat}_{w}=\\texttt{\"balanced\"}\\). Bold values denote the highest F1 score for each dataset."
+    )
   ) |>
   kable_styling(
     full_width = FALSE,
@@ -1534,8 +1466,8 @@ tbl_weights_f1_bold |>
     align = "lccccccc",
     escape = FALSE,
     caption = paste0(
-  "Comparison of macro-averaged F1 score (mean \\(\\pm\\) sd) across class weighting strategies. All SVMODT models are trained with \\(d_{\\max}=15\\), \\(\\mathrm{strat}_{m}=\\texttt{\"mutual\"}\\). None: \\(\\mathrm{strat}_{w}=\\texttt{\"none\"}\\); Balanced: \\(\\mathrm{strat}_{w}=\\texttt{\"balanced\"}\\). Bold values denote the highest F1 score for each dataset."
-)
+      "Comparison of macro-averaged F1 score (mean \\(\\pm\\) sd) across class weighting strategies. All SVMODT models are trained with \\(d_{\\max}=15\\), \\(\\mathrm{strat}_{m}=\\texttt{\"mutual\"}\\). None: \\(\\mathrm{strat}_{w}=\\texttt{\"none\"}\\); Balanced: \\(\\mathrm{strat}_{w}=\\texttt{\"balanced\"}\\). Bold values denote the highest F1 score for each dataset."
+    )
   ) |>
   kable_styling(
     bootstrap_options = c("striped", "hover", "condensed"),
@@ -1546,18 +1478,11 @@ tbl_weights_f1_bold |>
 ```
 
 
-<!-- MISSING DISCUSION OF FIGURE 3, PRESUMABLY GENTOO IS SMALLEST CLASS AND IS THEREFORE BETTER CLASISIFED UNDER BALANCED WEIGHTS. DO WE HAVE A STIRY FOR CUSTOM? 4.5.26 AA - Fixed :)
-
-WHAT METRIC OF PERFORMANCE DID WE USE IN TABLE 2.
-
--->
-Table `r knitr::asis_output(ifelse(knitr::is_html_output(), '\\@ref(tab:svmodt-class-weight-f1-score-table-html)', '\\@ref(tab:svmodt-class-weight-f1-score-table-latex)'))` presents the macro-averaged F1 scores obtained under different class weighting strategies across ten benchmark datasets. The results indicate that class weighting has a notable impact on predictive performance across datasets. For datasets exhibiting multiple classes or pronounced class imbalance, such as Cardiotocography and Fertility, the choice of weighting strategy substantially affects the macro-averaged F1 score. Specifically, the Balanced weighting scheme frequently improves performance relative to the unweighted (None) configuration. Conversely, in datasets with more balanced class distributions, differences between weighting strategies are smaller, although the highest F1 scores are often achieved with either the Balanced or Custom weights <!--DO WE HAVE RESULTS FOR CUSTOM WEIGHTS?. 6.5.26 AA unsure --> Overall, the results indicate that selecting an appropriate class weighting strategy is particularly important for datasets with multiple classes or significant class imbalance, while for more balanced datasets, weighting has a minimal impact.
-
-<!--THINKING TO MAYBE HAVE THE ALGOITHM LATER - after explaining features before comparison with other methods -->
+Table `r knitr::asis_output(ifelse(knitr::is_html_output(), '\\@ref(tab:svmodt-class-weight-f1-score-table-html)', '\\@ref(tab:svmodt-class-weight-f1-score-table-latex)'))` presents the macro-averaged F1 scores obtained under different class weighting strategies across ten benchmark datasets. The results indicate that class weighting has a notable impact on predictive performance across datasets. For datasets exhibiting multiple classes or pronounced class imbalance, such as Cardiotocography and Fertility, the choice of weighting strategy substantially affects the macro-averaged F1 score. Specifically, the Balanced weighting scheme frequently improves performance relative to the unweighted (None) configuration. Conversely, in datasets with more balanced class distributions, differences between weighting strategies are smaller, although the highest F1 scores are often achieved with either the Balanced or Custom weights. Overall, the results indicate that selecting an appropriate class weighting strategy is particularly important for datasets with multiple classes or significant class imbalance, while for more balanced datasets, weighting has a minimal impact.
 
 ### Algorithm
 
-Having outlined the principal components of SVMODT, we now present the complete training procedure. The preceding sections described each mechanism individually, including adaptive feature subsetting, feature selection strategies, pruning controls, feature penalisation, and class weighting. Algorithm \@ref(alg:svmodt) integrates these components into a unified recursive tree-building framework.
+Having outlined the principal components of SVMODT, we now present the complete training procedure. The preceding sections described each mechanism individually, including adaptive feature subsetting, feature selection strategies, pruning controls, feature penalisation, and class weighting. `r knitr::asis_output(ifelse(knitr::is_latex_output(), 'Algorithm \\@ref(alg:svmodt)', 'Figure \\@ref(fig:alg-svmodt-html)'))` integrates these components into a unified recursive tree-building framework.
 
 ```{=latex}
 \begin{algorithm}[H]
@@ -1641,9 +1566,64 @@ Having outlined the principal components of SVMODT, we now present the complete 
 ```
 
 
+```{r alg-svmodt-html, echo=FALSE, results='asis', eval=knitr::is_html_output(), fig.cap='SVMODT: SVM-based Oblique Decision Tree with Enhanced Splitting', out.width='120%'}
+knitr::include_graphics("figures/algo-4.png")
+```
+
+### Typical Workflow 
+
+We illustrate the typical workflow for fitting, inspecting, and predicting with an SVMODT model using the Palmer Penguins dataset.
+
+```{r workflow-install, eval = FALSE, echo = TRUE}
+install.packages("svmodt")
+library(svmodt)
+```
+
+The core function, `svm_split()`, fits an SVMODT model to a data frame. At minimum, the user supplies the training data and the name of the response column; all other arguments (maximum depth, minimum node size, feature selection strategy, class weighting, and feature penalisation) have defaults and can be adjusted as needed.
+
+```{r workflow-fit, echo = TRUE}
+penguins_clean <- penguins |>
+  select(-island, -sex, -year) |>
+  drop_na() |>
+  standard_scaler()
+
+set.seed(101)
+split <- initial_split(penguins_clean, prop = 0.8, strata = species)
+penguins_train <- training(split)
+penguins_test <- testing(split)
+
+fit <- svm_split(
+  data = penguins_train,
+  response = "species",
+  max_depth = 4,
+  min_samples = 5,
+  feature_method = "mutual",
+  max_features_strategy = "constant"
+)
+```
+
+The fitted object `fit` is a recursively structured tree: each internal node stores the fitted SVM defining its split, and each terminal node stores the assigned class label. Predictions on new data are obtained with the standard `predict()` generic, which recursively applies each node's decision rule until a leaf is reached:
+
+```{r workflow-predict, echo = TRUE}
+preds <- predict(fit, penguins_test)
+mean(preds == penguins_test$species)
+```
+
+Additionally, `trace_path()` maps the path traversed by a single row of data along the tree, reporting the sequence of node-level splits evaluated en route to the final predicted class ensuring that the sequence of splits leading to any individual prediction remains fully transparent and auditable.
+
+```{r workflow-trace, echo = TRUE}
+trace_path(object = fit, sample_data = penguins_test, sample_idx = 2)
+```
+
+Finally, `plot` visualises the resulting decision boundaries over any two features of interest, overlaying the training observations (see Figure \@ref(fig:workflow-plot)):
+
+```{r workflow-plot, fig.align='center', echo = TRUE, fig.cap = "Decision surface of a fitted SVMODT model on the Palmer Penguins dataset.", out.width = "60%"}
+plot(fit, data = penguins_train, response = "species")
+```
+
 # Experiments
 
-We evaluate the predictive performance of SVMODT against a range of competing decision tree and support vector machine-based classification methods. These benchmarks include Classification and Regression Trees (CART) using \CRANpkg{rpart}, linear support vector machines using \CRANpkg{e1071}, logistic regression using \CRANpkg{nnet}, STree, and Accelerated Oblique Random Survival Forests using \CRANpkg{aorsf}. Collectively, these comparators provide a broad reference set spanning conventional axis-parallel trees, linear margin-based classifiers, and alternative oblique tree-based approaches.
+We evaluate the predictive performance of SVMODT against a range of competing decision tree and support vector machine-based classification methods. These benchmarks include Classification and Regression Trees (CART) using \CRANpkg{rpart}, linear support vector machines using \CRANpkg{e1071}, logistic regression using \CRANpkg{nnet} [@nnet2025], STree, and Accelerated Oblique Random Survival Forests using \CRANpkg{aorsf}. Collectively, these comparators provide a broad reference set spanning conventional axis-parallel trees, linear margin-based classifiers, and alternative oblique tree-based approaches.
 
 To optimise the predictive performance of SVMODT, we first conducted a cross-validated grid search over a predefined hyperparameter space for each benchmark dataset. Model selection was based on repeated 5-fold cross-validation across three independent random seeds. For each candidate configuration, the mean classification accuracy and its standard deviation across seeds were recorded. The final tuning configuration for each dataset was selected as the model with the highest mean accuracy, with ties resolved in favour of the lowest cross-seed standard deviation to prioritise stability. The selected hyperparameters were then re-evaluated using the remaining seeds under an identical 5-fold cross-validation design to obtain the reported out-of-sample performance of **SVMODT\***.
 
@@ -1670,27 +1650,16 @@ Both SVMODT variants generally outperform conventional single-tree CART models o
 ## Summary
 Overall, the results demonstrate that SVMODT achieves competitive predictive accuracy while constraining splits to linear hyperplanes. It consistently outperforms conventional single decision trees, approaches the performance of more complex SVM-tree hybrids such as STree, and remains competitive with ensemble oblique forests on several datasets, all while preserving a transparent linear-split tree structure. SVMODT\* demonstrates competitive predictive performance across the benchmark datasets, achieving the highest accuracy on several problems despite relying solely on linear node-wise hyperplanes. Hyperparameter optimisation yields modest but meaningful improvements on selected datasets, although the default configuration already serves as a strong and robust baseline, particularly for smaller or lower-dimensional problems where extensive tuning may overfit.
 
-<!-- The empirical results demonstrate that SVMODT is competitive with, and in several settings superior to, both axis-parallel trees and the Python STree benchmark despite restricting node classifiers to linear kernels. The linear constraint is deliberate: it ensures that each internal node produces an interpretable hyperplane expressible as a weighted sum of features, an advantage forfeited by kernel-based methods. Where STree\* outperforms SVMODT\*, the gap is largely attributable to non-linear kernels (RBF, polynomial) rather than the tree induction procedure itself, as the performance difference narrows substantially on datasets for which STree\* also employs a linear kernel. -->
-
 The feature penalisation mechanism, while producing modest improvements on average, demonstrates a clear structural effect: increasing $\lambda_{\text{pen}}$ redistributes feature usage across nodes, promoting diversity in the learned decision boundaries. This behaviour mirrors the role of the `mtry` parameter in random forests, offering a single-tree analogue of the subspace-sampling heuristic that underpins ensemble diversity [@breiman1984]. The adaptive maximum-feature strategies provide complementary control: the constant strategy delivers predictable computational cost, the decreasing strategy progressively reduces the number of candidate predictors available at deeper nodes, and the random strategy introduces stochasticity that can reduce overfitting on smaller datasets. The benchmark results also reveal a consistent pattern across pruning parameters. Moderate values of $n_{\min}$, $d_{\max}$, and $\tau_I$ reliably improve or maintain out-of-sample accuracy relative to their extremes, and their effects are largely orthogonal: minimum node size governs local sample adequacy, maximum depth constrains global tree growth, and the impurity threshold controls split quality. Practitioners can therefore treat them as independent controls, tuning each in turn under a standard cross-validation protocol. Overall, the results suggest that oblique decision trees combining adaptive feature selection, feature diversity mechanisms, and controlled pruning are especially effective for multiclass and high-dimensional classification tasks.
 
-<!--COULD WE HYPERPARAMETER TUNE CART?
-
-ARE THERE OTHER ODT ALGORITHM THAT CAN BE IMPLMENTED N R OTHER THAN PPTREE 
-
-6.5.26 AA added aorsf
-
-WOULD BE GOOD TO MENTION THE COMPARISON WITH LINER SVM IN THE TEXT. DID NON-LINEAR SVM DO TOO WELL (GUESS OUR ARGUMNT FOR NOT COMPARING TO THAT IS INTERPRETABILITY)
-
--->
 ```{r tbl-benchmark-model-setup}
-benchmark_summary_table <- readRDS("analysis/results/benchmark_summary_table.rds")
-benchmark_summary_table <- benchmark_summary_table[,-6:-7]  
+benchmark_summary_table <- readRDS("analysis/benchmark_summary_table.rds")
+benchmark_summary_table <- benchmark_summary_table[, -6:-7]
 models <- 5:12
 
 bold_benchmark_summary_table <- benchmark_summary_table
 bold_benchmark_summary_table[models] <- t(apply(benchmark_summary_table[models], 1, function(row) {
-  means   <- as.numeric(sub(" \u00B1.*", "", row))
+  means <- as.numeric(sub(" \u00B1.*", "", row))
   max_idx <- which(means == max(means, na.rm = TRUE))
   out <- row
   out[max_idx] <- cell_spec(out[max_idx], bold = TRUE)
@@ -1712,7 +1681,7 @@ table_a |>
       "AORSF",
       "Log. Reg."
     ),
-    align  = paste0("l", paste(rep("c", ncol(table_a) - 1), collapse = "")),
+    align = paste0("l", paste(rep("c", ncol(table_a) - 1), collapse = "")),
     escape = FALSE,
     caption = paste0(
       "Comparison of Mean Prediction Accuracy (mean \\(\\pm\\) sd) across classifiers (Part 1). ",
@@ -1738,7 +1707,7 @@ table_b |>
       "SVMODT (Default)",
       "SVMODT*"
     ),
-    align  = paste0("l", paste(rep("c", ncol(table_b) - 1), collapse = "")),
+    align = paste0("l", paste(rep("c", ncol(table_b) - 1), collapse = "")),
     escape = FALSE,
     caption = paste0(
       "Comparison of Mean Prediction Accuracy (mean \\(\\pm\\) sd) across classifiers (Part 2). ",
@@ -1756,7 +1725,7 @@ table_b |>
 
 
 ```{r tbl-benchmark-model-html, eval= knitr::is_html_output()}
-bold_benchmark_summary_table |>  
+bold_benchmark_summary_table |>
   kbl(
     row.names = FALSE,
     col.names = c(
@@ -1770,7 +1739,7 @@ bold_benchmark_summary_table |>
       "SVMODT (Default)",
       "SVMODT*"
     ),
-    align  = paste0("l", paste(rep("c", ncol(bold_benchmark_summary_table) - 1), collapse = "")),
+    align = paste0("l", paste(rep("c", ncol(bold_benchmark_summary_table) - 1), collapse = "")),
     escape = FALSE,
     caption = paste0(
       "Comparison of Mean Prediction Accuracy (mean \\(\\pm\\) sd) across classifiers. ",
@@ -1798,86 +1767,6 @@ The hyper-parameters described above directly influence the behavior of the SVM-
 -->
 ```
 
-<!-- # STree -->
-
-<!-- ## Methodology  -->
-
-<!-- + Explain STree -->
-
-<!-- + mention one vs many split methods -->
-
-<!-- + mention any other novelty they have, subsets of features, standardisation class weights? -->
-
-<!-- ## Implementation in R -->
-
-<!-- + Can talk here about STree in python using LIBSVM in cpp etc. -->
-
-<!-- + A little bit about our package's functionality -->
-
-<!-- ## Experiements -->
-
-<!-- + Establish that our implementation performs similarly to the python implementation -->
-
-<!-- # SVM-ODT: An extension of STree -->
-
-<!-- One by one we explain our extensions ideally each section has a picture or a result that makes it obvious why what we have works. -->
-
-<!-- Could also be worth mentioning hat didn't work (i.e. the sparse SVM didn't work because..) -->
-
-<!-- ## Class reweighting -->
-
-<!-- ## Penalising used features -->
-
-<!-- ... -->
-
-<!-- # Experiements -->
-
-<!-- Compare our final method(s) with STree and any other oblique trees e.g. Di and Natalia's on the simulations you used before -->
-
-<!-- # Discussion -->
-
-<!-- + Summary of paper and packages contributions -->
-
-<!-- + Limitations of our method -->
-
-<!-- + Further avenues of research... -->
-
-<!--
-# Discussion
-
-This paper has made two primary contributions to the R statistical computing ecosystem. First, we introduced **STreeR**, the first fully native R implementation of the STree algorithm [@stree2021; @Montanana2021], reconstructed without any Python dependency and validated against the original implementation across nine benchmark datasets. Second, we developed **SVMODT**, an extension of STree that incorporates adaptive feature subsetting, three embedded feature selection strategies (random, mutual information, and correlation), a feature penalisation mechanism for structural diversity, node-specific class weighting for imbalanced settings, and a multi-parameter
-regularisation framework. Together, these contributions make SVM-driven oblique decision trees fully accessible within the R ecosystem and substantially extend the methodological capabilities of the original framework.
-
-
-
-Recent work on the Oblique Decision Tree Ensemble (ODTE) [@montanana2025] extends the STree framework to ensembles by placing one-vs-one or one-vs-rest SVMs at each split and dynamically selecting the classifier that minimises class impurity. ODTE addresses scalability and class-imbalance limitations inherent to single-tree SVM approaches. The results reported by @montanana2025 suggest that ensemble aggregation can close a substantial portion of the accuracy gap between single-tree and deep-network classifiers, while preserving the interpretive structure of decision rules. The success of ODTE provides a natural motivation for extending SVMODT in the ensemble direction, a direction we discuss further below.
-
-Two recurring themes emerge from this line of research: (i) leveraging multivariate oblique boundaries to capture complex class geometry that axis-parallel splits approximate only with excessive depth, and (ii) combining transformation or ensemble strategies to improve diversity and robustness without sacrificing the transparency of individual decision rules. SVMODT addresses the first theme through its linear SVM node classifiers; the second remains an open avenue for future work. 
-
-# Future Work 
-
-The most immediate natural extension to SVMODT tree is an oblique forest built on SVMODT nodes, analogous to the ODTE of @montanana2025 but with the feature selection, penalisation, and class-weighting mechanisms developed here. A bagged or boosted ensemble of SVMODT trees would be expected to reduce variance substantially on high-dimensional datasets while preserving the interpretability of individual tree paths through feature importance summaries at the node level. The `feature_method` and `penalize_used_features` arguments developed for SVMODT provide a natural mechanism for controlling intra-ensemble diversity.
-
-# Limitations
-
-Several limitations of the current implementation and experimental design should be acknowledged.
-
-**Computational cost of hyperparameter tuning.** The grid search conducted for SVMODT\* involved repeated 5-fold cross-validation across multiple seeds over a parameter space spanning feature selection method, class weighting, maximum feature strategy, penalisation, and impurity threshold. For the larger datasets (Cardiotography, $n = 2126$), this is computationally demanding. Unlike random forests, SVMODT does not currently support parallel tree construction, and each node requires solving a quadratic equation whose cost scales quadratically with the number of local training samples. Future work should explore parallelisation via \CRANpkg{parallel} or \CRANpkg{foreach}.
-
-**Restriction to linear kernels.** The decision to restrict node classifiers to linear SVMs improves interpretability and avoids kernel hyperparameter selection, but forfeits representational capacity in settings where class boundaries are strongly non-linear. On Ionosphere and several multiclass tasks, STree\* achieves meaningfully higher accuracy using RBF or polynomial kernels. Extending SVMODT to support non-linear kernels as an optional configuration alongside tools for extracting and visualising the resulting boundaries would broaden its applicability without sacrificing the linear default for users who prioritise transparency.
-
-**Benchmark scope.** The experimental evaluation covers nine moderate-sized tabular datasets ranging from $n = 100$ to $n = 2126$ observations and up to 34 features. Performance on ultra-high-dimensional data (e.g., genomics or text), large-scale datasets ($n \gg 10^4$), sparse feature matrices, or datasets with mixed variable types (ordinal, nominal, continuous) has not been characterised.
-
-# Conclusion
-
-We introduced the \CRANpkg{svmodt} package, providing the R community with two complementary tools for SVM-based oblique decision trees. STreeR offers a fully native R reimplementation of the STree algorithm, validated to match the accuracy of the original Python implementation while operating independently within the R ecosystem. SVMODT extends this foundation with adaptive feature selection, feature penalisation, node-specific class weighting, and a multi-parameter regularisation framework, collectively enabling practitioners to balance predictive performance, structural diversity, and model complexity in a principled way.
-
-Across nine benchmark datasets, SVMODT with tuned hyperparameters (SVMODT\*) consistently outperforms axis-aligned CART, matches or approaches linear SVM performance, and remains competitive with the more flexible STree\* implementation, all while relying solely on linear node-wise hyperplanes that preserve the transparency of each decision rule. The default (untuned) SVMODT configuration already provides a strong baseline, and the package's design encourages systematic exploration through its compatibility with standard cross-validation workflows in \CRANpkg{caret} and \CRANpkg{rsample}.
-
-The package is freely available on GitHub and is under active development. We view the ensemble extension, large-scale solver integration, and regression support as the most important directions for subsequent releases. We hope that \CRANpkg{svmodt} serves as a productive foundation for both applied practitioners seeking interpretable oblique classifiers and researchers exploring the theoretical and algorithmic frontiers of SVM-based decision tree learning.
-
--->
-
 # Conclusion
 
 Across nine benchmark datasets, **SVMODT** with tuned hyperparameters (SVMODT\*) consistently outperformed conventional axis-aligned CART and remained competitive with the more flexible STree\* implementation despite relying exclusively on linear node-wise hyperplanes. The untuned default configuration served as a robust baseline throughout, indicating that the proposed extensions deliver structural benefits independent of careful hyperparameter search.
@@ -1887,21 +1776,6 @@ This paper makes two concrete contributions. First, **STreeR** provides the firs
 Three limitations bound the current work. Hyperparameter optimisation is computationally demanding because tree construction requires solving node-level SVM problems across many candidate configurations, a cost that grows with dataset size. The restriction to linear kernels prioritises interpretability but may limit performance when class boundaries are strongly nonlinear; the 6-point accuracy gap on Ionosphere relative to STree\*, which uses an RBF kernel on that dataset, is consistent with this limitation. The evaluation is also restricted to moderate-sized tabular datasets; behaviour on large-scale, sparse, or ultra-high-dimensional problems remains untested.
 
 These limitations motivate several directions for future development. A natural extension is an ensemble variant of SVMODT analogous to Oblique Decision Tree Ensemble (ODTE) [@montanana2025], incorporating the feature selection, penalisation, and class-weighting mechanisms introduced here. Such an approach could leverage bagging or boosting to reduce prediction variance while retaining interpretable node-level decision rules and feature importance summaries. Additional developments include support for nonlinear kernels, integration with scalable optimisation routines, parallelised model fitting, and extensions to regression settings. The package is available on [Github](https://github.com/AneeshAgarwala/project-svodt) and under active development.
-
-<!--
-IS THIS FOR OUR PAPER OR FUTURE WORK, IF NOT FOR OUR PAPER ADD TO TE FINAL DISCUSSION SECTION
-
-26.04.26 AA - moved to Discussion section from Stree section; review
-
-
-
-
-SUMMARY OF PAPER AND CONTRIBUTIONS
-
-
-FURTHER WORK - Forests! Boosting?
-
--->
 
 # Acknowledgements
 
@@ -1973,34 +1847,40 @@ The following section describes the STree algorithm proposed by @Montanana2021.
 \end{algorithm}
 ```
 
+```{r alg-stree-html, echo=FALSE, results='asis', eval=knitr::is_html_output(), fig.cap='STree (Multi-class SVM-based oblique decision tree)', out.width='120%'}
+knitr::include_graphics("figures/algo-5.png")
+```
+
 ## SVMODT\* Hyperparameters
 
 Table `r knitr::asis_output(ifelse(knitr::is_html_output(), '\\@ref(tab:table-best-param-grid-html)', '\\@ref(tab:table-best-param-grid-latex)'))` presents the hyperparameters selected through the grid search procedure.
 
 ```{r table-best-param-grid-setup}
-best_param <- readRDS(file = "analysis/results/grid_search_best_params.rds")
+best_param <- readRDS(file = "analysis/grid_search_best_params.rds")
 
-best_param <- best_param[1:9,1:8]
+best_param <- best_param[1:9, 1:8]
 ```
 
 ```{r table-best-param-grid-latex, eval=knitr::is_latex_output(), fig.pos='h'}
-best_param |> kable(
-  caption = "Hyperparameters Selected through the Grid Search Procedure.",
-  col.names = c("Dataset", "Max Depth", "Feature Selection Method", "Class Weight Strategy", "Max Feature Strategy", "Penalize Used Features", "Feature Penalty Weight", "Impurity Decrease") 
-) |>
+best_param |>
+  kable(
+    caption = "Hyperparameters Selected through the Grid Search Procedure.",
+    col.names = c("Dataset", "Max Depth", "Feature Selection Method", "Class Weight Strategy", "Max Feature Strategy", "Penalize Used Features", "Feature Penalty Weight", "Impurity Decrease")
+  ) |>
   kable_styling(
     full_width = FALSE,
-    position   = "center",
-    font_size  = 4,
+    position = "center",
+    font_size = 4,
     latex_options = "hold_position"
   )
 ```
 ```{r table-best-param-grid-html, eval=knitr::is_html_output()}
-best_param |> kbl(
-  caption = "Hyperparameters Selected through the Grid Search Procedure.",
-  col.names = c("Dataset", "Max Depth", "Feature Selection Method", "Class Weight Strategy", "Max Feature Strategy", "Penalize Used Features", "Feature Penalty Weight", "Impurity Decrease"),
-  escape = FALSE
-) |>
+best_param |>
+  kbl(
+    caption = "Hyperparameters Selected through the Grid Search Procedure.",
+    col.names = c("Dataset", "Max Depth", "Feature Selection Method", "Class Weight Strategy", "Max Feature Strategy", "Penalize Used Features", "Feature Penalty Weight", "Impurity Decrease"),
+    escape = FALSE
+  ) |>
   kable_styling(
     bootstrap_options = c("striped", "hover", "condensed"),
     full_width = FALSE,

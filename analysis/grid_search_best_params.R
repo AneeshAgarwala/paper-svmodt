@@ -1,4 +1,3 @@
-
 source("analysis/stree-code.R")
 library(svmodt)
 library(dplyr)
@@ -6,7 +5,7 @@ library(purrr)
 library(rsample)
 library(caret)
 
-# <U+2500><U+2500> Datasets <U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500>
+#  Datasets
 ctg3 <- read.table("data/cardiotocography-3clases_R.dat") |>
   mutate(clase = as.factor(clase)) |>
   standard_scaler()
@@ -63,19 +62,19 @@ datasets <- list(
 seed_list <- c(57, 31, 1714, 17, 23, 79, 83, 97, 7, 1)
 grid_search_seeds <- seed_list[1:3]
 
-# <U+2500><U+2500> Parameter Grid <U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500>
+#  Parameter Grid
 # max_depth: removed
 # min_samples: removed <U+2014> fixed at default in svm_split
 # impurity_measure: fixed at "entropy"
 param_grid_base <- expand.grid(
   max_depth = 10,
-  feature_method         = c("random", "mutual", "cor"),
-  class_weights          = c("none", "balanced"),
-  max_features_strategy  = c("constant", "decrease", "random"),
+  feature_method = c("random", "mutual", "cor"),
+  class_weights = c("none", "balanced"),
+  max_features_strategy = c("constant", "decrease", "random"),
   penalize_used_features = c(TRUE, FALSE),
   feature_penalty_weight = c(0.3, 0.6),
-  min_impurity_decrease  = c(0.001, 0.01, 0.1),
-  stringsAsFactors       = FALSE
+  min_impurity_decrease = c(0.001, 0.01, 0.1),
+  stringsAsFactors = FALSE
 )
 
 param_grid_base <- bind_rows(
@@ -88,7 +87,7 @@ param_grid_base <- bind_rows(
 
 cat("Base parameter combinations:", nrow(param_grid_base), "\n")
 
-# <U+2500><U+2500> Dataset-Adaptive Max Features <U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500>
+#  Dataset-Adaptive Max Features
 get_max_features_candidates <- function(data, response) {
   n_features <- ncol(data) - 1
   candidates <- unique(c(
@@ -98,7 +97,7 @@ get_max_features_candidates <- function(data, response) {
   candidates[candidates >= 2]
 }
 
-# <U+2500><U+2500> Expand Grid <U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500>
+#  Expand Grid
 expand_param_grid <- function(param_grid_base, data, response) {
   mf_candidates <- get_max_features_candidates(data, response)
   cat("  max_features candidates:", paste(mf_candidates, collapse = ", "), "\n")
@@ -116,7 +115,7 @@ expand_param_grid <- function(param_grid_base, data, response) {
   return(expanded)
 }
 
-# <U+2500><U+2500> Build Args <U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500>
+#  Build Args
 # max_depth removed
 # min_samples removed <U+2014> not a tuned parameter
 # impurity_measure fixed at "entropy"
@@ -172,7 +171,7 @@ build_args <- function(params, data, response) {
   return(args)
 }
 
-# <U+2500><U+2500> Custom caret Model <U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500>
+#  Custom caret Model
 # max_depth, min_samples, and impurity_measure removed from parameters
 svmodt_caret_model <- list(
   label = "SVMODT",
@@ -232,7 +231,7 @@ svmodt_caret_model <- list(
   sort = function(x) x[order(x$feature_method), ]
 )
 
-# <U+2500><U+2500> Multi-seed Grid Search <U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500>
+#  Multi-seed Grid Search
 run_multiseed_grid_search <- function(data, response, param_grid_base,
                                       seeds = grid_search_seeds,
                                       n_folds = 5) {
@@ -297,7 +296,7 @@ run_multiseed_grid_search <- function(data, response, param_grid_base,
   return(combined)
 }
 
-# <U+2500><U+2500> Run Grid Search Across All Datasets <U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500>
+#  Run Grid Search Across All Datasets
 grid_search_results <- list()
 best_params_list <- list()
 
@@ -343,7 +342,7 @@ best_params <- bind_rows(best_params_list)
 saveRDS(best_params, "analysis/results/grid_search_best_params.rds")
 print(best_params)
 
-# <U+2500><U+2500> Rerun 10 <U+00D7> 5-fold CV with best params <U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500><U+2500>
+#  Rerun 10 <U+00D7> 5-fold CV with best params
 
 best_params <- readRDS("analysis/results/grid_search_best_params.rds")
 
